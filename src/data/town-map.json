@@ -17,8 +17,8 @@
   "terrain": [
     "..............MMMRMMM.........",
     ".WWWWWWWWWWWWWWRRR.M..........",
-    ".W............WR..............",
-    ".W............WGWWWWWWWWWWWW..",
+    ".W............GGG.............",
+    ".W............GGGWWWWWWWWWWW..",
     ".W....HHHR...HHRRRHHHHR....W..",
     ".W...RHHHR...HH..RHHHHR..HHW..",
     ".WHH.RHHHR.......RRRRRRRRHHW..",
@@ -29,9 +29,9 @@
     ".WW..RHHRRRRRRR..R....R..R.W..",
     "..WW.R...R..HHR..R....R..R.W..",
     "F..W.R.HHHH.HHR..R....HH.RWW~~",
-    "FF.W.R.HHHH...R..R....HH.RW.~.",
-    "RRRGRRRHHHH.RRRRRRRRR....RGRBR",
-    "F..W..RHHHH...R..........RW.~.",
+    "FFGG.R.HHHH...R..R....HH.RGG~.",
+    "RRGGRRRHHHH.RRRRRRRRR....RGGBR",
+    "F.GG..RHHHH...R..........RGG~.",
     "F..W..RRRRR...RHHH.......RWW~.",
     "..WW..R.HHRHH.RHHH.HHRRRRR.W~.",
     ".WW..RR.HHRHH.RHHH.HHR.....W~.",
@@ -41,8 +41,8 @@
     ".W.HH.RRRRRRRRRRRRRRRR.....W~.",
     ".W.HH.RHHHH....R...R.......W~.",
     ".W.R..RHHHH....R...HH......W~.",
-    ".W.RRRRHHH...WWGW..HH......W~.",
-    ".W...........W.RWWWWWWWWWWWW~.",
+    ".W.RRRRHHH...WGGG..HH......W~.",
+    ".W...........WGGGWWWWWWWWWWW~.",
     ".WWWWWWWWWWWWW.R...........~~.",
     "...............RAA.......~~~.."
   ],
@@ -361,27 +361,163 @@
   "gates": [
     {
       "id": "northGate",
-      "x": 15,
-      "y": 3,
-      "direction": "north"
+      "x": 14,
+      "y": 2,
+      "direction": "north",
+      "width": 3,
+      "height": 2,
+      "underTiles": [
+        {
+          "x": 14,
+          "y": 2,
+          "tile": "W"
+        },
+        {
+          "x": 15,
+          "y": 2,
+          "tile": "R"
+        },
+        {
+          "x": 16,
+          "y": 2,
+          "tile": "."
+        },
+        {
+          "x": 14,
+          "y": 3,
+          "tile": "W"
+        },
+        {
+          "x": 15,
+          "y": 3,
+          "tile": "W"
+        },
+        {
+          "x": 16,
+          "y": 3,
+          "tile": "W"
+        }
+      ]
     },
     {
       "id": "eastGate",
       "x": 26,
-      "y": 15,
-      "direction": "east"
+      "y": 14,
+      "direction": "east",
+      "width": 2,
+      "height": 3,
+      "underTiles": [
+        {
+          "x": 26,
+          "y": 14,
+          "tile": "W"
+        },
+        {
+          "x": 27,
+          "y": 14,
+          "tile": "."
+        },
+        {
+          "x": 26,
+          "y": 15,
+          "tile": "W"
+        },
+        {
+          "x": 27,
+          "y": 15,
+          "tile": "R"
+        },
+        {
+          "x": 26,
+          "y": 16,
+          "tile": "W"
+        },
+        {
+          "x": 27,
+          "y": 16,
+          "tile": "."
+        }
+      ]
     },
     {
       "id": "gate",
-      "x": 15,
+      "x": 14,
       "y": 26,
-      "direction": "south"
+      "direction": "south",
+      "width": 3,
+      "height": 2,
+      "underTiles": [
+        {
+          "x": 14,
+          "y": 26,
+          "tile": "W"
+        },
+        {
+          "x": 15,
+          "y": 26,
+          "tile": "W"
+        },
+        {
+          "x": 16,
+          "y": 26,
+          "tile": "W"
+        },
+        {
+          "x": 14,
+          "y": 27,
+          "tile": "."
+        },
+        {
+          "x": 15,
+          "y": 27,
+          "tile": "R"
+        },
+        {
+          "x": 16,
+          "y": 27,
+          "tile": "W"
+        }
+      ]
     },
     {
       "id": "westGate",
-      "x": 3,
-      "y": 15,
-      "direction": "west"
+      "x": 2,
+      "y": 14,
+      "direction": "west",
+      "width": 2,
+      "height": 3,
+      "underTiles": [
+        {
+          "x": 2,
+          "y": 14,
+          "tile": "."
+        },
+        {
+          "x": 3,
+          "y": 14,
+          "tile": "W"
+        },
+        {
+          "x": 2,
+          "y": 15,
+          "tile": "R"
+        },
+        {
+          "x": 3,
+          "y": 15,
+          "tile": "W"
+        },
+        {
+          "x": 2,
+          "y": 16,
+          "tile": "."
+        },
+        {
+          "x": 3,
+          "y": 16,
+          "tile": "W"
+        }
+      ]
     }
   ],
   "decor": [
@@ -524,5 +660,5 @@
     "~": null
   },
   "cellImages": [],
-  "revision": 4
+  "revision": 5
 }

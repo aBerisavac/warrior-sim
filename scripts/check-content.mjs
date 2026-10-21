@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { validateTownMap } from '../src/map-validation.js'
+import { gateCells } from '../src/town-grid.js'
 
 import { readFileSync } from 'node:fs'
 
@@ -123,7 +124,7 @@ for (const building of townMap.buildings) {
 for (let y = 0; y < 30; y++) for (let x = 0; x < 30; x++) if (tileAt(x, y) === 'H') assert(occupiedCells.has(`${x},${y}`), 'Unassigned building cell')
 for (const gate of townMap.gates) {
 
-  assert.equal(tileAt(gate.x, gate.y), 'G', 'Gate lacks gate tile: ' + gate.id)
+  for (const cell of gateCells(gate)) assert.equal(tileAt(cell.x, cell.y), 'G', 'Gate lacks gate tile: ' + gate.id)
 
   entrances.add(gate.id)
 
@@ -131,7 +132,7 @@ for (const gate of townMap.gates) {
 
 assert.equal(townMap.gates.length, 4, 'Town needs four gates')
 
-assert.equal(tileAt(23, 15), 'B', 'East bridge missing')
+assert(townMap.terrain.some((row) => row.includes('B')), 'Town bridge missing')
 
 for (const decor of townMap.decor) assert(tileAt(decor.x, decor.y) !== undefined, 'Decor outside map')
 

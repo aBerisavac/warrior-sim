@@ -1,5 +1,5 @@
 import townMap from './data/town-map.json'
-import { buildingCells } from './town-grid'
+import { buildingCells, gateCells } from './town-grid'
 
 export const mapSize = { width: townMap.columns * townMap.cellSize, height: townMap.rows * townMap.cellSize }
 export const mapGrid = townMap
@@ -29,7 +29,10 @@ for (const id of Object.keys(roadNodes)) {
 }
 const entrances = Object.fromEntries([
   ...townMap.buildings.filter((building) => building.kind !== 'house').map((building) => [building.id, building.door]),
-  ...townMap.gates.map((gate) => [gate.id, gate]),
+  ...townMap.gates.map((gate) => {
+    const cells = gateCells(gate)
+    return [gate.id, cells[Math.floor(cells.length / 2)]]
+  }),
 ])
 export const placePoint = (id) => entrances[id] ? cellPoint(entrances[id].x, entrances[id].y) : null
 export const placeMarkerPoint = (id) => {
@@ -41,6 +44,8 @@ export const placeMarkerPoint = (id) => {
       y: cells.reduce((sum, cell) => sum + cell.y + 0.5, 0) / cells.length * townMap.cellSize,
     }
   }
+  const gate = townMap.gates.find((item) => item.id === id)
+  if (gate) return { x: (gate.x + (gate.width ?? 1) / 2) * townMap.cellSize, y: (gate.y + (gate.height ?? 1) / 2) * townMap.cellSize }
   return placePoint(id)
 }
 const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y)
@@ -78,8 +83,12 @@ export function routeFromPoint(point, destinationId) {
   if (samePoint(point, destination)) return { points: [point], minutes: 0 }
   const next = pathsTo(destinationId)
   let best = null
+  // Start on the nearest road segment. Otherwise a distant segment can make
+  // a diagonal shortcut look shorter than following the street grid.
+  const nearest = Math.min(...roadSegments.map((segment) => distance(point, projectedPoint(point, segment.from, segment.to))))
   for (const segment of roadSegments) {
     const projection = projectedPoint(point, segment.from, segment.to)
+    if (distance(point, projection) > nearest + 0.001) continue
     for (const endpoint of [segment.from, segment.to]) {
       const endpointId = key(Math.floor(endpoint.x / townMap.cellSize), Math.floor(endpoint.y / townMap.cellSize))
       if (!(endpointId in next)) continue

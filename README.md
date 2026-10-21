@@ -45,7 +45,7 @@ Radial action circles unfold quickly from each location marker. They are icon-on
 
 - src/data/quests.json defines quest IDs, prerequisites, priorities, display keys, objectives, and tutorial clouds. src/data/unlocks.json maps each playable place, action, job, forge station, and HUD control to required completed quests.
 
-- src/data/town-map.json holds the 30x30 cell grid and road network, road tiles and optional image paths, 2x2 to 4x4 building footprints (including optional L-shaped `shape` rows), door coordinates, gates, and decoration. src/routes.js calculates paths and reroutes. src/data/travel-events.json defines travel event chances and the scripted bandit tick.
+- src/data/town-map.json holds the 30x30 cell grid and road network, road tiles and optional image paths, 2x2 to 4x4 building footprints (including optional L-shaped `shape` rows), door coordinates, one-cell or rectangular multi-cell gates, and decoration. Drag the gate tool across cells to size a gate; older gate entries without dimensions remain one cell. src/routes.js calculates paths and reroutes. src/data/travel-events.json defines travel event chances and the scripted bandit tick.
 
 - src/progression.js evaluates those requirements and derives the current story stage from quest progress.
 

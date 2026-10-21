@@ -189,6 +189,7 @@
 .town-art{object-fit:fill}
 .town-tile-\.{fill:#d2c7a2}.town-tile-R,.town-tile-G{fill:#bea782}.town-tile-H{fill:#c5b68e}.town-tile-W{fill:#c7b994}.town-tile-F{fill:#8da481}.town-tile-M{fill:#aeb1a2}.town-tile-A{fill:#c2b37e}.town-tile-\~{fill:#739ca1}.town-tile-B{fill:#739ca1}
 .town-building .town-roof{fill:#9b7b59;stroke:#624a39;stroke-width:3;filter:drop-shadow(2px 3px 2px #574c3977)}
+.town-entrance-marker{fill:#f4e4ae;stroke:#4b4934;stroke-width:2;filter:drop-shadow(0 1px 2px #24281faa)}
 .town-building-smithy .town-roof{fill:#7e6553}.town-building-market .town-roof{fill:#b39565}.town-building-square .town-roof{fill:#d7c394;stroke:#887753}.town-building-tavern .town-roof{fill:#916c50}.town-building-chapel .town-roof{fill:#a8a48a}.town-building-barracks .town-roof{fill:#827b63}
 @media(max-width:570px){.map-canvas{aspect-ratio:1;min-height:0}.town-art{object-fit:fill}}
 

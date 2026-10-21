@@ -28,24 +28,21 @@ const mapSize = computed(() => ({ width: props.map.columns * props.map.cellSize,
       </g>
     </g>
     <image v-for="(image, index) in map.cellImages || []" :key="'cell-image-' + index" :href="image.src" :x="image.x * map.cellSize" :y="image.y * map.cellSize" :width="map.cellSize" :height="map.cellSize" preserveAspectRatio="xMidYMid slice" />
+    <rect :width="mapSize.width" :height="mapSize.height" fill="url(#town-grid)" pointer-events="none" />
     <g v-for="building in map.buildings" :key="building.id" :class="['town-building', 'town-building-' + building.kind]">
-      <path class="town-roof" :d="buildingOutline(building, map.cellSize)" />
+      <path v-if="!building.imageSrc" class="town-roof" :d="buildingOutline(building, map.cellSize)" />
       <image v-if="building.imageSrc" :href="building.imageSrc" :x="building.x * map.cellSize" :y="building.y * map.cellSize" :width="building.width * map.cellSize" :height="building.height * map.cellSize" :clip-path="'url(#town-building-clip-' + building.id + ')'" preserveAspectRatio="xMidYMid slice" />
-      <rect v-if="building.door.side === 'south'" :x="building.door.x * 40 + 14" :y="building.door.y * 40 - 7" width="12" height="9" fill="#5a3b28" />
-      <rect v-else-if="building.door.side === 'north'" :x="building.door.x * 40 + 14" :y="(building.door.y + 1) * 40 - 2" width="12" height="9" fill="#5a3b28" />
-      <rect v-else-if="building.door.side === 'east'" :x="building.door.x * 40 - 7" :y="building.door.y * 40 + 14" width="9" height="12" fill="#5a3b28" />
-      <rect v-else :x="(building.door.x + 1) * 40 - 2" :y="building.door.y * 40 + 14" width="9" height="12" fill="#5a3b28" />
+      <circle v-if="building.door" class="town-entrance-marker" :cx="(building.door.x + .5) * map.cellSize" :cy="(building.door.y + .5) * map.cellSize" r="5" />
     </g>
-    <g v-for="gate in map.gates" :key="gate.id" :transform="'translate(' + gate.x * 40 + ' ' + gate.y * 40 + ')'" class="town-gate">
-      <rect x="4" y="4" width="32" height="32" fill="#a08458" stroke="#5d4c37" stroke-width="2" />
-      <path v-if="gate.direction === 'north' || gate.direction === 'south'" d="M16 4v32m8-32v32" stroke="#55422e" stroke-width="3" />
-      <path v-else d="M4 16h32M4 24h32" stroke="#55422e" stroke-width="3" />
+    <g v-for="gate in map.gates" :key="gate.id" :transform="'translate(' + gate.x * map.cellSize + ' ' + gate.y * map.cellSize + ')'" class="town-gate">
+      <rect x="4" y="4" :width="(gate.width ?? 1) * map.cellSize - 8" :height="(gate.height ?? 1) * map.cellSize - 8" fill="#a08458" stroke="#5d4c37" stroke-width="2" />
+      <path v-if="gate.direction === 'north' || gate.direction === 'south'" :d="`M${(gate.width ?? 1) * map.cellSize / 2 - 4} 4V${(gate.height ?? 1) * map.cellSize - 4} M${(gate.width ?? 1) * map.cellSize / 2 + 4} 4V${(gate.height ?? 1) * map.cellSize - 4}`" stroke="#55422e" stroke-width="3" />
+      <path v-else :d="`M4 ${(gate.height ?? 1) * map.cellSize / 2 - 4}H${(gate.width ?? 1) * map.cellSize - 4} M4 ${(gate.height ?? 1) * map.cellSize / 2 + 4}H${(gate.width ?? 1) * map.cellSize - 4}`" stroke="#55422e" stroke-width="3" />
     </g>
     <g v-for="(decor, index) in map.decor" :key="'decor-' + index" :transform="'translate(' + (decor.x + .5) * 40 + ' ' + (decor.y + .5) * 40 + ')'" class="town-decor">
       <template v-if="decor.type === 'well'"><circle r="13" fill="#b1a57b" stroke="#675e4c" stroke-width="3" /><circle r="7" fill="#6b9b9d" /></template>
       <template v-else-if="decor.type === 'crates'"><rect x="-12" y="-9" width="11" height="11" fill="#a17d50" stroke="#6d5338" /><rect x="2" y="-4" width="11" height="11" fill="#a17d50" stroke="#6d5338" /></template>
       <template v-else><circle cx="-6" r="4" fill="#9b9271" /><circle cx="6" cy="4" r="4" fill="#9b9271" /></template>
     </g>
-    <rect :width="mapSize.width" :height="mapSize.height" fill="url(#town-grid)" pointer-events="none" />
   </svg>
 </template>

@@ -11,6 +11,17 @@ export function buildingCells(building) {
   return cells
 }
 
+// Older saved maps omit gate dimensions; those gates occupy one cell.
+export function gateCells(gate) {
+  const cells = []
+  for (let row = 0; row < (gate.height ?? 1); row++) {
+    for (let col = 0; col < (gate.width ?? 1); col++) {
+      cells.push({ x: gate.x + col, y: gate.y + row })
+    }
+  }
+  return cells
+}
+
 export function buildingOutline(building, cellSize) {
   const cells = buildingCells(building)
   const filled = new Set(cells.map(({ x, y }) => `${x},${y}`))

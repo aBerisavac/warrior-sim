@@ -1,4 +1,4 @@
-import { buildingCells } from './town-grid.js'
+import { buildingCells, gateCells } from './town-grid.js'
 
 const requiredBuildings = ['smithy', 'market', 'square', 'tavern', 'chapel', 'barracks']
 const requiredGates = ['northGate', 'eastGate', 'gate', 'westGate']
@@ -58,12 +58,25 @@ export function validateTownMap(map) {
   for (const id of requiredBuildings) if (!ids.has(id)) errors.push(`Missing building: ${id}`)
   for (let y = 0; y < 30; y++) for (let x = 0; x < 30; x++) if (at(x, y) === 'H' && !occupied.has(cellKey(x, y))) errors.push(`Unassigned building cell: ${x},${y}`)
   const gateIds = new Set()
+  const gateOccupied = new Set()
   for (const gate of gates) {
     if (gateIds.has(gate.id)) errors.push(`Duplicate gate: ${gate.id}`)
     gateIds.add(gate.id)
-    if (at(gate.x, gate.y) !== 'G') errors.push(`Gate tile missing: ${gate.id}`)
+    const width = gate.width ?? 1, height = gate.height ?? 1
+    if (![gate.x, gate.y, width, height].every(Number.isInteger) || width < 1 || height < 1 || gate.x < 0 || gate.y < 0 || gate.x + width > 30 || gate.y + height > 30) {
+      errors.push(`Invalid gate footprint: ${gate.id}`)
+      continue
+    }
+    for (const cell of gateCells(gate)) {
+      const key = cellKey(cell.x, cell.y)
+      if (gateOccupied.has(key) || occupied.has(key)) errors.push(`Gate overlap at ${key}`)
+      gateOccupied.add(key)
+      if (at(cell.x, cell.y) !== 'G') errors.push(`Gate tile missing: ${gate.id}`)
+    }
+    if (gate.underTiles != null && (!Array.isArray(gate.underTiles) || gate.underTiles.some((cell) => !Number.isInteger(cell.x) || !Number.isInteger(cell.y) || typeof cell.tile !== 'string' || !validTiles.has(cell.tile)))) errors.push(`Invalid gate backing tiles: ${gate.id}`)
   }
   for (const id of requiredGates) if (!gateIds.has(id)) errors.push(`Missing gate: ${id}`)
+  for (let y = 0; y < 30; y++) for (let x = 0; x < 30; x++) if (at(x, y) === 'G' && !gateOccupied.has(cellKey(x, y))) errors.push(`Unassigned gate cell: ${x},${y}`)
   if (!map.tileImages || Object.values(map.tileImages).some((src) => src != null && typeof src !== 'string')) errors.push('Invalid tile image sources')
   if (!Array.isArray(map.cellImages) || map.cellImages.some((image) => !Number.isInteger(image.x) || !Number.isInteger(image.y) || image.x < 0 || image.x >= 30 || image.y < 0 || image.y >= 30 || typeof image.src !== 'string')) errors.push('Invalid cell image sources')
   const roads = new Set()

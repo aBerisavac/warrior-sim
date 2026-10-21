@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import sourceMap from '../data/town-map.json'
-import { buildingCells } from '../town-grid'
+import { buildingCells, gateCells } from '../town-grid'
 import { validateTownMap } from '../map-validation'
 import TownArt from './TownArt.vue'
 
@@ -34,6 +34,7 @@ const gateTools = ['northGate', 'eastGate', 'gate', 'westGate']
 const decorTools = ['well', 'crates', 'flowers']
 const isTileTool = computed(() => terrainTools.some(([code]) => code === tool.value))
 const isBuildingTool = computed(() => buildingTools.includes(tool.value))
+const isGateTool = computed(() => gateTools.includes(tool.value))
 const problems = computed(() => validateTownMap(map.value))
 const imageSource = computed({
   get() {
@@ -51,12 +52,14 @@ const imageSource = computed({
   },
 })
 const preview = computed(() => {
-  if (!isBuildingTool.value || !dragStart.value) return null
+  if ((!isBuildingTool.value && !isGateTool.value) || !dragStart.value) return null
   const end = dragEnd.value || dragStart.value
   const x = Math.min(dragStart.value.x, end.x)
   const y = Math.min(dragStart.value.y, end.y)
-  const width = Math.min(4, Math.max(2, Math.abs(end.x - dragStart.value.x) + 1))
-  const height = Math.min(4, Math.max(2, Math.abs(end.y - dragStart.value.y) + 1))
+  const spanX = Math.abs(end.x - dragStart.value.x) + 1
+  const spanY = Math.abs(end.y - dragStart.value.y) + 1
+  const width = isBuildingTool.value ? Math.min(4, Math.max(2, spanX)) : spanX
+  const height = isBuildingTool.value ? Math.min(4, Math.max(2, spanY)) : spanY
   return { x: Math.min(30 - width, x), y: Math.min(30 - height, y), width, height }
 })
 watch(map, (value) => localStorage.setItem(draftKey, JSON.stringify(value)), { deep: true })
@@ -97,16 +100,6 @@ function paint(x, y) {
     if (old) removeBuilding(old)
     setTile(x, y, tool.value)
     refreshDoors()
-  } else if (gateTools.includes(tool.value)) {
-    const gate = map.value.gates.find((item) => item.id === tool.value)
-    if (buildingAt(x, y)) { status.value = t('mapEditor.clearBuilding'); return }
-    if (map.value.gates.some((item) => item.id !== tool.value && item.x === x && item.y === y)) { status.value = t('mapEditor.occupied'); return }
-    if (gate) {
-      setTile(gate.x, gate.y, 'W')
-      gate.x = x; gate.y = y
-    }
-    setTile(x, y, 'G')
-    refreshDoors()
   } else if (tool.value === 'door') {
     if (!['R', 'G', 'B'].includes(tileAt(x, y))) { status.value = t('mapEditor.doorRoad'); return }
     for (const [dx, dy, side] of [[0,1,'north'],[-1,0,'east'],[0,-1,'south'],[1,0,'west']]) {
@@ -121,6 +114,27 @@ function paint(x, y) {
     map.value.decor = map.value.decor.filter((item) => item.x !== x || item.y !== y)
     map.value.decor.push({ type: tool.value, x, y })
   }
+}
+function placeGate(bounds) {
+  const existing = map.value.gates.find((item) => item.id === tool.value)
+  const next = { ...existing, id: tool.value, ...bounds }
+  const cells = gateCells(next)
+  const previous = existing ? gateCells(existing) : []
+  const previousKeys = new Set(previous.map((cell) => `${cell.x},${cell.y}`))
+  const collision = cells.some((cell) => {
+    if (buildingAt(cell.x, cell.y)) return true
+    if (map.value.gates.some((gate) => gate.id !== tool.value && gateCells(gate).some((part) => part.x === cell.x && part.y === cell.y))) return true
+    return !previousKeys.has(`${cell.x},${cell.y}`) && !['.', 'R', 'W', 'G'].includes(tileAt(cell.x, cell.y))
+  })
+  if (collision) { status.value = t('mapEditor.occupied'); return }
+  const previousTiles = new Map((existing?.underTiles || []).map((cell) => [`${cell.x},${cell.y}`, cell.tile]))
+  for (const cell of previous) setTile(cell.x, cell.y, previousTiles.get(`${cell.x},${cell.y}`) || 'W')
+  next.underTiles = cells.map((cell) => ({ ...cell, tile: tileAt(cell.x, cell.y) }))
+  for (const cell of cells) setTile(cell.x, cell.y, 'G')
+  if (existing) Object.assign(existing, next)
+  else map.value.gates.push(next)
+  refreshDoors()
+  status.value = t('mapEditor.gatePlaced')
 }
 function placeBuilding(bounds) {
   const { x, y, width, height } = bounds
@@ -150,13 +164,13 @@ function pointerDown(event) {
   event.currentTarget.setPointerCapture(event.pointerId)
   const cell = cellFromEvent(event)
   dragStart.value = cell; dragEnd.value = cell; hoverCell.value = cell; status.value = ''
-  if (!isBuildingTool.value) paint(cell.x, cell.y)
+  if (!isBuildingTool.value && !isGateTool.value) paint(cell.x, cell.y)
 }
 function pointerMove(event) {
   const cell = cellFromEvent(event)
   hoverCell.value = cell
   if (!dragStart.value) return
-  if (isBuildingTool.value) { dragEnd.value = cell; return }
+  if (isBuildingTool.value || isGateTool.value) { dragEnd.value = cell; return }
   const from = dragEnd.value || cell
   const steps = Math.max(Math.abs(cell.x - from.x), Math.abs(cell.y - from.y))
   for (let index = 1; index <= steps; index++) {
@@ -168,6 +182,7 @@ function pointerUp(event) {
   if (!dragStart.value) return
   dragEnd.value = cellFromEvent(event)
   if (isBuildingTool.value && preview.value) placeBuilding(preview.value)
+  else if (isGateTool.value && preview.value) placeGate(preview.value)
   dragStart.value = null; dragEnd.value = null
 }
 function resetDraft() {
@@ -214,7 +229,7 @@ async function saveJson() {
       <label v-if="isBuildingTool">{{ t('mapEditor.shape') }} <select v-model="shape"><option value="rectangle">{{ t('mapEditor.rectangle') }}</option><option value="L">{{ t('mapEditor.lShape') }}</option></select></label>
       <label v-if="isTileTool || isBuildingTool || tool === 'cellImage'">{{ t('mapEditor.imageSource') }} <input v-model="imageSource" type="text" :placeholder="t('mapEditor.imagePlaceholder')" /></label>
     </div>
-    <p class="map-editor-help">{{ isBuildingTool ? t('mapEditor.buildingHelp') : t('mapEditor.paintHelp') }}</p>
+    <p class="map-editor-help">{{ isBuildingTool ? t('mapEditor.buildingHelp') : isGateTool ? t('mapEditor.gateHelp') : t('mapEditor.paintHelp') }}</p>
     <div class="map-editor-canvas">
       <TownArt :map="map" />
       <div class="map-editor-hit" @pointerdown="pointerDown" @pointermove="pointerMove" @pointerup="pointerUp" @pointercancel="pointerUp" @pointerleave="hoverCell = null"></div>
