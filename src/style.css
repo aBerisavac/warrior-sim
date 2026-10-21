@@ -327,3 +327,194 @@
 @keyframes woodcut-spark{0%{opacity:0;transform:scale(.5);transform-origin:150px 112px}35%{opacity:1}100%{opacity:0;transform:scale(1.3);transform-origin:150px 112px}}
 @keyframes woodcut-stack-pop{from{transform:translateY(-5px) scale(.6)}to{transform:translateY(0) scale(1)}}
 @media(prefers-reduced-motion:reduce){.woodcut-stage--impact,.woodcut-stage--impact .woodcut-axe-head,.woodcut-impact-splinters,.woodcut-stack span.filled{animation:none}}
+.woodcut-workspace{display:grid;grid-template-columns:minmax(65px,1fr) minmax(0,3fr) minmax(65px,1fr);gap:8px;align-items:stretch}
+.woodcut-stock,.woodcut-output{padding:7px 4px;border-radius:4px;background:#263c30;display:flex;flex-direction:column;gap:6px;align-items:center;min-width:0}
+.woodcut-stock small,.woodcut-output small{color:#d9c396;font-size:9px;text-align:center;letter-spacing:.5px}
+.woodcut-log-pile,.woodcut-fallen-pile{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;min-height:24px}
+.woodcut-stock em{font-size:9px;color:#9cac9a}
+.woodcut-stock-log{display:block;width:39px;height:25px;border-radius:8px;background:linear-gradient(#94704a,#503722);border:1px solid #c3935d;transform:rotate(-8deg);position:relative}
+.woodcut-stock-log>span{position:absolute;left:0;top:0;width:23px;height:23px;border-radius:50%;background:repeating-radial-gradient(circle,#c19561 0 3px,#916138 4px 5px);border:2px solid #dfb87b}
+.woodcut-half{width:34px;height:25px;padding:0;border:2px solid #c49a63;border-radius:24px 24px 4px 4px;background:repeating-radial-gradient(ellipse at bottom,#bf915c 0 4px,#865930 5px 6px);cursor:pointer;transform:rotate(-12deg)}
+.woodcut-half:hover:not(:disabled),.woodcut-half:focus-visible{outline:2px solid #efca8a;outline-offset:2px}
+.woodcut-output .woodcut-stack{display:grid;grid-template-columns:repeat(2,19px);gap:5px;overflow:visible;align-content:start;flex:1}
+.woodcut-pieces{grid-template-columns:1fr}
+@media(max-width:570px){.woodcut-workspace{grid-template-columns:58px minmax(0,1fr) 58px;gap:4px}.woodcut-stock small,.woodcut-output small{font-size:8px}.woodcut-chop{right:3px;bottom:3px;padding:5px 8px!important;font-size:10px}.woodcut-stage{height:145px}}
+.woodcut-stock-log{padding:0;cursor:grab;flex:none}
+.woodcut-stock-log:disabled{opacity:.55;cursor:default}
+.woodcut-stock-log:active,.woodcut-half:active{cursor:grabbing}
+.woodcut-half{width:42px;height:35px;border:0;background:none;transform:none;border-radius:0;cursor:grab}
+.woodcut-half .woodcut-piece-art{width:100%;height:100%;pointer-events:none}
+.woodcut-arena--drop{outline:2px dashed #efca8a;outline-offset:2px;background:#efca8a18}
+.woodcut-piece-art{overflow:visible;pointer-events:none}
+.woodcut-resting-piece{cursor:pointer;outline:none}
+.woodcut-resting-piece:hover .woodcut-piece-art,.woodcut-resting-piece:focus-visible .woodcut-piece-art{filter:drop-shadow(0 0 4px #ffdb8d)}
+.woodcut-separated-piece{animation:woodcut-separate .28s ease-out both}
+@keyframes woodcut-separate{from{opacity:.5;transform:scale(.55) translateY(-10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@media(prefers-reduced-motion:reduce){.woodcut-separated-piece{animation:none}}
+@keyframes woodcut-separate{from{opacity:.65;transform:translate(var(--split-x,0px),var(--split-y,0px)) scale(.8)}to{opacity:1;transform:translate(0,0) scale(1)}}
+.woodcut-ready-outline{filter:drop-shadow(0 0 3px #ffe99a);animation:woodcut-ready-glow 1.3s ease-in-out infinite alternate}
+.woodcut-falling-flight{position:fixed;width:60px;height:60px;z-index:10000;pointer-events:none;animation:woodcut-fall .42s ease-in both}
+.woodcut-falling-flight .woodcut-piece-art{width:100%;height:100%}
+@keyframes woodcut-ready-glow{from{stroke-opacity:.65}to{stroke-opacity:1}}
+@keyframes woodcut-fall{0%{transform:translate(0,0) rotate(0) scale(1)}35%{transform:translate(calc(var(--fall-x)*.35),-22px) rotate(-25deg) scale(.95)}100%{transform:translate(var(--fall-x),var(--fall-y)) rotate(var(--fall-turn)) scale(.65)}}
+@media(prefers-reduced-motion:reduce){.woodcut-ready-outline{animation:none}.woodcut-falling-flight{animation:none;transform:translate(var(--fall-x),var(--fall-y)) scale(.65)}}
+.woodcut-stored-stack{display:block;width:100%;flex:1;min-height:120px;max-height:190px;overflow:visible}
+.woodcut-stored-piece{animation:woodcut-store .22s ease-out both}
+@keyframes woodcut-store{from{opacity:0;transform:translateY(-12px) rotate(-8deg)}to{opacity:1;transform:translateY(0) rotate(0)}}
+@media(prefers-reduced-motion:reduce){.woodcut-stored-piece{animation:none}}
+.woodcut-stats{flex-wrap:wrap}
+.woodcut-control-hints{pointer-events:none;fill:none;stroke:#e6d4ac;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 2px #102318);animation:woodcut-hints-appear .18s ease-out}
+.woodcut-control-hints text{fill:#f0dfb9;stroke:#233a2c;stroke-width:3px;paint-order:stroke;font:bold 17px monospace;text-anchor:middle}
+@keyframes woodcut-hints-appear{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.woodcut-control-hints{animation:none}}
+.pawn-walker img{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}
+.game-display-controls{display:flex;align-items:center;justify-content:flex-end;gap:6px;padding:5px 8px;background:#24352b;flex:none;position:relative;z-index:30}
+.game-display-controls button{border:1px solid #a18b62;border-radius:3px;background:#354536;color:#ecdfbd;font-size:10px;padding:5px 9px;cursor:pointer}
+.game-display-controls button:hover:not(:disabled){background:#506046}
+.game-display-controls button:disabled{opacity:.5;cursor:default}
+.game-display-controls span{color:#efd5b3;font-size:10px}
+.map-frame.map-frame--expanded,.map-frame:fullscreen{position:fixed;inset:0;width:100%;height:100dvh;max-width:none;margin:0;border-radius:0;z-index:1000;display:flex;flex-direction:column;box-sizing:border-box;background:#1b2c23;overflow:hidden}
+.map-frame.map-frame--expanded .map-canvas,.map-frame:fullscreen .map-canvas{flex:1;min-height:0;aspect-ratio:auto;width:100%;max-width:none}
+.map-frame--expanded>.map-hud,.map-frame:fullscreen>.map-hud,.map-frame--expanded>.map-footer,.map-frame:fullscreen>.map-footer{flex:none}
+.map-frame--expanded>.map-edit-toggle,.map-frame:fullscreen>.map-edit-toggle{top:42px}
+
+/* Preserve square map coordinates at every window size. */
+.map-frame--playing .map-canvas{aspect-ratio:1/1;min-height:0}
+.map-frame.map-frame--expanded .map-canvas,.map-frame:fullscreen .map-canvas{flex:none;width:var(--game-square,70vmin);height:var(--game-square,70vmin);max-width:100%;aspect-ratio:1/1;align-self:center;margin-block:auto}
+.woodcut-strength-control{display:grid;gap:3px;margin-top:5px}
+.woodcut-strength-control .woodcut-chop{position:relative;touch-action:none;user-select:none}
+.woodcut-strength-control small{color:#ddc99f;font-size:9px;text-align:center}
+.woodcut-strength-meter{position:relative;height:12px;background:#16271e;border:1px solid #9d8c60;border-radius:3px;overflow:hidden}
+.woodcut-strength-meter>div{height:100%;background:linear-gradient(90deg,#796448,#b2a771)}
+.woodcut-strength-meter>i{position:absolute;left:85%;top:0;bottom:0;width:3px;background:#f2d898;box-shadow:0 0 0 3px #ebd19738}
+.woodcut-output{position:relative}
+.woodcut-stored-piece{cursor:help;outline:none}
+.woodcut-stored-piece--hovered{filter:drop-shadow(0 0 3px #f1d695)}
+.woodcut-stored-piece--hovered>path{stroke:#f1d695;stroke-width:1.5}
+.woodcut-quality-tooltip{position:absolute;right:calc(100% + 6px);top:12px;z-index:40;display:grid;gap:4px;width:145px;background:#1b2b22f5;color:#ecdfbd;padding:9px;border:1px solid #b29b69;border-radius:4px;pointer-events:none;font-size:10px;box-shadow:0 3px 10px #0006}
+.woodcut-loading-flight{position:fixed;width:60px;height:60px;z-index:10000;pointer-events:none;animation:woodcut-load .32s ease-in-out both}
+.woodcut-loading-flight .woodcut-piece-art{width:100%;height:100%}
+@keyframes woodcut-load{from{transform:translate(0,0) rotate(var(--load-start-rotation,0deg)) scale(.65)}to{transform:translate(var(--load-x),var(--load-y)) rotate(var(--load-rotation,0deg)) scale(var(--load-scale))}}
+.woodcut-axe-tool{transform-origin:222px 169px;pointer-events:none;filter:drop-shadow(2px 3px 2px #15241c88)}
+.woodcut-axe-tool--strike{animation:woodcut-real-strike .38s linear both}
+@keyframes woodcut-real-strike{
+0%{transform:translate(var(--axe-x),var(--axe-lift)) rotate(var(--axe-angle));animation-timing-function:ease-out}
+18%{transform:translate(calc(var(--axe-x) + 3px),calc(var(--axe-lift) - 4px)) rotate(calc(var(--axe-angle) + 7deg));animation-timing-function:cubic-bezier(.55,0,.95,.65)}
+62%{transform:translate(0,0) rotate(0deg);animation-timing-function:ease-out}
+78%{transform:translate(3px,-4px) rotate(5deg);animation-timing-function:ease-in-out}
+100%{transform:translate(9px,-3px) rotate(12deg)}}
+@media(prefers-reduced-motion:reduce){.woodcut-loading-flight{animation:none;transform:translate(var(--load-x),var(--load-y)) rotate(var(--load-rotation,0deg)) scale(var(--load-scale))}.woodcut-axe-tool--strike{animation:none}}
+/* Keep the work area and message slots steady throughout a woodcutting job. */
+.map-modal--wood{width:min(760px,100%);height:94%;max-height:94%;padding:16px 20px;scrollbar-gutter:stable;overflow-y:auto;overflow-x:hidden}
+.map-modal--wood .woodcut-stage{height:clamp(170px,30vh,270px)}
+.map-modal--wood .woodcut-workspace{grid-template-columns:minmax(70px,1fr) minmax(0,3.4fr) minmax(70px,1fr);gap:12px}
+.woodcut-clear-space{min-height:64px;display:grid;align-content:center;gap:4px}
+.woodcut-clear-space--hidden,.woodcut-message--hidden{visibility:hidden}
+.map-modal--wood .woodcut-prompt{min-height:32px;line-height:16px}
+.map-modal--wood .woodcut-feedback{min-height:32px;line-height:16px}
+.map-modal--wood .woodcut-topline{min-height:30px}
+.map-modal--wood .woodcut-stats{min-height:32px;align-content:center}
+@media(max-width:570px){.map-modal--wood{padding:12px;height:96%;max-height:96%}.map-modal--wood .woodcut-workspace{grid-template-columns:58px minmax(0,1fr) 58px;gap:5px}.map-modal--wood .woodcut-stage{height:175px}}
+
+
+.woodcut-title-row{display:flex;align-items:center;gap:10px;flex:none;margin:6px 0}
+.map-modal--wood .woodcut-title-row h3{margin:0}
+.woodcut-intro-toggle.circle-icon{--circle-size:20px;--glyph-size:13px;position:relative;border-width:1px;border-radius:46% 51% 47% 49%;background-color:#76603c;background-image:radial-gradient(ellipse at 25% 18%,#ebd5a126,transparent 45%),repeating-linear-gradient(125deg,#110d0812 0 1px,transparent 1px 4px);color:#ecd3a0;border-color:#b29a69;box-shadow:inset 0 1px 2px #f2d6a130,inset 0 -2px 3px #1b160e85,0 1px 2px #111a14aa,0 0 5px #c7a35c30;transition:background-color .24s ease,color .24s ease,border-color .24s ease,box-shadow .24s ease,transform .15s ease}
+.woodcut-intro-toggle .circle-icon__glyph{font-family:Georgia,serif;font-weight:700;font-style:italic}
+.woodcut-intro-toggle.circle-icon:hover{transform:translateY(-1px);border-color:#d3bb85}
+.woodcut-intro-toggle.circle-icon:active{transform:translateY(1px)}
+.woodcut-intro-toggle.circle-icon:focus-visible{outline:2px solid #c7ae78;outline-offset:3px}
+.woodcut-intro-toggle--off.circle-icon{background-color:#30342b;color:#878576;border-color:#615f4e;box-shadow:inset 0 1px 2px #b6b09a12,inset 0 2px 4px #11190ec0,0 1px 1px #10170f80}
+.map-modal--wood{display:flex;flex-direction:column;padding:12px 16px;scrollbar-gutter:auto;min-height:0}
+.map-modal--wood>.modal-top{flex:none}
+.map-modal--wood .woodcut-game{flex:1;min-height:0;grid-template-rows:auto auto minmax(0,1fr) 16px 30px auto;gap:4px}
+.map-modal--wood .woodcut-topline{min-height:24px}
+.map-modal--wood .woodcut-stats{min-height:22px}
+.map-modal--wood .woodcut-workspace{min-height:0}
+.map-modal--wood .woodcut-arena{display:flex;flex-direction:column;min-height:0}
+.map-modal--wood .woodcut-stage{flex:1;height:0;min-height:65px}
+.map-modal--wood .woodcut-strength-control{flex:none;gap:2px;margin-top:3px}
+.map-modal--wood .woodcut-clear-space{min-height:42px;gap:2px}
+.map-modal--wood .woodcut-clear-space .modal-secondary{min-height:23px;padding:3px 7px;font-size:10px}
+.map-modal--wood .woodcut-prompt{min-height:16px;line-height:16px;overflow:hidden}
+.map-modal--wood .woodcut-feedback{min-height:30px;line-height:15px;overflow:hidden}
+.map-modal--wood .woodcut-stock,.map-modal--wood .woodcut-output{min-height:0;padding:4px}
+.map-modal--wood .woodcut-stored-stack{min-height:0;max-height:none}
+.map-modal--wood .woodcut-strength-control .woodcut-chop{min-height:29px!important;padding:5px 8px!important}
+
+.woodcut-falling-flight--aside{animation:woodcut-set-aside .32s ease-in-out both}
+@keyframes woodcut-set-aside{from{transform:translate(0,0) rotate(var(--aside-angle)) scale(var(--aside-scale))}to{transform:translate(var(--fall-x),var(--fall-y)) rotate(0deg) scale(var(--aside-end-scale,.65))}}
+@media(prefers-reduced-motion:reduce){.woodcut-falling-flight--aside{animation:none;transform:translate(var(--fall-x),var(--fall-y)) scale(.65)}}
+
+.woodcut-stock-log:has(.woodcut-piece-art){background:none;border:0;width:39px;height:32px}
+.woodcut-stock-log>.woodcut-piece-art{display:block;width:100%;height:100%}
+.woodcut-mark--branch{stroke-width:2;opacity:.45}
+.woodcut-control-button{pointer-events:all;touch-action:none;user-select:none;cursor:pointer;outline:none}
+.woodcut-control-button circle{fill:#1c3027d9;stroke:#9b8c66;stroke-width:1.5;transition:fill .1s,stroke .1s}
+.woodcut-control-button path,.woodcut-control-button text{pointer-events:none}
+.woodcut-control-button--active circle{fill:#897046;stroke:#ffe0a0;stroke-width:3}
+.woodcut-control-button--active path{stroke:#fff1c1}
+.woodcut-control-button:focus-visible circle{stroke:#fff1c1;stroke-width:3}
+.woodcut-controls-toggle{position:absolute;right:5px;top:5px;z-index:3;display:grid;place-items:center;width:28px;height:28px;padding:0;border:1px solid #a89467;border-radius:50%;background:#283d30;color:#d9c99c;font-size:20px;touch-action:manipulation}
+.woodcut-controls-toggle[aria-pressed=true]{background:#806a41;color:#fff0ba;border-color:#e0c78b}
+
+/* Retain the original bare arrow design; the larger touch targets stay invisible. */
+.woodcut-control-button circle,.woodcut-control-button--active circle,.woodcut-control-button:focus-visible circle{fill:transparent;stroke:none}
+.woodcut-control-button--active path,.woodcut-control-button:focus-visible path{stroke:#fff1c1;filter:drop-shadow(0 0 4px #f1d695);stroke-width:3.5}
+.woodcut-control-button--active text,.woodcut-control-button:focus-visible text{fill:#fff1c1;filter:drop-shadow(0 0 3px #f1d695)}
+
+.woodcut-pile-placeholder{visibility:hidden;pointer-events:none}
+
+@media(prefers-reduced-motion:reduce){.woodcut-intro-toggle.circle-icon{transition:none}}
+
+.woodcut-next-action{position:relative}
+.woodcut-next-action::after{content:'↓';position:absolute;left:50%;top:-23px;transform:translateX(-50%);font:bold 23px Georgia,serif;line-height:1;color:#f0d496;text-shadow:0 1px 3px #15251b;pointer-events:none;z-index:4;animation:woodcut-guide-bob .9s ease-in-out infinite alternate}
+.woodcut-strength-control .woodcut-next-action::after{left:auto;right:7px;top:3px;transform:rotate(90deg)}
+.woodcut-piece-arrow{fill:none;stroke:#f0d496;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;animation:woodcut-guide-bob .9s ease-in-out infinite alternate}
+@keyframes woodcut-guide-bob{from{translate:0 -2px}to{translate:0 2px}}
+@media(prefers-reduced-motion:reduce){.woodcut-next-action::after,.woodcut-piece-arrow{animation:none}}
+
+.woodcut-next-action::after{content:'↘';left:-17px;top:-14px;transform:none}
+.woodcut-strength-control .woodcut-next-action::after{left:-18px;right:auto;top:0;transform:none}
+
+.woodcut-strength-control .woodcut-next-action::after{content:'→';left:auto;right:calc(100% + 10px);top:50%;transform:translateY(-50%);animation:woodcut-guide-side .9s ease-in-out infinite alternate}
+@keyframes woodcut-guide-side{from{translate:-3px 0}to{translate:0 0}}
+@media(prefers-reduced-motion:reduce){.woodcut-strength-control .woodcut-next-action::after{animation:none}}
+
+/* Float button guides outside the layout while keeping buttons full width. */
+.woodcut-strength-control .woodcut-chop{inset:auto}
+.woodcut-strength-control>.woodcut-chop,.woodcut-clear-space>.modal-secondary{margin-left:0;width:100%}
+.woodcut-strength-control .woodcut-next-action::after{right:calc(100% + 12px);z-index:10}
+
+/* Keep moving wood inside the fullscreen element without affecting layout. */
+.game-animation-layer{position:absolute;left:0;top:0;width:0;height:0;z-index:10000;pointer-events:none}
+
+.woodcut-game{position:relative}
+.woodcut-summary{position:absolute;inset:0;z-index:50;display:grid;place-items:center;padding:10px;background:#19271eef;border-radius:4px;text-align:center}
+.woodcut-reward-card{width:min(330px,100%);padding:20px 16px;border:1px solid #9c7b42;border-radius:8px;background:radial-gradient(ellipse at 50% 25%,#65522c66,transparent 65%),#273226;box-shadow:inset 0 0 0 4px #af8b4930,0 8px 24px #0c160b80;animation:woodcut-reward-reveal .35s ease-out both}
+.woodcut-reward-kicker{display:block;color:#cbb682;font:small-caps 18px Georgia,serif;letter-spacing:1px}
+.woodcut-reward-amount{display:block;color:#e2c27c;font:64px/1.05 'IM Fell English',Georgia,serif;text-shadow:0 2px 0 #61441f,0 3px 12px #c29c4433;animation:woodcut-reward-reveal .45s ease-out both}
+.woodcut-reward-label{display:block;color:#c6ad71;font-size:11px;letter-spacing:2px;text-transform:uppercase}
+.map-modal .woodcut-reward-card p{font-size:11px;margin:14px 0;color:#bfc5ad}
+.woodcut-reward-coins{height:24px;display:flex;align-items:end;justify-content:center;gap:3px;margin:10px 0 5px}
+.woodcut-reward-coins i{width:24px;height:10px;border:2px solid #a47b36;border-radius:50%;background:#c2a05a;box-shadow:0 3px 0 #765326,0 5px 0 #af8842;transform:rotate(-10deg)}
+.woodcut-reward-coins i:nth-child(2){align-self:start;transform:rotate(8deg)}
+.woodcut-collect-gold{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:5px 20px 5px 12px;border:2px solid #c1a365;border-radius:999px;background:radial-gradient(ellipse at 30% 15%,#edd19738,transparent 60%),repeating-linear-gradient(115deg,#3d2b1010 0 1px,transparent 1px 4px),#a48445;color:#292919;box-shadow:inset 0 1px 0 #f6dfaa80,inset 0 -3px 5px #62481d66,0 3px 0 #584322;font:bold 12px Georgia,serif;transition:background-color .18s,transform .12s,box-shadow .12s}
+.woodcut-collect-gold svg{width:38px;height:38px;flex:none}
+.woodcut-collect-gold:hover{background-color:#bb9854;transform:translateY(-1px)}
+.woodcut-collect-gold:active{transform:translateY(2px);box-shadow:inset 0 2px 4px #62481d66,0 1px 0 #584322}
+.woodcut-collect-gold:focus-visible{outline:2px solid #ead29b;outline-offset:4px}
+@keyframes woodcut-reward-reveal{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-height:600px){.woodcut-reward-card{padding:12px}.woodcut-reward-amount{font-size:46px}.woodcut-reward-coins{margin-top:6px}.map-modal .woodcut-reward-card p{margin:8px 0}}
+@media(prefers-reduced-motion:reduce){.woodcut-reward-card,.woodcut-reward-amount{animation:none}.woodcut-collect-gold{transition:none}}
+
+.woodcut-summary{grid-template-columns:minmax(0,1fr);justify-content:center;align-content:center;justify-items:center}
+.woodcut-reward-card{justify-self:center;margin-inline:auto}
+.woodcut-reward-kicker{width:100%;text-align:center;text-wrap:balance}
+
+.woodcut-clear-space>.modal-secondary{color:#293c2b;background:#c9ae75;border-color:#e0c68a;transition:background-color .15s,color .15s}
+.woodcut-clear-space>.modal-secondary:hover:not(:disabled){background:#e0c78e;color:#203523}
+
+.map-modal--wood .woodcut-intro-text{flex:none}
+
+.market-notice-copy{white-space:pre-line}

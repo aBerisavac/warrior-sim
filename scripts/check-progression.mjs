@@ -14,6 +14,13 @@ try {
   assert.equal(isUnlocked([QUEST.FATHER_CALLED], 'actions', 'smithy.info'), false)
   assert.equal(isUnlocked([QUEST.IRON_ERRAND_ACCEPTED], 'places', 'market'), true)
   assert.equal(isUnlocked([QUEST.IRON_ERRAND_ACCEPTED], 'places', 'square'), false)
+  assert.equal(isUnlocked([QUEST.BANDIT_AMBUSH_SURVIVED], 'places', 'tavern'), false)
+  assert.equal(isUnlocked([QUEST.BANDIT_AMBUSH_SURVIVED], 'actions', 'tavern.walk'), false)
+  assert.equal(isUnlocked([QUEST.MARKET_JOB_NOTICE_READ], 'places', 'tavern'), true)
+  assert.equal(isUnlocked([QUEST.MARKET_JOB_NOTICE_READ], 'actions', 'tavern.walk'), true)
+  assert.equal(isUnlocked([QUEST.MARKET_JOB_NOTICE_READ], 'jobs', 'tavern.wood'), false)
+  assert(progression.migrateCompletedQuests({ completedQuests: [QUEST.TAVERN_WORK_OFFERED] }).includes(QUEST.MARKET_JOB_NOTICE_READ))
+  assert(!progression.migrateCompletedQuests({ completedQuests: [QUEST.BANDIT_AMBUSH_SURVIVED] }).includes(QUEST.MARKET_JOB_NOTICE_READ))
   assert.equal(isUnlocked([QUEST.BANDIT_AMBUSH_SURVIVED], 'jobs', 'tavern.wood'), false)
   assert.equal(isUnlocked([QUEST.TAVERN_WORK_OFFERED], 'jobs', 'tavern.wood'), true)
   assert.equal(isUnlocked([QUEST.TAVERN_WORK_OFFERED], 'jobs', 'tavern.dishes'), true)
@@ -23,13 +30,64 @@ try {
   assert.equal(progression.activeQuests([QUEST.FATHER_CALLED])[0].id, QUEST.FATHER_MET)
   assert.equal(progression.activeQuests([QUEST.FATHER_CALLED, QUEST.FATHER_MET])[0].id, QUEST.IRON_ERRAND_ACCEPTED)
   const woodcut = await server.ssrLoadModule('/src/woodcutting.js')
+  const yields = new Set()
+  const counts = new Set()
+  for (let seed = 1; seed <= 200; seed += 1) {
+    let state = seed
+    const random = () => { state = (Math.imul(state, 1664525) + 1013904223) >>> 0; return state / 4294967296 }
+    random()
+    random()
+    const job = woodcut.createWoodcuttingJob(random)
+    const total = job.reduce((sum, log) => sum + log.expectedPieces, 0)
+    assert(total >= 7 && total <= 15)
+    assert.equal(new Set(job.map(log => log.id)).size, job.length)
+    assert(job.every(log => woodcut.WOOD_STUMPS.some(type => type.nameKey === log.nameKey && type.expectedPieces === log.expectedPieces)))
+    yields.add(total)
+    counts.add(job.length)
+  }
+  for (let target = 7; target <= 15; target += 1) {
+    const job = woodcut.createWoodcuttingJob(() => (target - 7 + .5) / 9)
+    assert.equal(job.reduce((sum, log) => sum + log.expectedPieces, 0), target)
+  }
+  assert(yields.size > 1 && counts.size > 1, 'Jobs vary in yield and number of logs')
+  assert.equal(woodcut.strengthQuality(85), 100)
+  assert.equal(woodcut.strengthQuality(0), 0)
+  assert(woodcut.strengthQuality(100) < woodcut.strengthQuality(85))
+  assert.equal(woodcut.firewoodValue(0, 0).coins, 0)
+  assert.equal(woodcut.firewoodValue(100, 100).coins, .8)
+  assert.equal(woodcut.firewoodValue(49, 49).coins, 0)
+  assert.deepEqual(woodcut.firewoodValue(49.99, 100), { combined: 0, coins: 0 })
+  assert.deepEqual(woodcut.firewoodValue(100, 49.99), { combined: 0, coins: 0 })
+  assert.equal(woodcut.firewoodValue(100, 50).combined, 80)
+  assert.equal(woodcut.firewoodValue(50, 100).combined, 70)
+  assert.equal(woodcut.firewoodValue(50, 50).coins, .5)
+  assert.equal(woodcut.firewoodValue(0, 100).coins, 0)
+  assert.equal(woodcut.firewoodValue(100, 0).combined, 0)
+  assert.equal(woodcut.firewoodValue(0, 100).combined, 0)
+  for (const speed of [0, .5, .999999]) {
+    const fresh = woodcut.chargeDuration(0, () => speed)
+    const tired = woodcut.chargeDuration(1, () => speed)
+    assert(fresh > 0 && tired <= 2 && tired > fresh)
+    assert.equal(woodcut.chargeDuration(.6, () => speed), fresh)
+  }
+  const branched = woodcut.firstPiece({ ...woodcut.WOOD_STUMPS[1], branchMarks: [{ side: 0, join: 40 }, { side: 1, join: 60 }] })
+  assert.equal(branched.branchMarks.length, 2)
+  const branchSplit = woodcut.splitPiece(branched, -branched.angle, 0, .9)
+  assert(branchSplit.children.every(piece => piece.marked && piece.branchMarks.length === 0), 'Branch marks become child targets after the main split')
+  assert(woodcut.cutScore(branched, -branched.angle, 0) > woodcut.cutScore(branched, 90 - branched.angle, 0), 'The main mark is the first target')
+  const blankLog = woodcut.firstPiece({ ...woodcut.WOOD_STUMPS[0], marked: false })
+  assert.equal(blankLog.marked, false)
+  assert.equal(blankLog.cutOffset, 0)
   const rootLog = woodcut.firstPiece(woodcut.WOOD_STUMPS[0])
-  const cleanSplit = woodcut.splitPiece(rootLog, 35, 0, 0.9)
+  const cleanSplit = woodcut.splitPiece(rootLog, 35, -rootLog.cutOffset * Math.cos(35 * Math.PI / 180), 0.9)
   assert.equal(cleanSplit.score, 100)
   assert.equal(woodcut.cutScore({ marked: true, angle: 80 }, 100, 0), 100, 'A split line is symmetric after half a turn')
   assert.equal(woodcut.cutScore({ marked: false, angle: 40 }, 70, 0), 100, 'Unmarked wood is scored by centering')
   assert.equal(cleanSplit.children.reduce((sum, piece) => sum + piece.piecesNeeded, 0), rootLog.piecesNeeded)
   assert.equal(cleanSplit.landings, 2)
+  assert.deepEqual(cleanSplit.children.map(piece => piece.piecesNeeded), [1, 2], 'Ash starts with a one-third split')
+  assert(Math.abs(cleanSplit.children.reduce((sum, piece) => sum + piece.fraction, 0) - 1) < 1e-9)
+  assert(woodcut.WOOD_STUMPS.some(stump => stump.expectedPieces - 1 === 5), 'Include a five-cut log')
   assert(woodcut.woodcutPay([100, 100]) > woodcut.woodcutPay([0, 0]))
   for (const stump of woodcut.WOOD_STUMPS) {
     let pieces = [woodcut.firstPiece(stump)]
@@ -37,6 +95,12 @@ try {
     while (pieces.some((piece) => piece.piecesNeeded > 1)) {
       const piece = pieces.find((item) => item.piecesNeeded > 1)
       const result = woodcut.splitPiece(piece, -piece.angle, 0, 0)
+      for (const child of result.children.filter(item => item.piecesNeeded > 1)) {
+        const relativeCut = .5 + child.angle / (child.fraction * 360)
+        assert(relativeCut >= 1 / 3 - 1e-9 && relativeCut <= 2 / 3 + 1e-9, 'Wedge targets must stay away from either edge')
+        assert.equal(child.cutOffset, 0, 'Wedge marks pass through the center instead of skimming an edge')
+        assert.equal(woodcut.cutScore(child, -child.angle, 0), 100)
+      }
       pieces = [...pieces.filter((item) => item !== piece), ...result.children]
       cuts += 1
     }
@@ -96,6 +160,12 @@ try {
   saved.version = 7
   loaded = game.readSave()
   assert.equal(loaded.travel, null, 'Old travel timing must be discarded during migration')
+  saved = { ...game.initialState(), skipWoodcuttingIntro: true }
+  assert.equal(game.readSave().skipWoodcuttingIntro, true, 'Remember the intro preference')
+  delete saved.skipWoodcuttingIntro
+  assert.equal(game.readSave().skipWoodcuttingIntro, false, 'Older saves show the intro by default')
+  saved.skipWoodcuttingIntro = 'true'
+  assert.equal(game.readSave().skipWoodcuttingIntro, false, 'Only an explicit boolean enables skipping')
   console.log('Quest progression, routing, travel events, and save migration valid')
 } finally {
   await server.close()

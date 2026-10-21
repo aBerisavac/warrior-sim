@@ -136,7 +136,7 @@ onBeforeUnmount(cancelMenuClose)
   <svg v-if="travel" class="town-route" :viewBox="'0 0 ' + mapSize.width + ' ' + mapSize.height" preserveAspectRatio="none" aria-hidden="true">
     <polyline :points="travel.route.map((point) => point.x + ',' + point.y).join(' ')" />
   </svg>
-  <div class="pawn-walker" :style="{ left: pawnPosition.x / mapSize.width * 100 + '%', top: pawnPosition.y / mapSize.height * 100 + '%' }" aria-hidden="true">♟</div>
+  <div class="pawn-walker" :style="{ left: pawnPosition.x / mapSize.width * 100 + '%', top: pawnPosition.y / mapSize.height * 100 + '%' }" aria-hidden="true"><img src="/images/profile/blacksmith.png" alt="" /></div>
   <div v-if="travel" class="travel-banner" role="status" aria-live="polite">
     <strong>{{ t('map.walkingTo', { place: t('places.' + travel.destinationId + '.name') }) }}</strong>
     <span>{{ t('map.walkingTimeLeft', { seconds: Math.ceil((travel.totalMinutes - travel.elapsedMinutes) / 3), minutes: travel.totalMinutes - travel.elapsedMinutes }) }}</span>

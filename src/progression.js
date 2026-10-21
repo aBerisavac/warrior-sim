@@ -6,6 +6,7 @@ export const QUEST = Object.freeze({
   FATHER_MET: 'father_met',
   IRON_ERRAND_ACCEPTED: 'iron_errand_accepted',
   BANDIT_AMBUSH_SURVIVED: 'bandit_ambush_survived',
+  MARKET_JOB_NOTICE_READ: 'market_job_notice_read',
   TAVERN_WORK_OFFERED: 'tavern_work_offered',
   IRON_STOCK_BOUGHT: 'iron_stock_bought',
   DAGGER_FORGED: 'dagger_forged',
@@ -50,5 +51,7 @@ const legacyStageQuests = {
 
 export function migrateCompletedQuests(saved) {
   const source = Array.isArray(saved.completedQuests) ? saved.completedQuests : legacyStageQuests[saved.stage] || []
-  return [...new Set(source.filter((id) => knownQuests.has(id)))]
+  const completed = [...new Set(source.filter((id) => knownQuests.has(id)))]
+  if (!completed.includes(QUEST.MARKET_JOB_NOTICE_READ) && (completed.includes(QUEST.TAVERN_WORK_OFFERED) || completed.includes(QUEST.IRON_STOCK_BOUGHT))) completed.push(QUEST.MARKET_JOB_NOTICE_READ)
+  return completed
 }

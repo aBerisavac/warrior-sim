@@ -11,6 +11,7 @@ export const initialState = () => ({
   mapRevision: mapGrid.revision,
   mapId: 'town',
   buildingTiers: {},
+  skipWoodcuttingIntro: false,
   location: 'smithy',
   selected: 'smithy',
   travel: null,
@@ -64,6 +65,7 @@ export function readSave() {
       if (pristineOpening) return initialState()
       const completedQuests = migrateCompletedQuests(saved)
       const state = { ...initialState(), ...saved, version: 8, completedQuests }
+      state.skipWoodcuttingIntro = saved.skipWoodcuttingIntro === true
       delete state.gameplayUnlocked
       delete state.marketUnlocked
       const journey = state.travel

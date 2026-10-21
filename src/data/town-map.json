@@ -18,8 +18,8 @@
     "..............MMMRMMM.........",
     ".WWWWWWWWWWWWWWRRR.M..........",
     ".W............GGG.............",
-    ".W............GGGWWWWWWWWWWW..",
-    ".W....HHHR...HHRRRHHHHR....W..",
+    ".W.HHH........GGGWWWWWWWWWWW..",
+    ".W.HHHHHHR...HHRRRHHHHR....W..",
     ".W...RHHHR...HH..RHHHHR..HHW..",
     ".WHH.RHHHR.......RRRRRRRRHHW..",
     ".WHHRRRRRRRRRRRRRR....R....W..",
@@ -356,6 +356,20 @@
         "side": "north"
       },
       "imageSrc": "/images/straw/Tavern.png"
+    },
+    {
+      "id": "house1792574285215",
+      "kind": "house",
+      "x": 3,
+      "y": 3,
+      "width": 3,
+      "height": 2,
+      "door": {
+        "x": 5,
+        "y": 5,
+        "side": "south"
+      },
+      "imageSrc": null
     }
   ],
   "gates": [
@@ -645,6 +659,181 @@
       "type": "flowers",
       "x": 20,
       "y": 7
+    },
+    {
+      "type": "bush",
+      "x": 18,
+      "y": 13
+    },
+    {
+      "type": "bush",
+      "x": 23,
+      "y": 15
+    },
+    {
+      "type": "bush",
+      "x": 23,
+      "y": 19
+    },
+    {
+      "type": "tree",
+      "x": 3,
+      "y": 21
+    },
+    {
+      "type": "tree",
+      "x": 7,
+      "y": 21
+    },
+    {
+      "type": "tree",
+      "x": 11,
+      "y": 15
+    },
+    {
+      "type": "tree",
+      "x": 6,
+      "y": 9
+    },
+    {
+      "type": "tree",
+      "x": 12,
+      "y": 3
+    },
+    {
+      "type": "tree",
+      "x": 23,
+      "y": 5
+    },
+    {
+      "type": "tree",
+      "x": 16,
+      "y": 6
+    },
+    {
+      "type": "tree",
+      "x": 20,
+      "y": 2
+    },
+    {
+      "type": "tree",
+      "x": 25,
+      "y": 1
+    },
+    {
+      "type": "tree",
+      "x": 1,
+      "y": 18
+    },
+    {
+      "type": "tree",
+      "x": 4,
+      "y": 14
+    },
+    {
+      "type": "tree",
+      "x": 0,
+      "y": 9
+    },
+    {
+      "type": "tree",
+      "x": 12,
+      "y": 27
+    },
+    {
+      "type": "tree",
+      "x": 26,
+      "y": 26
+    },
+    {
+      "type": "tree",
+      "x": 16,
+      "y": 22
+    },
+    {
+      "type": "tree",
+      "x": 16,
+      "y": 21
+    },
+    {
+      "type": "tree",
+      "x": 25,
+      "y": 19
+    },
+    {
+      "type": "tree",
+      "x": 16,
+      "y": 14
+    },
+    {
+      "type": "tree",
+      "x": 13,
+      "y": 17
+    },
+    {
+      "type": "tree",
+      "x": 10,
+      "y": 21
+    },
+    {
+      "type": "tree",
+      "x": 13,
+      "y": 22
+    },
+    {
+      "type": "rock",
+      "x": 4,
+      "y": 17
+    },
+    {
+      "type": "rock",
+      "x": 6,
+      "y": 2
+    },
+    {
+      "type": "rock",
+      "x": 10,
+      "y": 4
+    },
+    {
+      "type": "rock",
+      "x": 15,
+      "y": 5
+    },
+    {
+      "type": "rock",
+      "x": 17,
+      "y": 2
+    },
+    {
+      "type": "rock",
+      "x": 26,
+      "y": 9
+    },
+    {
+      "type": "rock",
+      "x": 29,
+      "y": 9
+    },
+    {
+      "type": "rock",
+      "x": 26,
+      "y": 2
+    },
+    {
+      "type": "cart",
+      "x": 10,
+      "y": 12
+    },
+    {
+      "type": "cart",
+      "x": 18,
+      "y": 19
+    },
+    {
+      "type": "cart",
+      "x": 17,
+      "y": 16
     }
   ],
   "tileImages": {
@@ -660,5 +849,5 @@
     "~": null
   },
   "cellImages": [],
-  "revision": 5
+  "revision": 7
 }

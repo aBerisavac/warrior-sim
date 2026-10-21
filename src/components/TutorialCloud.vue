@@ -12,7 +12,16 @@ const props = defineProps({
 const emit = defineEmits(['accept', 'ready'])
 const writer = ref(null)
 const ready = ref(false)
-watch(() => props.quest?.id, () => { ready.value = false; emit('ready', false) })
+const showingReply = ref(false)
+watch(() => props.quest?.id, () => { showingReply.value = false; ready.value = false; emit('ready', false) })
+function accept() {
+  if (!ready.value) return
+  if (props.quest?.cloud.replyKey && !showingReply.value) {
+    ready.value = false
+    emit('ready', false)
+    showingReply.value = true
+  } else emit('accept')
+}
 function complete() { ready.value = true; emit('ready', true) }
 const { t } = useI18n()
 </script>
@@ -23,13 +32,13 @@ const { t } = useI18n()
       :class="{ 'tutorial-cloud-forge': quest.cloud.mode === 'forge' }" role="status" aria-live="polite" @click="writer?.reveal()">
       <span class="tutorial-cloud-kicker">✧ {{ t('sidebar.currentObjective') }}</span>
       <h3>{{ t(quest.cloud.titleKey) }}</h3>
-      <p><TypewriterText ref="writer" :text="t(quest.cloud.messageKey)" @complete="complete" /></p>
+      <p><TypewriterText ref="writer" :text="t(showingReply ? quest.cloud.replyKey : quest.cloud.messageKey)" @complete="complete" /></p>
       <div v-if="quest.cloud.mode === 'town'" class="tutorial-cloud-guide">
         <CircleIcon as="span" size="guide" class="guide-symbol" icon="⚒" />
         <span>{{ t(markerOpen ? quest.cloud.guideOpenKey : quest.cloud.guideClosedKey) }}</span>
         <CircleIcon as="span" size="guide" class="guide-symbol" icon="⌂" />
       </div>
-      <button v-else type="button" :disabled="!ready" @click.stop="emit('accept')">{{ t(quest.cloud.acceptKey) }} <span aria-hidden="true">➜</span></button>
+      <button v-else type="button" :disabled="!ready" @click.stop="accept">{{ t(showingReply ? quest.cloud.replyAcceptKey : quest.cloud.acceptKey) }} <span aria-hidden="true">➜</span></button>
     </div>
   </Transition>
 </template>

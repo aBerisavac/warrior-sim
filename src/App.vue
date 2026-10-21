@@ -19,6 +19,29 @@ const game = reactive(readSave())
 const offerPercent = ref(115)
 const mapView = ref('town')
 const editingMap = ref(false)
+const gameFrame = ref(null)
+const expandedGame = ref(false)
+const fullscreenGame = ref(false)
+const displayError = ref('')
+let gameSizeObserver
+function fitGameSquare() {
+  const frame = gameFrame.value
+  if (!frame) return
+  const occupied = [...frame.children].filter(child => !child.classList.contains('map-canvas'))
+    .reduce((height, child) => height + child.getBoundingClientRect().height, 0)
+  frame.style.setProperty('--game-square', `${Math.max(0, Math.min(frame.clientWidth, frame.clientHeight - occupied))}px`)
+}
+function syncFullscreen() { fullscreenGame.value = document.fullscreenElement === gameFrame.value }
+function handleDisplayKey(event) {
+  if (event.key === 'Escape' && !document.fullscreenElement) expandedGame.value = false
+}
+async function toggleGameFullscreen() {
+  displayError.value = ''
+  try {
+    if (document.fullscreenElement === gameFrame.value) await document.exitFullscreen()
+    else await gameFrame.value.requestFullscreen()
+  } catch { displayError.value = t('map.fullscreenUnavailable') }
+}
 const modal = ref(null)
 const tradeFeedback = ref(null)
 const townMenu = ref(null)
@@ -85,12 +108,23 @@ function scheduleIntro() {
   }, 3000)
 }
 onMounted(() => {
+  gameSizeObserver = new ResizeObserver(fitGameSquare)
+  gameSizeObserver.observe(gameFrame.value)
+  for (const child of gameFrame.value.children) {
+    if (child.classList.contains('map-hud') || child.classList.contains('game-display-controls') || child.classList.contains('map-footer')) gameSizeObserver.observe(child)
+  }
+  document.addEventListener('fullscreenchange', syncFullscreen)
+  document.addEventListener('keydown', handleDisplayKey)
   scheduleIntro()
   if (game.travel?.pausedForEvent) modal.value = 'event'
+  else if (!game.travel && needsMarketNotice(game.location)) modal.value = 'marketNotice'
   else if (!game.travel && game.location === 'tavern' && hasQuest(game.completedQuests, QUEST.BANDIT_AMBUSH_SURVIVED) && !hasQuest(game.completedQuests, QUEST.TAVERN_WORK_OFFERED)) modal.value = 'tavern'
   travelTimer = setInterval(tickTravel, 1000 / 3)
 })
 onBeforeUnmount(() => {
+  gameSizeObserver?.disconnect()
+  document.removeEventListener('fullscreenchange', syncFullscreen)
+  document.removeEventListener('keydown', handleDisplayKey)
   clearTimeout(introTimer)
   clearInterval(travelTimer)
 })
@@ -121,6 +155,7 @@ function performAction(actionId, placeId) {
     tavernReply.value = null
     modal.value = 'tavern'
   } else if (actionId === 'trade') {
+    if (needsMarketNotice(placeId)) { modal.value = 'marketNotice'; return }
     tradeFeedback.value = null
     modal.value = 'trade'
   }
@@ -142,7 +177,8 @@ function startTravel(destinationId, pending = null) {
     game.location = destinationId
     if (pending?.kind === 'action') performAction(pending.id, destinationId)
     if (pending?.kind === 'job') performJob(pending.id, destinationId)
-    offerTavernWork(destinationId)
+    if (needsMarketNotice(destinationId)) modal.value = 'marketNotice'
+    else offerTavernWork(destinationId)
     return
   }
   game.travel = {
@@ -208,8 +244,20 @@ function tickTravel() {
     note('events.travel', { placeId: destinationId, duration: totalMinutes })
     if (pending?.kind === 'action') performAction(pending.id, destinationId)
     if (pending?.kind === 'job') performJob(pending.id, destinationId)
-    offerTavernWork(destinationId)
+    if (needsMarketNotice(destinationId)) modal.value = 'marketNotice'
+    else offerTavernWork(destinationId)
   }
+}
+
+function needsMarketNotice(placeId) {
+  return placeId === 'market' && hasQuest(game.completedQuests, QUEST.BANDIT_AMBUSH_SURVIVED)
+    && !hasQuest(game.completedQuests, QUEST.MARKET_JOB_NOTICE_READ)
+}
+function readMarketNotice() {
+  if (modal.value !== 'marketNotice' || !needsMarketNotice(game.location)) return
+  completeQuest(QUEST.MARKET_JOB_NOTICE_READ)
+  note('events.marketJobNotice')
+  modal.value = null
 }
 
 function offerTavernWork(destinationId) {
@@ -362,7 +410,13 @@ function reset() {
           <div v-if="mapView === 'town'" class="map-scale"><span class="dot" :class="game.stage === 'intro' ? 'hollow' : 'green'"></span> {{ t(game.stage === 'intro' ? 'map.locked' : tutorialStage && !placeUnlocked('market') ? 'map.tutorialOpen' : 'map.open') }} <span class="dot hollow"></span> {{ t('map.future') }}</div>
         </div>
 
-        <div class="map-frame" :class="{ 'map-frame--playing': !editingMap }">
+        <div ref="gameFrame" class="map-frame" :class="{ 'map-frame--playing': !editingMap, 'map-frame--expanded': expandedGame, 'map-frame--fullscreen': fullscreenGame }">
+          <div id="game-animation-layer" class="game-animation-layer" aria-hidden="true"></div>
+          <div class="game-display-controls">
+            <button type="button" :aria-pressed="expandedGame" :disabled="fullscreenGame" @click="expandedGame = !expandedGame">{{ t(expandedGame ? 'map.restoreWindow' : 'map.expandWindow') }}</button>
+            <button type="button" :aria-pressed="fullscreenGame" @click="toggleGameFullscreen">{{ t(fullscreenGame ? 'map.exitFullscreen' : 'map.enterFullscreen') }}</button>
+            <span v-if="displayError" role="status">{{ displayError }}</span>
+          </div>
           <div v-if="mapView === 'town' && !editingMap" class="map-edit-toggle"><button type="button" @click="editingMap = !editingMap">{{ t(editingMap ? 'mapEditor.close' : 'mapEditor.open') }}</button></div>
           <MapEditor v-if="editingMap && mapView === 'town'" @close="editingMap = false" />
           <template v-else>
@@ -375,8 +429,8 @@ function reset() {
             <GameModal :modal="modal" :game="game" :selected-place="selectedPlace" :trip-minutes="tripMinutes"
               :stamina="stamina" :sleep-need="sleepNeed" :asking-price="askingPrice" :offered-price="offeredPrice"
               v-model:offer-percent="offerPercent" :mood-key="moodKey" :trade-feedback="tradeFeedback" :tavern-reply="tavernReply"
-              @close="closeModal" @modal="modal = $event" @reset="reset" @bargain="bargain" @tip="tip"
-              @work="work" @wood-finished="finishWoodcutting" @tavern-answer="answerInnkeeper" @forge="forge" @sleep="sleep" />
+              @market-notice-read="readMarketNotice" @close="closeModal" @modal="modal = $event" @reset="reset" @bargain="bargain" @tip="tip"
+              @update:skip-woodcutting-intro="game.skipWoodcuttingIntro = $event" @work="work" @wood-finished="finishWoodcutting" @tavern-answer="answerInnkeeper" @forge="forge" @sleep="sleep" />
           </div>
           </template>
           <div class="map-footer">

@@ -10,7 +10,7 @@
       "bandit_ambush_survived"
     ],
     "tavern": [
-      "bandit_ambush_survived"
+      "market_job_notice_read"
     ]
   },
   "actions": {
@@ -42,16 +42,16 @@
       "bandit_ambush_survived"
     ],
     "tavern.info": [
-      "bandit_ambush_survived"
+      "market_job_notice_read"
     ],
     "tavern.walk": [
-      "bandit_ambush_survived"
+      "market_job_notice_read"
     ],
     "tavern.work": [
       "tavern_work_offered"
     ],
     "tavern.talk": [
-      "bandit_ambush_survived"
+      "market_job_notice_read"
     ]
   },
   "jobs": {

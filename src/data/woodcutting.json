@@ -1,5 +1,5 @@
 [
-  { "id": "ash", "nameKey": "woodcut.ash", "expectedPieces": 3, "initialAngle": -35 },
+  { "id": "ash", "nameKey": "woodcut.ash", "expectedPieces": 3, "initialAngle": -35, "splitPlan": [1, 2], "cutOffset": -20 },
   { "id": "beech", "nameKey": "woodcut.beech", "expectedPieces": 4, "initialAngle": 45 },
-  { "id": "oak", "nameKey": "woodcut.oak", "expectedPieces": 5, "initialAngle": -60 }
+  { "id": "oak", "nameKey": "woodcut.oak", "expectedPieces": 6, "initialAngle": -60, "splitPlan": [2, 4], "cutOffset": -20 }
 ]

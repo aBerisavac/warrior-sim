@@ -52,7 +52,9 @@
       "mode": "forge",
       "titleKey": "tutorial.fatherTitle",
       "messageKey": "tutorial.fatherMessage",
-      "acceptKey": "tutorial.acceptErrand"
+      "acceptKey": "tutorial.acceptErrand",
+      "replyKey": "tutorial.fatherWorkReply",
+      "replyAcceptKey": "tutorial.leaveForIron"
     }
   },
   {
@@ -73,9 +75,39 @@
     ]
   },
   {
-    "id": "tavern_work_offered",
+    "id": "market_job_notice_read",
     "requires": [
       "bandit_ambush_survived"
+    ],
+    "priority": 32,
+    "titleKey": "quests.market_job_notice_read.title",
+    "descriptionKey": "quests.market_job_notice_read.description",
+    "objectives": [
+      {
+        "textKey": "quests.market_job_notice_read.visit",
+        "placeId": "market",
+        "actionId": "walk"
+      }
+    ],
+    "scene": [
+      {
+        "textKey": "marketNotice.reflection",
+        "actionKey": "marketNotice.thinkMoney"
+      },
+      {
+        "textKey": "marketNotice.money",
+        "actionKey": "marketNotice.readSign"
+      },
+      {
+        "textKey": "marketNotice.notice",
+        "actionKey": "marketNotice.headInn"
+      }
+    ]
+  },
+  {
+    "id": "tavern_work_offered",
+    "requires": [
+      "market_job_notice_read"
     ],
     "priority": 35,
     "titleKey": "quests.tavern_work_offered.title",
@@ -91,7 +123,7 @@
   {
     "id": "iron_stock_bought",
     "requires": [
-      "bandit_ambush_survived"
+      "market_job_notice_read"
     ],
     "priority": 40,
     "stageOnComplete": "materials",

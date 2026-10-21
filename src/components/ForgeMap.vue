@@ -51,7 +51,7 @@ onBeforeUnmount(() => clearTimeout(coalTimer))
 
 <template>
   <BlacksmithHouseArt />
-  <div class="pawn-walker pawn-forge" :aria-label="t('map.pawnHere')" role="img">♟</div>
+  <div class="pawn-walker pawn-forge" :aria-label="t('map.pawnHere')" role="img"><img src="/images/profile/blacksmith.png" alt="" /></div>
   <button class="interior-back" type="button" :disabled="dialogueBlocked" @click="emit('town')">← {{ t('map.backTown') }}</button>
 
   <CircleIcon

@@ -4,7 +4,8 @@ import { useI18n } from 'vue-i18n'
 import { translateEntry } from '../i18n/messages'
 import TypewriterText from './TypewriterText.vue'
 import WoodcuttingGame from './WoodcuttingGame.vue'
-import { activeQuests, hasQuest, primaryQuest } from '../progression'
+import CircleIcon from './CircleIcon.vue'
+import { activeQuests, hasQuest, primaryQuest, questById } from '../progression'
 
 const props = defineProps({
   modal: { type: String, default: null },
@@ -20,7 +21,7 @@ const props = defineProps({
   tradeFeedback: { type: Object, default: null },
   tavernReply: { type: String, default: null },
 })
-const emit = defineEmits(['close', 'modal', 'update:offerPercent', 'reset', 'bargain', 'tip', 'work', 'wood-finished', 'tavern-answer', 'forge', 'sleep'])
+const emit = defineEmits(['market-notice-read', 'close', 'modal', 'update:offerPercent', 'reset', 'bargain', 'tip', 'work', 'wood-finished', 'update:skipWoodcuttingIntro', 'tavern-answer', 'forge', 'sleep'])
 const { t } = useI18n()
 const placeName = () => t('places.' + props.selectedPlace.id + '.name')
 const entryText = (entry) => translateEntry(t, entry)
@@ -28,8 +29,15 @@ const currentQuests = computed(() => activeQuests(props.game.completedQuests))
 const shownQuests = computed(() => currentQuests.value.length ? currentQuests.value : [primaryQuest(props.game.completedQuests)].filter(Boolean))
 const writer = ref(null)
 const dialogueReady = ref(true)
+const woodStarted = ref(false)
+const woodCompleted = ref(false)
+const marketStep = ref(0)
+const marketScene = computed(() => questById('market_job_notice_read').scene[marketStep.value])
+watch(() => props.modal, () => { marketStep.value = 0 })
+const canClose = computed(() => dialogueReady.value && props.modal !== 'marketNotice' && (props.modal !== 'tavern' || !!props.tavernReply) && (props.modal !== 'wood' || woodCompleted.value))
 const dialogueText = computed(() => {
   const modal = props.modal
+  if (modal === 'marketNotice') return t(marketScene.value.textKey)
   if (modal === 'event') return [entryText(props.game.event), props.game.stage !== 'drafted' ? t('modal.injury', { health: props.game.health, stamina: props.stamina }) : ''].filter(Boolean).join(' ')
   if (modal === 'info') return [t('places.' + props.selectedPlace.id + '.description'), !props.selectedPlace.available ? t('modal.lockedHelp') : props.game.location === props.selectedPlace.id ? t('actions.here') : t('modal.walkingHere', { minutes: props.tripMinutes })].join(' ')
   if (modal === 'locked') return t('modal.lockedFuture')
@@ -40,11 +48,11 @@ const dialogueText = computed(() => {
   if (modal === 'wood') return t('modal.woodHelp')
   if (modal === 'dishes') return t('modal.dishesHelp')
   if (modal === 'forge') return t(!props.game.materials ? 'modal.forgeNeed' : props.game.dagger ? 'modal.forgeDone' : 'modal.forgeHelp')
-  if (modal === 'sleep') return [t('modal.sleepHelp', { need: props.sleepNeed }), props.game.location === 'smithy' ? '' : t('modal.sleepAway')].filter(Boolean).join(' ')
+  if (modal === 'sleep') return [t(props.sleepNeed >= 60 ? 'modal.sleepThoughtExhausted' : props.sleepNeed >= 30 ? 'modal.sleepThoughtTired' : 'modal.sleepThoughtRest'), t(props.game.location === 'smithy' ? 'modal.sleepThoughtHome' : 'modal.sleepThoughtAway')].join(' ')
   if (modal === 'workbench') return t('modal.workbenchHelp')
   return ''
 })
-watch([() => props.modal, dialogueText], () => { dialogueReady.value = !dialogueText.value }, { immediate: true })
+watch([() => props.modal, dialogueText], () => { woodCompleted.value = false; woodStarted.value = props.modal === 'wood' && props.game.skipWoodcuttingIntro === true; dialogueReady.value = woodStarted.value || !dialogueText.value }, { immediate: true })
 
 function titleKey() {
   if (props.modal === 'event') return props.game.stage === 'drafted' ? 'modal.title.eventDraft' : 'modal.title.eventBandits'
@@ -53,9 +61,9 @@ function titleKey() {
 </script>
 
 <template>
-  <div v-if="modal" class="map-modal-scrim" @click.self="dialogueReady && (modal !== 'tavern' || tavernReply) && emit('close')">
+  <div v-if="modal" class="map-modal-scrim" @click.self="canClose && emit('close')">
     <section :class="['map-modal', { 'map-modal--wood': modal === 'wood' }]" role="dialog" aria-modal="true" :aria-label="t(titleKey())" @click="writer?.reveal()">
-      <div class="modal-top"><span>{{ t(titleKey()) }}</span><button :disabled="!dialogueReady || (modal === 'tavern' && !tavernReply)" @click="emit('close')" :aria-label="t('modal.close')">×</button></div>
+      <div class="modal-top"><span>{{ t(titleKey()) }}</span><button :disabled="!canClose" @click="canClose && emit('close')" :aria-label="t('modal.close')">×</button></div>
 
       <template v-if="modal === 'objective'">
         <h3>{{ t('sidebar.currentObjective') }}</h3>
@@ -128,10 +136,23 @@ function titleKey() {
         <button v-else type="button" class="modal-primary" :disabled="!dialogueReady" @click.stop="emit('close')">{{ t('tavern.acceptWork') }}</button>
       </template>
 
+      <template v-else-if="modal === 'marketNotice'">
+        <h3>{{ t('marketNotice.title') }}</h3>
+        <p class="modal-dialogue market-notice-copy"><TypewriterText ref="writer" :text="dialogueText" @complete="dialogueReady = true" /></p>
+        <button class="modal-primary" type="button" :disabled="!dialogueReady" @click.stop="marketStep < 2 ? marketStep++ : emit('market-notice-read')">{{ t(marketScene.actionKey) }}</button>
+      </template>
+
       <template v-else-if="modal === 'wood'">
-        <h3>{{ t('modal.woodTitle') }}</h3>
-      <p v-if="dialogueText" class="modal-dialogue"><TypewriterText ref="writer" :text="dialogueText" @complete="dialogueReady = true" /></p>
-        <WoodcuttingGame v-if="dialogueReady" @finish="emit('wood-finished', $event)" />
+        <div class="woodcut-title-row">
+          <h3>{{ t('modal.woodTitle') }}</h3>
+          <CircleIcon icon="i" size="guide" class="woodcut-intro-toggle" :class="{ 'woodcut-intro-toggle--off': game.skipWoodcuttingIntro }" :aria-pressed="!game.skipWoodcuttingIntro" :aria-label="t(game.skipWoodcuttingIntro ? 'woodcut.enableIntro' : 'woodcut.disableIntro')" :title="t(game.skipWoodcuttingIntro ? 'woodcut.enableIntro' : 'woodcut.disableIntro')" @click.stop="emit('update:skipWoodcuttingIntro', !game.skipWoodcuttingIntro)" />
+        </div>
+        <p v-if="dialogueText && (!woodStarted || !game.skipWoodcuttingIntro)" class="modal-dialogue woodcut-intro-text" @click.capture="!woodStarted && (dialogueReady ? woodStarted = true : writer?.reveal())">
+          <TypewriterText v-if="!woodStarted" ref="writer" :text="dialogueText" @complete="dialogueReady = true" />
+          <span v-else>{{ dialogueText }}</span>
+        </p>
+        <button v-if="!woodStarted" type="button" class="modal-primary" :disabled="!dialogueReady" @click.stop="woodStarted = true">{{ t('woodcut.start') }}</button>
+        <WoodcuttingGame v-if="woodStarted" :show-opening-tutorial="hasQuest(game.completedQuests, 'iron_errand_accepted') && !hasQuest(game.completedQuests, 'iron_stock_bought')" @completed="woodCompleted = $event" @finish="emit('wood-finished', $event)" />
       </template>
 
       <template v-else-if="modal === 'dishes'">
@@ -149,6 +170,7 @@ function titleKey() {
       <template v-else-if="modal === 'sleep'">
         <h3>{{ t('modal.sleepTitle') }}</h3>
       <p v-if="dialogueText" class="modal-dialogue"><TypewriterText ref="writer" :text="dialogueText" @complete="dialogueReady = true" /></p>
+        <p class="sleep-rest-details">{{ t('modal.sleepHelp', { need: sleepNeed }) }}</p>
         <button v-if="game.location === 'smithy'" class="modal-primary" :disabled="!dialogueReady" @click="emit('sleep')">{{ t('modal.sleepAction') }}</button>
 
       </template>
