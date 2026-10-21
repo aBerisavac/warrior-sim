@@ -177,7 +177,7 @@
 
 .town-route{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
 .town-route polyline{fill:none;stroke:#9d6f40;stroke-width:5;stroke-dasharray:7 7;stroke-linecap:round;opacity:.8}
-.pawn-walker{position:absolute;z-index:10;display:grid;place-items:center;width:28px;height:28px;border:2px solid #f4deac;border-radius:50%;background:#334d3a;color:#fff1c9;font:18px Georgia,serif;box-shadow:0 2px 0 #6c5634,0 0 0 4px #d2b47788;transform:translate(-50%,-50%);transition:left .333s linear,top .333s linear;pointer-events:none}
+.pawn-walker{position:absolute;z-index:10;display:grid;place-items:center;width:28px;height:28px;border:2px solid #f4deac;border-radius:50%;background:#334d3a;color:#fff1c9;font:18px Georgia,serif;box-shadow:0 2px 0 #6c5634,0 0 0 4px #d2b47788;transform:translate(-50%,-50%);transition:left .05s linear,top .05s linear;pointer-events:none}
 .travel-banner{position:absolute;z-index:12;left:12px;bottom:12px;display:flex;flex-direction:column;gap:3px;max-width:min(240px,65%);padding:9px 12px;border:1px solid #8b6f48;background:#263a2dea;color:#f2e5c5;box-shadow:0 4px 12px #3c362c77;pointer-events:none}
 .travel-banner strong{font:17px 'IM Fell English',Georgia,serif}
 .travel-banner span{font-size:10px;color:#e0cd9a}
@@ -516,5 +516,160 @@
 .woodcut-clear-space>.modal-secondary:hover:not(:disabled){background:#e0c78e;color:#203523}
 
 .map-modal--wood .woodcut-intro-text{flex:none}
+.map-modal--wood .woodcut-intro-text--playing{max-height:64px;overflow-y:auto;overscroll-behavior:contain;padding:6px 8px;line-height:1.4;box-sizing:border-box}
+.map-modal--wood .woodcut-game{flex:1 0 350px;min-height:350px}
+.map-modal--wood .woodcut-workspace{min-height:230px}
+.map-modal--wood .woodcut-stage{min-height:140px}
 
 .market-notice-copy{white-space:pre-line}
+
+.inventory-map-button{position:absolute;bottom:15px;right:16px;width:78px;height:58px;padding:0;border:0;background:none;z-index:16;filter:drop-shadow(0 3px 3px #15231799);transition:filter .15s,transform .15s}
+.inventory-map-button svg{display:block;width:100%;height:100%}
+.inventory-map-button:hover:not(:disabled){filter:drop-shadow(0 0 5px #e4c884);transform:translateY(-2px)}
+.inventory-map-button:focus-visible{outline:2px solid #e2c586;outline-offset:3px}
+.map-modal--inventory{width:min(730px,100%);max-height:96%;padding:16px 20px}
+
+.merchant-showcase{position:relative;min-height:160px;height:clamp(150px,26vh,230px);margin:8px 0 12px;background:radial-gradient(ellipse at 45% 70%,#88754644,transparent 70%),#1e2d24;border:1px solid #76805c55;border-radius:5px;overflow:hidden}
+.merchant-showcase>img{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom}
+.merchant-showcase figcaption{position:absolute;left:10px;bottom:8px;padding:5px 8px;border-radius:4px;background:#18271ee8}
+.tutorial-cloud .dialogue-bubble{margin:8px 0;font-size:12px}
+.map-modal--wood .woodcut-intro-text.dialogue-bubble{font-size:11px;margin:4px 0 8px}
+.market-notice-copy.dialogue-bubble{white-space:normal}
+.market-notice-copy .dialogue-bubble-copy{white-space:pre-line}
+
+.merchant-stock{display:grid;gap:6px;margin:12px 0}
+.merchant-stock-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:11px;color:#d6c18b}
+.merchant-stock-heading span{font-size:9px;color:#acb99f}
+.merchant-stock>button{display:flex;align-items:center;gap:10px;text-align:left;border:1px solid #657355;border-radius:4px;background:#203126;color:#d0d6bd;padding:6px 10px;font-size:12px}
+.merchant-stock>button.selected{border-color:#c4a969;background:#414a32;box-shadow:inset 0 0 0 1px #b6a06b33}
+.merchant-stock>button img{width:35px;height:35px}
+.merchant-stock>button strong{margin-left:auto;color:#e2ca92;font-size:11px}
+
+.map-modal--trade{width:min(940px,100%);padding:16px 20px;max-height:96%;scrollbar-gutter:stable}
+.map-modal--trade>.merchant-showcase{height:125px;min-height:100px;margin:7px 0}
+.map-modal--trade>.dialogue-bubble{margin:7px 0;font-size:11px;padding:7px}
+.trading-panel{font-size:11px}
+.trade-status-strip,.trade-totals,.trade-settlement{display:flex;flex-wrap:wrap;justify-content:space-between;gap:7px;color:#d8c18b}
+.trade-status-strip{border-bottom:1px solid #78816255;padding-bottom:8px}
+.trade-errand{margin:8px 0;color:#d0c49e;padding:6px 8px;background:#18271f99;border-left:2px solid #ad925d}
+.trade-columns{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:10px 0}
+.trade-columns>section{min-width:0;border:1px solid #6c78534d;border-radius:5px;background:#203025;padding:9px}
+.map-modal .trade-columns h3{font-size:19px;margin:0 0 4px}
+.trade-muted{font-size:10px!important;color:#aeb9a0!important;line-height:1.45!important;margin:5px 0!important}
+.trade-catalog{max-height:235px;overflow:auto;scrollbar-width:thin;display:grid;gap:4px}
+.trade-item-row{display:flex;align-items:center;gap:7px;min-height:48px;padding:4px 5px;background:#2d3d2e;border:1px solid #69745355;border-radius:3px}
+.trade-item-row img{width:34px;height:34px;object-fit:contain;flex:none}
+.trade-item-row>div{min-width:0;flex:1}.trade-item-row strong{display:block;font-size:11px;color:#dfd4af}.trade-item-row small{display:block;font-size:9px;color:#aebda1;margin-top:3px}
+.trade-item-row>button,.trade-quantity button,.trade-remove{display:grid;place-items:center;min-width:27px;min-height:27px;padding:1px 5px;border:1px solid #9d8d60;border-radius:3px;background:#514e32;color:#e7d7a7;font-size:17px;flex:none}
+.trade-equipped{opacity:.6}
+.trade-checkout{padding:10px;border:1px solid #9d87574d;border-radius:4px;background:#1a2b21}
+.trade-offer-label{display:grid;gap:6px;color:#dac28c;font-size:11px;margin:10px 0 0}.trade-offer-label input{margin:0!important;width:100%}
+.trade-settlement{align-items:center;padding:9px 0;border-top:1px solid #68775555;margin-top:8px}.trade-settlement strong{font-size:16px;color:#ebd293}.trade-settlement span{font-size:10px}
+.trade-error{color:#e2aa91!important;font-size:11px!important;margin:5px 0!important}
+.trade-checkout-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:7px}.trade-clear{margin-left:auto;border:0;background:none;color:#bcbca0;text-decoration:underline;font-size:10px}
+@media(max-width:570px){.map-modal--trade{padding:12px}.trade-columns{grid-template-columns:1fr;gap:8px}.trade-catalog{max-height:190px}.trade-basket-row>span{font-size:10px}.trade-checkout-actions .modal-primary{flex:1}.map-modal--trade>.merchant-showcase{height:100px}}
+
+/* Scroll surfaces share the village's green and worn-brass palette. */
+*{scrollbar-width:thin;scrollbar-color:#998354 #1b2b22}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:#1b2b22;border-radius:8px}
+::-webkit-scrollbar-thumb{background:linear-gradient(90deg,#75643f,#ac945d);border:2px solid #1b2b22;border-radius:8px}
+::-webkit-scrollbar-thumb:hover{background:#bea36b}
+::-webkit-scrollbar-corner{background:#1b2b22}
+.trade-columns{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}
+.trade-inventory-column{display:grid;grid-template-rows:27px 154px 26px 240px;min-width:0}
+.trade-pending-zone{border:1px dashed #b59b6266;border-radius:4px;background:#a68b4a0d;padding:7px;min-height:0;display:flex;flex-direction:column}
+.trade-pending-zone h4,.trade-owned-heading{margin:0;font-size:9px;line-height:18px;letter-spacing:.6px;text-transform:uppercase;color:#c7b17d}
+.trade-owned-heading{padding-top:7px}
+.trade-pending-list,.trade-inventory-list{min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-gutter:stable;display:flex;flex-direction:column;gap:4px;padding-right:3px}
+.trade-pending-list{flex:1}
+.trade-item-row{flex:none}
+.trade-item-row--pending{background:#66563355;border-color:#b3985d99;border-left:3px solid #d1b26d}
+.trade-item-row--pending img{width:25px;height:25px}
+.trade-item-row--pending small{color:#ceb780}
+.trade-pending-quantity{width:35px;min-width:0;text-align:center;padding:4px 1px;color:#e9d5a2;background:#1c2b21;border:1px solid #a18b58;border-radius:3px;font-size:11px;-moz-appearance:textfield}
+.trade-pending-quantity::-webkit-inner-spin-button{appearance:none}
+.trade-inventory-column--merchant .trade-item-row>button{order:-1}
+.trade-item-row--empty{opacity:.5}
+.trade-inventory-column .trade-item-row>button{font-size:19px;line-height:1}
+@media(max-width:570px){.trade-columns{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.trade-columns>section{padding:6px}.trade-inventory-column{grid-template-rows:33px 145px 26px 220px}.map-modal .trade-columns h3{font-size:16px}.trade-item-row{gap:4px;padding:4px}.trade-item-row img{width:24px;height:24px}.trade-item-row strong{font-size:10px}.trade-item-row small{font-size:8px}.trade-item-row>button{min-width:25px;min-height:30px;padding:1px 3px}.trade-pending-zone{padding:4px}.trade-pending-zone h4{font-size:8px;letter-spacing:0}.trade-pending-quantity{width:28px}.trade-item-row--pending{flex-wrap:wrap}.trade-item-row--pending>div{flex-basis:calc(100% - 36px)}.trade-item-row--pending .trade-pending-quantity{margin-left:auto}.trade-inventory-column--merchant .trade-item-row--pending>button{order:0}}
+
+.map-modal{position:relative}
+.wood-exit-confirmation{position:absolute;inset:0;z-index:100;display:grid;place-items:center;padding:16px;background:#132018ed}
+.wood-exit-card{width:min(380px,100%);padding:20px;background:#2e3c2e;border:1px solid #b49a63;border-radius:6px;box-shadow:0 8px 30px #07110999}
+.wood-exit-card .modal-actions{flex-wrap:wrap;gap:8px;margin-top:18px}
+.wood-exit-card p{color:#d9d9be;font-size:12px}
+
+.woodcut-reward-amount{display:flex;align-items:center;justify-content:center;gap:3px}
+.woodcut-reward-coins i{background:#b77f50;border-color:#a16b42;box-shadow:0 3px 0 #65432d,0 5px 0 #9e7047}
+
+.hunger-ring{stroke:#c49a5d}
+.rest-actions{display:flex;align-items:end;gap:10px;margin-top:12px;flex-wrap:wrap}
+.rest-actions label{display:grid;gap:5px;font-size:11px;color:#c6b785}
+.rest-actions select{padding:8px;background:#213126;border:1px solid #9b8a5c;color:#e1d5b3;border-radius:3px}
+.rest-restriction{color:#d0b98b!important}
+@media(min-width:571px){.hud-vitals{gap:4px}.hud-ring{width:53px;min-width:53px}}
+
+.dialogue-inner-thought{display:block;margin-top:5px;font-style:italic}
+q{quotes:"“" "”" "‘" "’"}
+.game-display-controls .game-audio-icon{width:27px;height:27px;min-width:27px;padding:2px;border-radius:50%;font:18px/1 "Segoe UI Symbol",sans-serif;color:#dbc58e;background:#2b3d2e;border:1px solid #8d7b51}.game-display-controls .game-audio-icon[aria-pressed=true]{color:#8d9680;background:#202d23}.game-display-controls .game-audio-icon:hover{border-color:#dbc58e}
+.game-display-controls .game-audio-icon>span{font-size:18px;line-height:1}
+
+/* Keep trade navigation and settlement visible; only the stock areas scroll. */
+.map-modal--trade{height:96%;max-height:96%;display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box;padding:10px 14px;scrollbar-gutter:auto}
+.map-modal--trade>.modal-top{flex:none;z-index:2}
+.map-modal--trade>h3{flex:none;font-size:21px;margin:5px 0}
+.map-modal--trade>.merchant-showcase{flex:0 0 62px;height:62px;min-height:0;margin:3px 0}
+.map-modal--trade>.dialogue-bubble{flex:none;max-height:52px;overflow:auto;box-sizing:border-box;margin:4px 0;padding:5px;line-height:1.35}
+.map-modal--trade>.dialogue-bubble .speaker-identity img{width:26px;height:26px}
+.map-modal--trade>.modal-feedback{flex:none;max-height:28px;overflow:auto;font-size:10px;margin:3px 0}
+.map-modal--trade>.trading-panel{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.map-modal--trade .trade-status-strip{flex:none;padding-bottom:4px;font-size:10px}
+.map-modal--trade .trade-errand{flex:none;max-height:28px;overflow:auto;margin:4px 0;padding:4px 6px;font-size:10px}
+.map-modal--trade .trade-columns{flex:1;min-height:0;margin:5px 0;gap:8px}
+.map-modal--trade .trade-inventory-column{min-height:0;overflow:hidden;padding:5px;grid-template-rows:23px minmax(30px,.35fr) 21px minmax(36px,1fr)}
+.map-modal--trade .trade-columns h3{font-size:16px}
+.map-modal--trade .trade-checkout{flex:none;padding:6px}
+.map-modal--trade .trade-totals{font-size:9px;gap:3px}
+.map-modal--trade .trade-offer-label{display:grid;grid-template-columns:minmax(100px,1fr) minmax(80px,1.4fr);align-items:center;gap:8px;margin-top:4px;font-size:10px}
+.map-modal--trade .trade-checkout>.trade-muted{display:none}
+.map-modal--trade .trade-settlement{padding:4px 0;margin-top:4px;gap:3px}
+.map-modal--trade .trade-settlement strong{font-size:13px}
+.map-modal--trade .trade-settlement span{font-size:9px}
+.map-modal--trade .trade-checkout-actions{margin-top:3px;gap:4px}
+.map-modal--trade .trade-checkout-actions button{min-height:28px;padding:5px 7px;font-size:10px}
+.map-modal--trade .trade-error{max-height:28px;overflow:auto;font-size:10px!important;margin:3px 0!important}
+@media(max-width:570px),(max-height:700px){.map-modal--trade>.merchant-showcase{display:none}.map-modal--trade{padding:8px}.map-modal--trade .trade-offer-label{grid-template-columns:minmax(90px,1fr) minmax(60px,1fr)}.map-modal--trade .trade-inventory-column{grid-template-rows:25px minmax(30px,.35fr) 19px minmax(30px,1fr)}}
+@media(max-width:570px){.map-modal--trade>h3{font-size:17px;margin:3px 0}.map-modal--trade .trade-inventory-column{grid-template-rows:21px minmax(0,.35fr) 18px minmax(0,1fr)}.map-modal--trade .trade-status-strip{font-size:9px;padding-bottom:3px;gap:3px}.map-modal--trade .trade-errand{font-size:9px;max-height:20px;padding:2px 4px;margin:2px 0}.map-modal--trade .trade-totals{display:none}.map-modal--trade .trade-settlement{gap:2px}.map-modal--trade .trade-settlement span{font-size:8px}.map-modal--trade .trade-checkout-actions button{padding:4px 5px;font-size:9px}}
+
+/* Keep close controls visible and give game scenes the available space. */
+*,*::before,*::after{-webkit-user-select:none;user-select:none}
+.modal-top{position:sticky;top:0;z-index:50;background:#29372c;min-height:28px;flex:none}
+.modal-secondary:hover:not(:disabled),.modal-secondary:focus-visible,.tavern-answers button:hover:not(:disabled){background:#dec18a;color:#203428}
+.modal-secondary:hover:not(:disabled) *,.tavern-answers button:hover:not(:disabled) *{color:#203428}
+.map-modal--wood{width:100%;height:100%;max-height:100%;overflow:hidden;box-sizing:border-box}
+.map-modal--wood .woodcut-game{flex:1 1 0;min-height:0}
+.map-modal--wood .woodcut-workspace{min-height:0}
+.map-modal--wood .woodcut-stage{min-height:60px}
+.map-modal--wood .woodcut-intro-text--playing{max-height:48px}
+.map-modal--trade{position:relative;isolation:isolate}
+.merchant-modal-art{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center;background:#17271f;z-index:-2;opacity:.75;pointer-events:none}
+.map-modal--trade::before{content:"";position:absolute;inset:0;background:#15281d85;z-index:-1;pointer-events:none}
+.map-modal--trade>.modal-top{z-index:50;background:#23372de8}
+.map-modal--trade>.modal-dialogue,.map-modal--trade>.modal-feedback{background:#1c3026db;border-radius:5px;padding:6px}
+.modal-top .merchant-portrait-toggle{margin-left:auto;margin-right:14px;padding:2px;letter-spacing:normal}
+.merchant-portrait-toggle .speaker-identity{pointer-events:none}
+.map-modal--portrait::before{background:transparent}
+.map-modal--portrait .merchant-modal-art{opacity:1}
+.map-modal--portrait>:not(.merchant-modal-art):not(.modal-top){visibility:hidden;pointer-events:none}
+.map-modal--portrait>.modal-top{background:#1c302695}
+
+.map-modal button:hover:not(:disabled):not(.woodcut-intro-toggle):not(.merchant-portrait-toggle){background-color:#dec18a;color:#203428}.map-modal button:hover:not(:disabled) q,.map-modal button:hover:not(:disabled) .speaker-identity{color:#203428}
+
+/* Green at rest; red follows the hovered branch back to its parents. */
+.map-node .circle-icon--main,.map-node .radial-actions .circle-icon{background:#354d3b;color:#f0dfb6;border-color:#bca774;box-shadow:0 2px 0 #1e3025,0 0 0 2px #314b3b80}
+.map-node>.map-pin.active>.circle-icon--main,.map-node.tutorial-guide-pin>.map-pin>.circle-icon--main,.map-node .tutorial-guide-action,
+.map-node:has(.map-pin:hover)>.map-pin>.circle-icon--main,.map-node:has(.radial-actions .circle-icon:hover)>.map-pin>.circle-icon--main,.map-node:has(:focus-visible)>.map-pin>.circle-icon--main,
+.map-node .radial-actions .circle-icon:hover:not(:disabled),.map-node .radial-actions .circle-icon:focus-visible,
+.map-node .radial-actions:has(.job-orbit .circle-icon:hover)>.radial-work,.map-node .radial-actions:has(.job-orbit .circle-icon:focus-visible)>.radial-work{background:#8d2630;color:#fff0d2;border-color:#ebc79d}
+.map-node .radial-actions .circle-icon:disabled{background:#465445}

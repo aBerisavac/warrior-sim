@@ -130,7 +130,7 @@ export function createMapRoutes(map) {
         if (!best || length < best.length) best = { points, length }
       }
     }
-    return best ? { points: best.points, minutes: Math.ceil(best.length / size) } : { points: [], minutes: 0 }
+    return best ? { points: best.points, minutes: Math.ceil(best.length / size) * (map.minutesPerCell || 1) } : { points: [], minutes: 0 }
   }
   return {
     mapSize, roadSegments, placePoint, placeMarkerPoint, routeFromPoint,

@@ -1,0 +1,439 @@
+[
+  {
+    "id": "leather_apron",
+    "category": "apparel",
+    "nameKey": "items.leather_apron.name",
+    "descriptionKey": "items.leather_apron.description",
+    "weightKg": 2.5,
+    "basePrice": 120,
+    "imageSrc": "/images/items/leather_apron.svg",
+    "equipSlot": "armor"
+  },
+  {
+    "id": "leather_shoes",
+    "category": "apparel",
+    "nameKey": "items.leather_shoes.name",
+    "descriptionKey": "items.leather_shoes.description",
+    "weightKg": 0.8,
+    "basePrice": 50,
+    "imageSrc": "/images/items/leather_shoes.svg",
+    "equipSlot": "shoes"
+  },
+  {
+    "id": "crude_hammer",
+    "category": "tools",
+    "nameKey": "items.crude_hammer.name",
+    "descriptionKey": "items.crude_hammer.description",
+    "weightKg": 1.4,
+    "basePrice": 40,
+    "imageSrc": "/images/items/crude_hammer.svg",
+    "equipSlot": "tool"
+  },
+  {
+    "id": "dagger",
+    "category": "weapons",
+    "nameKey": "items.dagger.name",
+    "descriptionKey": "items.dagger.description",
+    "weightKg": 0.4,
+    "basePrice": 80,
+    "imageSrc": "/images/items/dagger.svg",
+    "hands": 1,
+    "weaponType": "melee",
+    "equipSlot": "weapon"
+  },
+  {
+    "id": "arming_sword",
+    "category": "weapons",
+    "nameKey": "items.arming_sword.name",
+    "descriptionKey": "items.arming_sword.description",
+    "weightKg": 1.2,
+    "basePrice": 250,
+    "imageSrc": "/images/items/arming_sword.svg",
+    "hands": 1,
+    "weaponType": "melee",
+    "equipSlot": "weapon"
+  },
+  {
+    "id": "greatsword",
+    "category": "weapons",
+    "nameKey": "items.greatsword.name",
+    "descriptionKey": "items.greatsword.description",
+    "weightKg": 2.8,
+    "basePrice": 450,
+    "imageSrc": "/images/items/greatsword.svg",
+    "hands": 2,
+    "weaponType": "melee",
+    "equipSlot": "weapon"
+  },
+  {
+    "id": "hunting_bow",
+    "category": "weapons",
+    "nameKey": "items.hunting_bow.name",
+    "descriptionKey": "items.hunting_bow.description",
+    "weightKg": 0.9,
+    "basePrice": 180,
+    "imageSrc": "/images/items/hunting_bow.svg",
+    "hands": 2,
+    "weaponType": "bow",
+    "equipSlot": "weapon"
+  },
+  {
+    "id": "wooden_shield",
+    "category": "weapons",
+    "nameKey": "items.wooden_shield.name",
+    "descriptionKey": "items.wooden_shield.description",
+    "weightKg": 3,
+    "basePrice": 100,
+    "imageSrc": "/images/items/wooden_shield.svg",
+    "equipSlot": "shield"
+  },
+  {
+    "id": "iron_helmet",
+    "category": "apparel",
+    "nameKey": "items.iron_helmet.name",
+    "descriptionKey": "items.iron_helmet.description",
+    "weightKg": 1.5,
+    "basePrice": 150,
+    "imageSrc": "/images/items/iron_helmet.svg",
+    "equipSlot": "helmet"
+  },
+  {
+    "id": "simple_amulet",
+    "category": "apparel",
+    "nameKey": "items.simple_amulet.name",
+    "descriptionKey": "items.simple_amulet.description",
+    "weightKg": 0.05,
+    "basePrice": 20,
+    "imageSrc": "/images/items/simple_amulet.svg",
+    "equipSlot": "amulet"
+  },
+  {
+    "id": "leather_backpack",
+    "category": "apparel",
+    "nameKey": "items.leather_backpack.name",
+    "descriptionKey": "items.leather_backpack.description",
+    "weightKg": 1.1,
+    "basePrice": 100,
+    "imageSrc": "/images/items/leather_backpack.svg",
+    "equipSlot": "back"
+  },
+  {
+    "id": "javelins",
+    "category": "weapons",
+    "nameKey": "items.javelins.name",
+    "descriptionKey": "items.javelins.description",
+    "weightKg": 2,
+    "basePrice": 90,
+    "imageSrc": "/images/items/javelins.svg",
+    "equipSlot": "back"
+  },
+  {
+    "id": "quiver",
+    "category": "weapons",
+    "nameKey": "items.quiver.name",
+    "descriptionKey": "items.quiver.description",
+    "weightKg": 0.6,
+    "basePrice": 60,
+    "imageSrc": "/images/items/quiver.svg",
+    "equipSlot": "waist"
+  },
+  {
+    "id": "coal",
+    "category": "materials",
+    "nameKey": "items.coal.name",
+    "descriptionKey": "items.coal.description",
+    "weightKg": 1,
+    "basePrice": 5,
+    "imageSrc": "/images/items/coal.svg"
+  },
+  {
+    "id": "copper_ore",
+    "category": "materials",
+    "nameKey": "items.copper_ore.name",
+    "descriptionKey": "items.copper_ore.description",
+    "weightKg": 1.5,
+    "basePrice": 10,
+    "imageSrc": "/images/items/copper_ore.svg"
+  },
+  {
+    "id": "copper_ingot",
+    "category": "materials",
+    "nameKey": "items.copper_ingot.name",
+    "descriptionKey": "items.copper_ingot.description",
+    "weightKg": 1.139,
+    "basePrice": 40,
+    "imageSrc": "/images/items/copper_ingot.svg"
+  },
+  {
+    "id": "iron_ore",
+    "category": "materials",
+    "nameKey": "items.iron_ore.name",
+    "descriptionKey": "items.iron_ore.description",
+    "weightKg": 1.5,
+    "basePrice": 17,
+    "imageSrc": "/images/items/iron_ore.svg"
+  },
+  {
+    "id": "iron_ingot",
+    "category": "materials",
+    "nameKey": "items.iron_ingot.name",
+    "descriptionKey": "items.iron_ingot.description",
+    "weightKg": 1,
+    "basePrice": 65,
+    "imageSrc": "/images/items/iron_ingot.svg"
+  },
+  {
+    "id": "bread",
+    "category": "food",
+    "nameKey": "items.bread.name",
+    "descriptionKey": "items.bread.description",
+    "weightKg": 0.35,
+    "basePrice": 3,
+    "hungerRestore": 35,
+    "imageSrc": "/images/items/bread.svg"
+  },
+  {
+    "id": "dagger_guard",
+    "category": "materials",
+    "nameKey": "items.dagger_guard.name",
+    "descriptionKey": "items.dagger_guard.description",
+    "weightKg": 0.025,
+    "basePrice": 5,
+    "imageSrc": "/images/items/dagger_guard.svg",
+    "component": {
+      "kind": "guard",
+      "material": "wood",
+      "length": 8
+    }
+  },
+  {
+    "id": "dagger_handle",
+    "category": "materials",
+    "nameKey": "items.dagger_handle.name",
+    "descriptionKey": "items.dagger_handle.description",
+    "weightKg": 0.06,
+    "basePrice": 5,
+    "imageSrc": "/images/items/dagger_handle.svg",
+    "component": {
+      "kind": "handle",
+      "material": "oak",
+      "length": 12
+    }
+  },
+  {
+    "id": "stew",
+    "category": "food",
+    "nameKey": "items.stew.name",
+    "descriptionKey": "items.stew.description",
+    "weightKg": 0.45,
+    "basePrice": 8,
+    "hungerRestore": 55,
+    "useAction": "eat",
+    "imageSrc": "/images/items/stew.svg"
+  },
+  {
+    "id": "ale",
+    "category": "food",
+    "nameKey": "items.ale.name",
+    "descriptionKey": "items.ale.description",
+    "weightKg": 0.5,
+    "basePrice": 4,
+    "hungerRestore": 5,
+    "useAction": "drink",
+    "imageSrc": "/images/items/ale.svg"
+  },
+  {
+    "id": "dagger_pommel",
+    "category": "materials",
+    "nameKey": "items.dagger_pommel.name",
+    "descriptionKey": "items.dagger_pommel.description",
+    "weightKg": 0.025,
+    "basePrice": 4,
+    "imageSrc": "/images/items/dagger_pommel.svg",
+    "component": {
+      "kind": "pommel",
+      "material": "wood",
+      "length": 3
+    }
+  },
+  {
+    "id": "handle_oak_short",
+    "category": "materials",
+    "nameKey": "items.handle_oak_short.name",
+    "descriptionKey": "items.handle_oak_short.description",
+    "weightKg": 0.041,
+    "basePrice": 7,
+    "imageSrc": "/images/items/dagger_handle.svg",
+    "component": {
+      "kind": "handle",
+      "material": "oak",
+      "length": 12
+    }
+  },
+  {
+    "id": "handle_oak_long",
+    "category": "materials",
+    "nameKey": "items.handle_oak_long.name",
+    "descriptionKey": "items.handle_oak_long.description",
+    "weightKg": 0.095,
+    "basePrice": 9,
+    "imageSrc": "/images/items/dagger_handle.svg",
+    "component": {
+      "kind": "handle",
+      "material": "oak",
+      "length": 28
+    }
+  },
+  {
+    "id": "handle_oak_staff",
+    "category": "materials",
+    "nameKey": "items.handle_oak_staff.name",
+    "descriptionKey": "items.handle_oak_staff.description",
+    "weightKg": 0.424,
+    "basePrice": 15,
+    "imageSrc": "/images/items/dagger_handle.svg",
+    "component": {
+      "kind": "handle",
+      "material": "oak",
+      "length": 80
+    }
+  },
+  {
+    "id": "handle_oak_pole",
+    "category": "materials",
+    "nameKey": "items.handle_oak_pole.name",
+    "descriptionKey": "items.handle_oak_pole.description",
+    "weightKg": 0.954,
+    "basePrice": 27,
+    "imageSrc": "/images/items/dagger_handle.svg",
+    "component": {
+      "kind": "handle",
+      "material": "oak",
+      "length": 180
+    }
+  },
+  {
+    "id": "handle_ash_short",
+    "category": "materials",
+    "nameKey": "items.handle_ash_short.name",
+    "descriptionKey": "items.handle_ash_short.description",
+    "weightKg": 0.036,
+    "basePrice": 7,
+    "imageSrc": "/images/items/dagger_handle.svg",
+    "component": {
+      "kind": "handle",
+      "material": "ash",
+      "length": 12
+    }
+  },
+  {
+    "id": "handle_ash_long",
+    "category": "materials",
+    "nameKey": "items.handle_ash_long.name",
+    "descriptionKey": "items.handle_ash_long.description",
+    "weightKg": 0.085,
+    "basePrice": 9,
+    "imageSrc": "/images/items/dagger_handle.svg",
+    "component": {
+      "kind": "handle",
+      "material": "ash",
+      "length": 28
+    }
+  },
+  {
+    "id": "handle_ash_staff",
+    "category": "materials",
+    "nameKey": "items.handle_ash_staff.name",
+    "descriptionKey": "items.handle_ash_staff.description",
+    "weightKg": 0.379,
+    "basePrice": 15,
+    "imageSrc": "/images/items/dagger_handle.svg",
+    "component": {
+      "kind": "handle",
+      "material": "ash",
+      "length": 80
+    }
+  },
+  {
+    "id": "handle_ash_pole",
+    "category": "materials",
+    "nameKey": "items.handle_ash_pole.name",
+    "descriptionKey": "items.handle_ash_pole.description",
+    "weightKg": 0.852,
+    "basePrice": 27,
+    "imageSrc": "/images/items/dagger_handle.svg",
+    "component": {
+      "kind": "handle",
+      "material": "ash",
+      "length": 180
+    }
+  },
+  {
+    "id": "guard_copper",
+    "category": "materials",
+    "nameKey": "items.guard_copper.name",
+    "descriptionKey": "items.guard_copper.description",
+    "weightKg": 0.251,
+    "basePrice": 10,
+    "imageSrc": "/images/items/dagger_guard.svg",
+    "component": {
+      "kind": "guard",
+      "material": "copper",
+      "length": 8
+    }
+  },
+  {
+    "id": "guard_iron",
+    "category": "materials",
+    "nameKey": "items.guard_iron.name",
+    "descriptionKey": "items.guard_iron.description",
+    "weightKg": 0.22,
+    "basePrice": 12,
+    "imageSrc": "/images/items/dagger_guard.svg",
+    "component": {
+      "kind": "guard",
+      "material": "iron",
+      "length": 8
+    }
+  },
+  {
+    "id": "pommel_copper",
+    "category": "materials",
+    "nameKey": "items.pommel_copper.name",
+    "descriptionKey": "items.pommel_copper.description",
+    "weightKg": 0.269,
+    "basePrice": 10,
+    "imageSrc": "/images/items/dagger_pommel.svg",
+    "component": {
+      "kind": "pommel",
+      "material": "copper",
+      "length": 3
+    }
+  },
+  {
+    "id": "pommel_iron",
+    "category": "materials",
+    "nameKey": "items.pommel_iron.name",
+    "descriptionKey": "items.pommel_iron.description",
+    "weightKg": 0.236,
+    "basePrice": 12,
+    "imageSrc": "/images/items/dagger_pommel.svg",
+    "component": {
+      "kind": "pommel",
+      "material": "iron",
+      "length": 3
+    }
+  },
+  {
+    "id": "custom_weapon",
+    "category": "weapons",
+    "nameKey": "items.custom_weapon.name",
+    "descriptionKey": "items.custom_weapon.description",
+    "weightKg": 1,
+    "basePrice": 80,
+    "imageSrc": "/images/items/dagger.svg",
+    "equipSlot": "weapon",
+    "hands": 1,
+    "weaponType": "blade"
+  }
+]

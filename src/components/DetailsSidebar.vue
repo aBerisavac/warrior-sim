@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { mapGrid } from '../routes'
 import { structureImage, structureTier } from '../map-upgrades'
 import { translateEntry } from '../i18n/messages'
+import CircleIcon from './CircleIcon.vue'
 const props = defineProps({
   selectedPlace: { type: Object, required: true },
   tutorialLocked: { type: Boolean, default: false },
@@ -25,7 +26,7 @@ const entryText = (entry) => translateEntry(t, entry)
   <aside class="right-panel">
     <section class="place-panel panel" :class="{ 'tutorial-card-locked': tutorialLocked }">
       <div class="panel-kicker">{{ t('sidebar.selectedLocation') }} <span>{{ t(tutorialLocked ? 'map.locked' : selectedPlace.available ? 'sidebar.open' : 'sidebar.future') }}</span></div>
-      <div class="place-art"><img v-if="selectedArt" :src="selectedArt" :alt="t('places.' + selectedPlace.id + '.name')" /><span v-else>{{ selectedPlace.icon }}</span><div class="place-hill hill-one"></div><div class="place-hill hill-two"></div></div>
+      <div class="place-art"><img v-if="selectedArt" :src="selectedArt" :alt="t('places.' + selectedPlace.id + '.name')" /><CircleIcon v-else as="span" :icon="selectedPlace.icon" size="main"/><div class="place-hill hill-one"></div><div class="place-hill hill-two"></div></div>
       <h2>{{ placeText(selectedPlace, 'name') }}</h2>
       <div class="place-sub">{{ placeText(selectedPlace, 'sub') }} <span v-if="selectedArt">· {{ t('sidebar.buildingTier', { tier: t('tiers.' + selectedTier) }) }}</span></div>
       <p>{{ tutorialLocked ? t('tutorial.lockedPlace') : placeText(selectedPlace, 'description') }}</p>

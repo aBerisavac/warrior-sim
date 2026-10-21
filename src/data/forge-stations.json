@@ -2,64 +2,92 @@
   {
     "id": "furnace",
     "icon": "♨",
-    "x": 19.3,
-    "y": 30.5,
+    "x": 83,
+    "y": 44,
     "action": "addCoal"
   },
   {
     "id": "anvil",
     "icon": "⚒",
-    "x": 40.6,
-    "y": 61,
+    "x": 43,
+    "y": 52,
     "action": "forge"
   },
   {
     "id": "water",
     "icon": "≈",
-    "x": 54.3,
-    "y": 27.2,
+    "x": 52,
+    "y": 52,
     "action": "inspect"
   },
   {
     "id": "oil",
     "icon": "◇",
-    "x": 54.3,
-    "y": 49,
+    "x": 58,
+    "y": 54,
     "action": "inspect"
   },
   {
     "id": "workbench",
     "icon": "▤",
-    "x": 18,
-    "y": 60,
+    "x": 11,
+    "y": 46,
     "action": "workbench"
   },
   {
     "id": "warehouse",
     "icon": "▥",
-    "x": 78.2,
-    "y": 29,
-    "action": "inspect"
-  },
-  {
-    "id": "fatherBed",
-    "icon": "☾",
-    "x": 85,
-    "y": 53.2,
+    "x": 78,
+    "y": 14,
     "action": "inspect"
   },
   {
     "id": "sonBed",
     "icon": "☾",
-    "x": 85,
-    "y": 77.8,
+    "x": 42,
+    "y": 14,
     "action": "sleep"
   },
   {
     "id": "door",
     "icon": "➜",
     "x": 50,
-    "y": 88,
+    "y": 95,
     "action": "town"
+  },
+  {
+    "id": "bellows",
+    "icon": "≋",
+    "x": 89,
+    "y": 56,
+    "action": "inspect"
+  },
+  {
+    "id": "crucible",
+    "icon": "♜",
+    "x": 65,
+    "y": 55,
+    "action": "inspect"
+  },
+  {
+    "id": "mould",
+    "icon": "▰",
+    "x": 71,
+    "y": 57,
+    "action": "inspect"
+  },
+  {
+    "id": "grinder",
+    "icon": "◉",
+    "x": 23,
+    "y": 39,
+    "action": "inspect"
+  },
+  {
+    "id": "rack",
+    "icon": "▱",
+    "x": 76,
+    "y": 33,
+    "action": "inspect"
   }
 ]

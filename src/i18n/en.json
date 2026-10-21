@@ -9,7 +9,7 @@
     "peasantTown": "Peasant · Briarwick",
     "coins": "{count} coins",
     "coinCount": "◈ {count} coins",
-    "coinUnit": "coins"
+    "coinUnit": "copper"
   },
   "places": {
     "smithy": {
@@ -81,8 +81,8 @@
     "talk": "Speak to innkeeper"
   },
   "objectives": {
-    "errand": "Go to the market for iron stock.",
-    "robbed": "Earn enough coin, then buy iron stock.",
+    "errand": "Buy 4 iron ore and 4 coal from the market.",
+    "robbed": "Buy 4 iron ore, 4 coal, a wooden guard, a wooden handle and a wooden pommel.",
     "materials": "Return to the smithy and forge your dagger.",
     "sleep": "Sleep at the smithy. Tomorrow is your birthday.",
     "drafted": "The draft has come to Briarwick.",
@@ -202,7 +202,7 @@
       "eventDraft": "THE DRAFT",
       "info": "LOCATION",
       "locked": "LOCATION",
-      "sleep": "REST",
+      "sleep": "REST & SLEEP",
       "trade": "THE MARKET",
       "forge": "THE FORGE",
       "workbench": "WORKBENCH",
@@ -210,15 +210,17 @@
       "dishes": "ODD JOB",
       "restart": "RESTART",
       "tavern": "THE COPPER CUP",
-      "marketNotice": "AT THE MARKET"
+      "marketNotice": "AT THE MARKET",
+      "inventory": "BELONGINGS",
+      "smithingUnavailable": "Supplies needed"
     },
     "close": "Close",
     "objectiveHint": "Use the location icons to choose where to go next. Time passes whenever you travel or work.",
     "pawnTitle": "The smith’s son",
-    "pawnSummary": "Peasant · Age {age} · {coins} coins",
+    "pawnSummary": "Peasant · Age {age} · {coins}",
     "awake": "Awake",
     "hours": "{hours} hours",
-    "ironStock": "Iron stock",
+    "ironStock": "Forge supplies",
     "owned": "Owned",
     "needed": "Needed",
     "dagger": "Dagger",
@@ -234,34 +236,34 @@
     "lockedHelp": "This location will open in a later chapter.",
     "lockedFuture": "This location is part of Briarwick’s future. It will open in a later chapter.",
     "walkingHere": "Walking here takes {minutes} minutes.",
-    "tradeTitle": "Buy iron stock",
-    "alreadyBought": "I have the iron Father needs. I should take it home to the forge.",
-    "sellerAsks": "He wants {price} coins for the iron. He seems {mood}; perhaps there’s room for an offer.",
+    "tradeTitle": "Trade with the merchant",
+    "alreadyBought": "I have the ore and coal Father needs. I should take them home.",
+    "sellerAsks": "{price} for the iron. What do you say?",
     "yourOffer": "Your offer",
-    "offerValue": "{price} coins · {percent}%",
+    "offerValue": "{price} · {percent}%",
     "marketFloor": "75% market value",
     "marketCeiling": "150%",
     "makeOffer": "Make offer",
-    "tip": "Tip 1 coin",
-    "fatherAsked": "Father needs that iron. I should see what the seller is asking.",
+    "tip": "Tip 5 copper",
+    "fatherAsked": "Father needs four iron ore and four coal, and a wooden guard, handle and pommel for my dagger. I should see what the merchant has.",
     "woodTitle": "Split firewood",
     "woodHelp": "The stump is a little uneven, and the wood shifts slightly as it settles. I’ll turn and move the log until its main split lines up with the axe line. If there’s no mark, I’ll aim through the middle. I’ll hold to raise the axe, then let go near the marker on the strength bar.",
     "woodAction": "Chop wood",
     "dishesTitle": "Wash dishes",
-    "dishesHelp": "There are a few dishes waiting. I could spend an hour washing up; three coins would help with Father’s iron.",
-    "dishesAction": "Work 1 hour · +3 coins",
+    "dishesHelp": "There are a few dishes waiting. I could spend an hour washing up; forty copper would help with Father’s supplies.",
+    "dishesAction": "Work 1 hour · +40 copper",
     "forgeTitle": "Your first dagger",
-    "forgeNeed": "I’ll need to bring the iron home before Father and I can begin.",
+    "forgeNeed": "I’ll need four iron ore and four coal before Father and I can begin.",
     "forgeDone": "My first dagger. It feels good to hold something I’ve made. Father thinks I should get some sleep before tomorrow.",
-    "forgeHelp": "Father has laid out the tools for my first dagger. I’ll take my time and follow his lead. We should have it ready in a couple of hours.",
-    "forgeAction": "Forge dagger · 2 hours",
-    "sleepTitle": "Sleep until morning",
+    "forgeHelp": "Father has laid out the tools for my first dagger. I’ll start with the crucible, then work the iron at the anvil. I’ll need a guard, a handle and a pommel from the merchant before I can fit it together.",
+    "forgeAction": "Enter workshop",
+    "sleepTitle": "Rest or sleep",
     "sleepHelp": "Sleep need: {need}%. Rest clears fatigue and heals 12 health. Injuries still carry over.",
     "sleepAction": "Sleep at home",
     "sleepAway": "Head home to your room by Father’s forge.",
     "sleepThoughtExhausted": "My eyes keep closing. I think I’ve done enough for today.",
     "sleepThoughtTired": "I’m starting to feel tired. A night’s sleep would do me good.",
-    "sleepThoughtRest": "I could keep going a little longer, though some rest might do me good.",
+    "sleepThoughtRest": "I’m not quite tired enough to sleep. I could sit for a while and let the day pass.",
     "sleepThoughtHome": "My bed is only a few steps from Father’s forge. Should I turn in until morning?",
     "sleepThoughtAway": "Perhaps I should head home, to Father’s house by the forge. My bed will be waiting. Or is there something I want to finish first?",
     "workbenchTitle": "Father’s workbench",
@@ -273,33 +275,45 @@
       "neutral": "Neutral"
     },
     "tutorialObjectiveHint": "Follow the glowing blacksmith marker and choose the house icon to enter.",
-    "routeLockedHint": "Father’s errand is noted. The market is still closed."
+    "routeLockedHint": "Father’s errand is noted. The market is still closed.",
+    "sellerItem": "{price} for the {item}. What do you say?"
   },
   "events": {
-    "start": "Father needs iron stock from the market. It is a short walk from the forge.",
-    "startJournal": "Father sent you to the market for iron stock.",
-    "bandits": "Bandits stop you on the road to the market. You fight, lose your coin, and are left wounded. Combat will be built in the next phase.",
+    "start": "Father needs iron ore and coal from the market. It is a short walk from the forge.",
+    "startJournal": "Father sent you to the market for iron ore and coal.",
+    "bandits": "The thieves leave me bruised and take {coins} from my purse. There’s still some money tucked away. I should get to the market and see what I can afford.",
+    "banditsLegacy": "I’m still bruised from meeting those thieves. I should get to the market and see how I’m going to manage Father’s errand.",
     "travel": "You walk to the {place}. The journey takes {duration} minutes.",
-    "wood": "You split {pieces} pieces of firewood with an average cut quality of {quality}% and earn {coins} coins.",
-    "dishes": "You wash dishes for an hour and earn 3 coins. The washing mini game is planned for a later pass.",
+    "wood": "You split {pieces} pieces of firewood with an average cut quality of {quality}% and earn {coins}.",
+    "dishes": "I washed dishes for an hour and earned {coins}.",
     "refuse": "The merchant has had enough of your offers and refuses to sell to you today.",
     "insult": "The merchant calls that offer insulting. His opinion of you worsens, and future asking prices rise.",
-    "needCoins": "You need {price} coins for that offer. Earn more before returning.",
-    "accepted": "The merchant accepts {price} coins. You have the iron stock your father requested.",
-    "needTip": "You need a coin to tip the merchant.",
+    "needCoins": "You need {price} for that offer. Earn more before returning.",
+    "accepted": "The merchant accepts {price}. You have the iron ore and coal your father requested.",
+    "needTip": "I need 5 copper to tip the merchant.",
     "refuseTip": "The merchant refuses your tip today. Try again after a night of rest.",
-    "tipped": "You leave a coin for the merchant. He remembers the gesture.",
-    "forged": "Under your father’s guidance, you forge your first dagger. The deeper forging game will come later. He sends you to bed.",
+    "tipped": "I leave 5 copper for the merchant. He remembers the gesture.",
+    "forged": "I’ve finished my first dagger, from the hot iron to the sharpened edge. Father thinks I should get some sleep before tomorrow.",
     "draft": "Your sixteenth birthday begins. Father says he has a surprise for you—but the town bell rings before he can explain. Every man aged sixteen or older has been called to the army.",
     "rested": "You sleep until morning. Fatigue clears; your wounds improve a little, but remain.",
     "migratedRobbed": "Bandits took your coin on the road to the market, leaving you wounded.",
-    "migratedMaterials": "You bought the iron stock your father requested.",
+    "migratedMaterials": "You bought the iron ore and coal your father requested.",
     "intro": "A quiet morning begins at your father’s house.",
     "fatherCall": "Father’s calling me into the forge. I’d better see what he needs.",
     "fatherTalk": "Father is waiting by the anvil with an errand for you.",
     "roadTraveler": "A passing traveler gives you a nod as you continue along the road.",
     "tavernWork": "The innkeeper offers you work splitting logs or washing dishes.",
-    "marketJobNotice": "I found a notice at the market: the innkeeper needs help with dishes and firewood. I can ask him about work."
+    "inventoryFull": "That would be too much to carry. I need to stay within 30 kg.",
+    "marketJobNotice": "I found a notice at the market: the innkeeper needs help with dishes and firewood. I can ask him about work.",
+    "soldOut": "The merchant has none left. I’ll have to wait for his next delivery.",
+    "itemBought": "I bought {item} for {price}.",
+    "tradeOfferAccepted": "Agreed. Check the baskets, and we’ll make the exchange.",
+    "tradeCompleted": "The exchange is complete. I paid {paid} and received {received}.",
+    "tradeError": "{reason}",
+    "missingSupplies": "I need four iron ore and four coal in my bag before Father and I can begin.",
+    "waited": "I take a break for {hours} hours. The village carries on around me.",
+    "ateBread": "I eat some bread. That’s better.",
+    "consumed": "I’ve had the {item}."
   },
   "forgeHouse": {
     "forgeRoom": "THE FORGE",
@@ -310,7 +324,7 @@
     "anvil": "ANVIL",
     "workbench": "WORKBENCH",
     "waterShort": "WATER",
-    "oilShort": "OIL · LATER",
+    "oilShort": "OIL",
     "coal": "COAL",
     "fatherBed": "FATHER’S BED",
     "sonBed": "YOUR BED",
@@ -322,49 +336,75 @@
     "furnaceFull": "The furnace is full for now.",
     "noCoal": "The warehouse has no coal left.",
     "station": {
-      "furnace": "Furnace",
+      "furnace": "Forge",
       "anvil": "Anvil",
-      "water": "Water quench",
-      "oil": "Oil quench space",
-      "workbench": "Workbench",
-      "warehouse": "Warehouse",
+      "water": "Water barrel",
+      "oil": "Oil barrel",
+      "workbench": "Design workbench",
+      "warehouse": "Storehouse",
       "fatherBed": "Father’s room",
       "sonBed": "Your room",
-      "door": "Town door"
+      "door": "Town door",
+      "bellows": "Bellows",
+      "crucible": "Crucible",
+      "mould": "Casting mould",
+      "grinder": "Grinding wheel",
+      "rack": "Ingot rack",
+      "reference": "Workshop notes",
+      "design": "Weapon design"
     },
     "actions": {
-      "furnace": "Add coal to furnace",
-      "anvil": "Use anvil",
-      "water": "Inspect water quench barrel",
-      "oil": "Inspect future oil quench space",
-      "workbench": "Open workbench",
-      "warehouse": "Inspect warehouse",
+      "furnace": "Forge",
+      "anvil": "Anvil",
+      "water": "Water barrel",
+      "oil": "Oil barrel",
+      "workbench": "Design workbench",
+      "warehouse": "Storehouse",
       "fatherBed": "Inspect father’s room",
       "sonBed": "Sleep in your room",
-      "door": "Return to town map"
+      "door": "Return to town map",
+      "bellows": "Work bellows",
+      "crucible": "Crucible",
+      "mould": "Casting mould",
+      "grinder": "Grinding wheel",
+      "rack": "Ingot rack"
     },
     "details": {
-      "anvil": "This is where your father shapes hot metal. Your dagger lesson begins here.",
-      "water": "The water barrel is ready for quenching. A detailed quenching step will come with the smithing game.",
-      "oil": "There is room for an oil barrel here. Oil quenching can be unlocked later.",
-      "workbench": "Tools and future craft projects belong at this bench.",
-      "warehouse": "Fuel, iron stock, and spare tools are kept here.",
+      "anvil": "Anvil",
+      "water": "Water barrel",
+      "oil": "Oil barrel",
+      "workbench": "Design workbench",
+      "warehouse": "Storehouse",
       "fatherBed": "Your father keeps his own sleeping room beside the warehouse.",
       "sonBed": "Your small room is ready when you need to sleep.",
-      "door": "This door opens onto the lane near Briarwick’s market."
+      "door": "This door opens onto the lane near Briarwick’s market.",
+      "furnace": "Forge",
+      "bellows": "Bellows",
+      "crucible": "Crucible",
+      "mould": "Casting mould",
+      "grinder": "Grinding wheel",
+      "rack": "Ingot rack"
     }
   },
   "tutorial": {
+    "fatherCallYell": "Son! Come here a moment!",
     "callTitle": "There’s Father…",
+    "callSpoken": "All right, Dad, I’m coming…",
+    "callThought": "So much for a quiet morning. I’d better head into the forge.",
     "callMessage": "All right, Dad, I’m coming… So much for a quiet morning. I’d better head into the forge.",
     "openMarker": "Select the glowing blacksmith marker.",
     "chooseEnter": "Now choose the house icon to enter the forge.",
     "fatherTitle": "Father",
-    "fatherMessage": "Good morning, son. I need iron stock from the market. Bring it back and I will show you something at the anvil.",
-    "fatherWorkReply": "What are you worried about, son? We finally have enough work to keep us busy all day. We’ve even paid off our debts. It’s a good thing, believe me. Oh, and bring back some coal as well—we’re running low.",
-    "leaveForIron": "All right, Dad. I won’t be long.",
-    "acceptErrand": "More iron already? We’ve been going through so much these past few months. All right, Dad, I’ll get some.",
-    "lockedPlace": "This location is not available yet."
+    "fatherMessage": "Morning, son. The ore bin’s nearly empty again. Bring me four lumps of iron ore and four of coal from the market, will you?",
+    "fatherWorkReply": "What are you worried about? We finally have enough work to keep us busy all day, and we’ve paid off our debts. I’d take a busy forge over an empty one.",
+    "leaveForIron": "I’ll bring everything back. Then we can start.",
+    "acceptErrand": "More ore already? We’ve been going through so many supplies these past few months.",
+    "lockedPlace": "This location is not available yet.",
+    "firstBlade": "You’ve done well with all the chores I’ve given you. Tomorrow’s your birthday—you’ll be counted a grown man then. I think it’s time you made a dagger of your own. I’ll help you through the first one.",
+    "firstBladeReply": "A dagger? You mean I’ll make the whole thing myself?",
+    "firstBladeThought": "My first real weapon. I’ve watched Dad make so many, wondering when he’d let me try. I can already picture it in my hand. I’d better not keep him waiting.",
+    "fittingsRequest": "The whole thing. Pick up a plain wooden guard, handle and pommel while you’re there. Nothing fancy for the first one. Get the supplies home, and we’ll see what you can do.",
+    "continue": "Continue"
   },
   "quests": {
     "father_met": {
@@ -376,17 +416,17 @@
       "accept": "Accept Father’s iron errand"
     },
     "bandit_ambush_survived": {
-      "description": "Head from the forge toward the market for iron stock.",
+      "description": "Head from the forge to the market for 4 iron ore and 4 coal.",
       "travel": "Take the road to the market"
     },
     "iron_stock_bought": {
-      "description": "The bandits took your coin. Earn more, then bargain for iron stock.",
+      "description": "Make up the missing coin with work at the inn, then buy four iron ore, four coal, a wooden guard, a wooden handle and a wooden pommel from the merchant.",
       "earn": "Earn coin from town work",
-      "buy": "Buy iron stock at the market"
+      "buy": "Buy 4 iron ore and 4 coal; pick up a wooden guard, handle and pommel for the dagger too."
     },
     "dagger_forged": {
-      "description": "Bring the iron to Father and make your first dagger.",
-      "forge": "Return to the forge and shape the dagger"
+      "description": "Smelt an iron ingot, shape and quench the blade, fit a guard, handle and pommel from the merchant, then sharpen the dagger.",
+      "forge": "Complete the dagger in Father’s workshop"
     },
     "drafted": {
       "description": "Father wants you to sleep. Tomorrow is your sixteenth birthday.",
@@ -469,17 +509,17 @@
     "stone": "Stone"
   },
   "tavern": {
-    "innkeeper": "The innkeeper",
-    "greeting": "Welcome to the Copper Cup. You look like you need coin more than ale. What brings you here, lad?",
+    "innkeeper": "Oswin, the innkeeper",
+    "greeting": "There you are, lad. Your usual place is free, if you’re after a bite. Or did you come about the notice I put up at the market?",
     "answer": {
-      "bandits": "Bandits took the money Father gave me.",
-      "father": "I need to buy iron for my father’s forge.",
-      "work": "I am looking for honest work."
+      "bandits": "Some thieves took a handful of my coin on the road. I could use a little work to make it back.",
+      "father": "Dad’s finally letting me make a dagger. I was fetching supplies when I ran into trouble on the road. Is that work on your notice still going?",
+      "work": "I saw your notice at the market, Oswin. Do you still need a hand?"
     },
     "reply": {
       "bandits": "Road thieves again? I am sorry, lad. The woodpile needs splitting, and there are dishes in the kitchen. Do either job well and I will pay you.",
-      "father": "Your father has helped this tavern often enough. Split firewood for the hearth or wash up in the kitchen, and you can earn your iron money.",
-      "work": "Good. I can use steady hands. The woodpile pays better if you split cleanly; the dishes are easier but pay less."
+      "father": "Your first blade, is it? About time he let you have a go. There’s work here if you want it—wood for the hearth or dishes in the kitchen. I’ll pay when it’s done.",
+      "work": "I do. The firewood needs splitting and the kitchen’s got a stack of dishes. Take your pick, and I’ll pay you when the job’s finished."
     },
     "acceptWork": "I’ll get to work"
   },
@@ -488,7 +528,7 @@
     "beech": "Beech",
     "oak": "Oak",
     "round": "Log {current}/{total} · {wood}",
-    "pay": "Collected value: {coins} coins",
+    "pay": "Collected value: {coins}",
     "start": "Start chopping",
     "enableIntro": "Introduction off — click to enable",
     "disableIntro": "Introduction on — click to disable",
@@ -504,8 +544,8 @@
     "qualityValue": "Strength quality: {value}%",
     "totalQualityValue": "Total quality: {value}%",
     "cutResults": "Precision: {precision}% · Strength quality: {strength}% · Total quality: {total}%",
-    "piecePrice": "Value: {coins} coins",
-    "pieceDetails": "Precision {precision}%, strength quality {quality}%, total quality {total}%, value {coins} coins",
+    "piecePrice": "Value: {coins}",
+    "pieceDetails": "Precision {precision}%, strength quality {quality}%, total quality {total}%, value {coins}",
     "showControls": "Show touch controls",
     "hideControls": "Hide touch controls",
     "rotateLeft": "Hold to rotate left",
@@ -532,16 +572,16 @@
       "1": "One piece stayed on the block.",
       "2": "Both pieces stayed on the block."
     },
-    "finished": "{pieces} pieces ready. The innkeeper offers {coins} coins.",
-    "collect": "Collect gold",
+    "finished": "{pieces} pieces ready. The innkeeper offers {coins}.",
+    "collect": "Collect pay",
     "previewJob": "Open job",
     "previewReward": "Show gold reward",
     "previewNotice": "Testing preview — your save is unchanged",
-    "previewCollected": "Collected {coins} gold (preview only)",
+    "previewCollected": "Collected {coins} (preview only)",
     "rewardTitle": "An honest day’s work",
-    "goldEarned": "gold earned",
+    "goldEarned": "earned",
     "rewardDetails": "{pieces} firewood stacked · {quality}% average quality",
-    "collectGold": "Collect {coins} gold",
+    "collectGold": "Collect {coins}",
     "ready": "Firewood ✓",
     "loadLog": "Drag {wood} onto the stump",
     "storedQuality": "Cut quality: {score}%",
@@ -554,10 +594,691 @@
   "marketNotice": {
     "title": "A notice by the stalls",
     "reflection": "I’ve walked these stalls since I was small. Today, everyone seems a little quieter. Another empty stall, another argument over prices… and now thieves on the road. I wonder how long things can carry on like this.",
-    "thinkMoney": "I still need that iron…",
-    "money": "Father is waiting for the iron, and my purse is empty. I’ll have to earn something before I can buy it. There’s a notice pinned beside the stalls. Perhaps someone needs a hand.",
+    "thinkMoney": "I still need those supplies…",
+    "money": "Father’s waiting for the materials, and I’m short of coin now. I’ll need to earn a little before I can buy everything. There’s a notice pinned beside the stalls. Perhaps someone needs a hand.",
     "readSign": "Read the notice",
     "notice": "HELP WANTED AT THE INN\nA spare pair of hands needed for washing dishes or splitting firewood. Coin paid for the work. Ask the innkeeper.\n\nThe inn isn’t far. I could see what he needs.",
-    "headInn": "I’ll ask at the inn"
+    "headInn": "I’ll ask at the inn",
+    "moneyThought": "Father’s waiting for the materials. I’ll need to make up the missing coin somehow."
+  },
+  "inventory": {
+    "title": "My belongings",
+    "open": "Open inventory",
+    "equipment": "Equipped items",
+    "carried": "In the bag",
+    "tools": "Tools",
+    "weight": "{weight} / {capacity} kg",
+    "itemWeight": "Weight: {weight} kg",
+    "twoHanded": "Uses both hands",
+    "bothHands": "The right-hand weapon needs both hands.",
+    "bowRequired": "Equip a bow to use a waist quiver.",
+    "showAll": "Show all",
+    "emptyBag": "Everything I’m carrying is equipped.",
+    "noMatching": "No spare items for this slot.",
+    "selectHint": "Select equipment or a carried item to inspect it.",
+    "equip": "Equip",
+    "unequip": "Put in bag",
+    "slots": {
+      "helmet": "Head",
+      "amulet": "Neck",
+      "weapon": "Right hand",
+      "shield": "Left hand",
+      "armor": "Torso",
+      "shoes": "Feet",
+      "back": "Back",
+      "waist": "Waist",
+      "tool": "Hammer"
+    },
+    "eat": "Eat",
+    "inspect": "Inspect",
+    "drink": "Drink"
+  },
+  "items": {
+    "leather_apron": {
+      "name": "Leather apron",
+      "description": "My everyday apron. The leather keeps sparks and grime off my clothes."
+    },
+    "leather_shoes": {
+      "name": "Leather shoes",
+      "description": "A well-worn pair, still sound enough for the village roads."
+    },
+    "crude_hammer": {
+      "name": "Crude hammer",
+      "description": "A plain workshop hammer. Roughly made, but dependable."
+    },
+    "dagger": {
+      "name": "Dagger",
+      "description": "A short, one-handed blade."
+    },
+    "arming_sword": {
+      "name": "Arming sword",
+      "description": "A balanced sword used in the right hand. Leaves the other hand free for a shield."
+    },
+    "greatsword": {
+      "name": "Greatsword",
+      "description": "A long blade that needs both hands."
+    },
+    "hunting_bow": {
+      "name": "Hunting bow",
+      "description": "A wooden bow. Requires both hands and allows a quiver at the waist."
+    },
+    "wooden_shield": {
+      "name": "Wooden shield",
+      "description": "A simple shield for the left arm."
+    },
+    "iron_helmet": {
+      "name": "Iron helmet",
+      "description": "A sturdy iron cap."
+    },
+    "simple_amulet": {
+      "name": "Simple amulet",
+      "description": "A small keepsake worn at the neck."
+    },
+    "leather_backpack": {
+      "name": "Leather backpack",
+      "description": "A pack worn on the back. Cannot be worn with a bundle of javelins."
+    },
+    "javelins": {
+      "name": "Javelin bundle",
+      "description": "Throwing spears carried on the back in place of a backpack."
+    },
+    "quiver": {
+      "name": "Quiver",
+      "description": "A waist quiver for use with a bow."
+    },
+    "iron_stock": {
+      "name": "Forge supplies",
+      "description": "Iron for the forge."
+    },
+    "coal": {
+      "name": "Coal",
+      "description": "Fuel for the furnace."
+    },
+    "copper_ore": {
+      "name": "Copper ore",
+      "description": "Copper-bearing stone, ready for smelting."
+    },
+    "copper_ingot": {
+      "name": "Copper ingot",
+      "description": "Refined copper, cast into a bar."
+    },
+    "iron_ore": {
+      "name": "Iron ore",
+      "description": "Iron-bearing stone for the forge."
+    },
+    "iron_ingot": {
+      "name": "Iron ingot",
+      "description": "Refined iron, ready to be worked."
+    },
+    "bread": {
+      "name": "Bread",
+      "description": "A plain village loaf. Filling enough for a meal."
+    },
+    "dagger_guard": {
+      "name": "Wooden dagger guard",
+      "description": "A plain wooden guard for a starter dagger, ready to fit over its tang."
+    },
+    "dagger_handle": {
+      "name": "Wooden dagger handle",
+      "description": "A simple wooden grip, bored to receive a dagger’s tang."
+    },
+    "stew": {
+      "name": "Vegetable stew",
+      "description": "A filling bowl from Oswin’s kitchen."
+    },
+    "ale": {
+      "name": "Small ale",
+      "description": "A mug of mild village ale from Oswin’s inn."
+    },
+    "dagger_pommel": {
+      "name": "Wooden dagger pommel",
+      "description": "A plain wooden end cap that secures the dagger’s grip."
+    },
+    "handle_oak_short": {
+      "name": "Oak handle (12 cm)",
+      "description": "A 12 cm oak grip. Longer handles add reach and leverage, but also weight and rotational inertia."
+    },
+    "handle_oak_long": {
+      "name": "Oak handle (28 cm)",
+      "description": "A 28 cm oak grip. Longer handles add reach and leverage, but also weight and rotational inertia."
+    },
+    "handle_oak_staff": {
+      "name": "Oak handle (80 cm)",
+      "description": "A 80 cm oak grip. Longer handles add reach and leverage, but also weight and rotational inertia."
+    },
+    "handle_oak_pole": {
+      "name": "Oak handle (180 cm)",
+      "description": "A 180 cm oak grip. Longer handles add reach and leverage, but also weight and rotational inertia."
+    },
+    "handle_ash_short": {
+      "name": "Ash handle (12 cm)",
+      "description": "A 12 cm ash grip. Longer handles add reach and leverage, but also weight and rotational inertia."
+    },
+    "handle_ash_long": {
+      "name": "Ash handle (28 cm)",
+      "description": "A 28 cm ash grip. Longer handles add reach and leverage, but also weight and rotational inertia."
+    },
+    "handle_ash_staff": {
+      "name": "Ash handle (80 cm)",
+      "description": "A 80 cm ash grip. Longer handles add reach and leverage, but also weight and rotational inertia."
+    },
+    "handle_ash_pole": {
+      "name": "Ash handle (180 cm)",
+      "description": "A 180 cm ash grip. Longer handles add reach and leverage, but also weight and rotational inertia."
+    },
+    "guard_copper": {
+      "name": "Copper guard",
+      "description": "A copper guard for a custom weapon. Its weight affects the balance of the finished weapon."
+    },
+    "guard_iron": {
+      "name": "Iron guard",
+      "description": "A iron guard for a custom weapon. Its weight affects the balance of the finished weapon."
+    },
+    "pommel_copper": {
+      "name": "Copper pommel",
+      "description": "A copper pommel for a custom weapon. Its weight affects the balance of the finished weapon."
+    },
+    "pommel_iron": {
+      "name": "Iron pommel",
+      "description": "A iron pommel for a custom weapon. Its weight affects the balance of the finished weapon."
+    },
+    "custom_weapon": {
+      "name": "Custom weapon",
+      "description": "A hand-forged weapon built from a saved design. Its shape, material, workmanship, and edges determine its handling and damage."
+    }
+  },
+  "speakers": {
+    "player": "You",
+    "father": "Father",
+    "innkeeper": "Oswin",
+    "merchant": "Merchant",
+    "notice": "Job notice",
+    "thought": "Thinking"
+  },
+  "merchant": {
+    "stock": "Merchant’s supplies",
+    "restock": "Restocks on day {day} · every 3 days",
+    "remaining": "{count} left"
+  },
+  "trade": {
+    "greeting": "Ore, ingots, coal—have a look. Set aside what you need, and show me anything you’d like to sell. We’ll settle on a price for the lot.",
+    "wallet": "My purse: {coins}",
+    "restock": "Next delivery: day {day}",
+    "errand": "Father’s supplies · Iron ore {iron}/4 · Coal {coal}/4 · Wooden guard {guard}/1 · Wooden handle {handle}/1 · Wooden pommel {pommel}/1",
+    "merchantGoods": "Merchant’s goods",
+    "yourGoods": "My belongings",
+    "buyHint": "Add goods to your buying basket.",
+    "sellHint": "Offer unequipped items to the merchant.",
+    "unitBuy": "Market value {price} · {count} available",
+    "unitSell": "Trade-in value {price} · {count} available",
+    "unequipFirst": "Equipped — put in your bag before selling",
+    "buyBasket": "My basket · buying",
+    "sellBasket": "Merchant’s basket · selling",
+    "emptyBasket": "Nothing set aside yet.",
+    "addOne": "Add one {item} to buying basket",
+    "removeOne": "Remove one {item}",
+    "quantityOf": "Quantity of {item}",
+    "removeItem": "Remove {item} from basket",
+    "sellOne": "Add one {item} to selling basket",
+    "buyValue": "Buying · {coins} at market value",
+    "sellValue": "Selling · {coins} at trade-in value",
+    "wholeOffer": "Terms for the whole exchange · {percent}%",
+    "haggleHint": "Lower terms favor you: cheaper purchases and more credit for your goods. Trade-in value starts at 50% of market value.",
+    "youPay": "I pay {coins}",
+    "youReceive": "I receive {coins}",
+    "evenExchange": "Even exchange · no coins change hands",
+    "afterWeight": "After exchange: {weight} / 30 kg",
+    "afterWallet": "Purse afterward: {coins}",
+    "makeOffer": "Make exchange offer",
+    "confirm": "Confirm exchange",
+    "clear": "Clear exchange",
+    "agreed": "The merchant agrees. Confirm to exchange the highlighted goods and coins.",
+    "noTransfer": "Goods and coins stay where they are until the exchange is confirmed.",
+    "errors": {
+      "invalidBasket": "The exchange is invalid. Clear it and choose the goods again.",
+      "emptyBasket": "Choose something to exchange first.",
+      "itemsChanged": "Some offered items are no longer available. Review the exchange.",
+      "equippedItem": "Unequip that item before selling it.",
+      "soldOut": "The merchant does not have enough stock for this exchange.",
+      "sameItem": "Finish or undo this item’s pending transfer before moving it in the other direction.",
+      "inventoryFull": "The exchange would put me over the 30 kg limit.",
+      "needCoins": "I don’t have enough money for this offer.",
+      "refuse": "The merchant refuses to trade.",
+      "offerRejected": "The merchant will not accept those terms.",
+      "offerChanged": "The goods or terms changed. Make a new offer first."
+    },
+    "pendingReceipt": "Incoming · pending exchange",
+    "nothingIncoming": "Use an arrow to set goods aside here.",
+    "notTransferred": "Pending",
+    "currentInventory": "Current inventory",
+    "noGoods": "No goods available.",
+    "unitAvailable": "{price} each · {count} available",
+    "moveToMerchant": "Offer one {item} to the merchant",
+    "moveToPlayer": "Request one {item} from the merchant",
+    "returnOne": "Undo transfer of one {item}",
+    "innGreeting": "Bread, a warm bowl, or something to drink? Have a look. You know I won’t send you back to the forge hungry.",
+    "innTitle": "Food and drink · Oswin",
+    "innGoods": "Oswin’s food and drink",
+    "viewPortrait": "Show or hide the full merchant illustration"
+  },
+  "dailyJobs": {
+    "title": "That’s enough for today",
+    "woodDone": "The woodpile is all split for today. I could come back tomorrow if the innkeeper needs more.",
+    "leaveScolded": "I’d better go.",
+    "woodAbandoned": "You left the job half done, and now you’re back asking for work? Piss off. Not a coin until the work’s finished. Try me tomorrow—if you mean to see it through this time.",
+    "dishesDone": "The plates are clean and everything is put away. There’s no more washing up for me today. I’ll check again tomorrow.",
+    "leave": "I’ll find something else to do.",
+    "cancelTitle": "Leave the woodcutting job?",
+    "cancelWarning": "If I leave now, I won’t be paid for today’s woodcutting—even for pieces I’ve already cut. I won’t be able to try this job again until tomorrow.",
+    "keepWorking": "Keep working",
+    "leaveUnpaid": "Leave without pay"
+  },
+  "currency": {
+    "copper": "{count} copper",
+    "silver": "{count} silver",
+    "gold": "{count} gold",
+    "conversion": "1,000 copper = 1 silver · 1,000 silver = 1 gold"
+  },
+  "needs": {
+    "hunger": "Hunger",
+    "hungerValue": "Hunger: {hunger}%",
+    "foodRestore": "Reduces hunger by {amount}%",
+    "sleepThreshold": "I’m not tired enough to sleep yet. Sleep becomes available at 60% need.",
+    "rest": "Rest and pass time",
+    "restDuration": "Rest for",
+    "hours": "{hours} h",
+    "restHelp": "Rest at home to let time pass. It does not replace a proper night’s sleep.",
+    "homeOnly": "I should head home if I want to rest. My room is beside Father’s forge."
+  },
+  "workshop": {
+    "title": "Father’s workshop",
+    "close": "Back to workshop",
+    "bag": "My bag",
+    "storehouse": "Storehouse",
+    "materialsOnly": "Only materials can be stored here.",
+    "capacity": "My bag cannot hold any more weight.",
+    "coalNeeded": "I need coal in my bag, and room in the fire.",
+    "notReady": "This is not ready yet.",
+    "sameOre": "A charge needs four pieces of the same ore.",
+    "chargeNeeded": "Load four ore and one coal, then light the forge.",
+    "mouldBusy": "The metal must be molten and the mould empty.",
+    "ironOnly": "This blank does not match my active design.",
+    "workingHeat": "The metal is outside its working range.",
+    "quenchHeat": "The metal is outside its quenching range.",
+    "hammerNeeded": "Equip the crude hammer before working the blade.",
+    "allCells": "Each cell needs at least one blow.",
+    "partsNeeded": "I need the next fitting in my bag: wooden guard, handle, then pommel.",
+    "coal": "Add coal",
+    "bellows": "Work bellows",
+    "fuel": "Fuel: {seconds}s",
+    "temperature": "{temperature}°C",
+    "transfer": "Move one",
+    "recipe": "4 ore + 1 coal → 1 ingot",
+    "source": "Choose a source for each piece. Mixed ore charges are not allowed.",
+    "carbon": "Add reducing coal",
+    "load": "Add one ore",
+    "smelt": "Place crucible on forge",
+    "unload": "Return charge to storehouse",
+    "pour": "Lift and pour · R",
+    "collect": "Take cooled ingot",
+    "cooling": "Cooling: {seconds}s",
+    "charge": "Charge: {count} ore · {carbon} reducing coal",
+    "empty": "Empty",
+    "loaded": "Charge loaded",
+    "reducing": "Reducing ore",
+    "melting": "Melting reduced metal",
+    "molten": "Ready to pour",
+    "reduction": "Reduction: {progress}%",
+    "melt": "Melting: {progress}%",
+    "heat": "Put blade on coals",
+    "anvil": "Take blade to anvil",
+    "shapeDone": "Finish shaping",
+    "hammerHelp": "I’ll hold to raise my hammer, then release to strike a region. Each region rises toward 100%, then falls if I keep working it. At zero from overworking, the blade is ruined. I’ll reheat it when it grows cold.",
+    "power": "Blow strength",
+    "heatIngot": "Heat for a dagger",
+    "rackIngot": "Place carried ingot on rack",
+    "rackEmpty": "Cooled castings appear here.",
+    "quenchHelp": "I’ll heat the shaped metal into its quenching range, then hold it in water or oil. The score rises toward 100%, then falls; going too far ruins the blade. Water cools it faster than oil.",
+    "quench": "Hold to quench",
+    "quenchScore": "Quench quality: {quality}%",
+    "assemblyHelp": "Enter the frame to capture the mouse, then move left and right to align the fitting. Click either mouse button to drop it. Each fitting starts up to 20 px off-centre and moves within 30 px of the dagger’s centre. On touchscreens, drag and release inside the frame. Esc releases the mouse.",
+    "guard": "Fit guard",
+    "handle": "Fit handle",
+    "assemblyScore": "Assembly: {quality}%",
+    "grindHelp": "I’ll bring the blade against the upright wheel and move it across. Lifting or lowering it changes how the edge meets the stone. I’ll watch the sparks, then draw it away before turning it over.",
+    "flip": "Turn blade over",
+    "side": "Side {side}",
+    "angle": "Angle: {angle}°",
+    "sharpness": "Sharpness: {quality}%",
+    "finish": "Finish dagger",
+    "regrind": "Sharpen again",
+    "quality": "Total quality: {quality}%",
+    "weights": "Hammering 50% · Quench 25% · Assembly 20% · Sharpness 5%",
+    "shaped": "Shaped",
+    "hammering": "Shaping",
+    "quenched": "Quenched",
+    "assembled": "Assembled",
+    "noBlade": "Heat an iron ingot from the rack to begin a dagger.",
+    "nextQuench": "The blade is shaped. Reheat it, then choose water or oil.",
+    "nextAssembly": "The blade is quenched. Fit its guard, handle and pommel at the workbench.",
+    "nextGrind": "The fittings are in place. Take the dagger to the grinding wheel.",
+    "finished": "The dagger is finished.",
+    "cell": "Cell {cell}: {quality}%",
+    "category": "Category",
+    "all": "All items",
+    "apparel": "Apparel",
+    "weapons": "Weapons",
+    "tools": "Tools",
+    "materials": "Materials",
+    "food": "Food",
+    "temperatureHelp": "Bellows sustain the heat; coal burns over time. Ore is reduced before the metal melts. Heat and cooling continue while I work.",
+    "overheating": "Too hot to hammer. Let it cool off the coals.",
+    "removeHeat": "Take blade off coals",
+    "progress": "Blade: {stage}",
+    "recoverQuench": "Reheat to try the quench again",
+    "storageHelp": "Move materials manually. Storage has no weight limit; my bag holds 30 kg.",
+    "noMaterials": "No materials here.",
+    "ingotHeat": "Ingot · {temperature}°C",
+    "savedCraft": "Craft quality: {quality}%",
+    "takeIngot": "Put ingot in bag",
+    "coolForge": "Dampen the fire",
+    "referenceTitle": "Read workshop notes",
+    "returnLocked": "I should bring back four iron ore, four coal, a wooden guard, a wooden handle and a wooden pommel before heading home.",
+    "referenceIntro": "Father’s notes are here beside the designs. I can look over the temperatures and the order of the work.",
+    "processTitle": "From ore to a weapon",
+    "reference": {
+      "iron": "Iron ore contains iron oxides. First reduce the ore with carbon in the hot charge; ore is not simply melted straight into iron. Reduction begins at 1,000°C in this workshop. Reduced iron melts at the game’s reference temperature of 1,538°C. Actual melting behaviour varies with carbon and impurities.",
+      "copper": "Copper melts at 1,085°C. For an equal-volume stock unit, use 6 sorted copper ore and 1 reducing coal, plus furnace fuel. Copper is denser but softer than iron; it loses its edge sooner. Quenching copper cools it without hardening it.",
+      "process": "For my first dagger, I need four iron ore and one reducing coal in the crucible, with furnace fuel added separately. My later designs list their own charge and fittings. I’ll let the metal reduce and melt, then wait until both metal and crucible are 100°C above the melting point before pouring. Once the blank has cooled, I can reheat it into its material’s working range and shape every region on both faces. Then I’ll heat it for quenching, cool it carefully in water or oil, fit the guard, handle and pommel, and sharpen whichever edges I designed."
+    },
+    "reseat": "Remove fittings · −10% assembly ceiling",
+    "heatDamage": "Heat penalty: −{quality} points. Holding a blade at working heat gradually recovers this penalty.",
+    "thermalHelp": "The forge gradually loses heat toward room temperature. Each bellows press adds a short boost; hotter fires gain less. Coal sustains combustion, and water helps the forge cool.",
+    "start": "START BLACKSMITHING",
+    "stop": "End blacksmithing",
+    "noSupplies": "I need four matching ore pieces, reducing coal and fuel, or an iron ingot before I can begin. I can collect supplies from the storehouse or buy them at the market. Fuel coal needs to be in my bag. For my first dagger, I also need to bring home the wooden guard, handle and pommel Father asked for.",
+    "startFirst": "Start blacksmithing at the forge first.",
+    "stopForStorage": "End blacksmithing before opening the storehouse.",
+    "bellowsRecovering": "Let the bellows refill for a moment.",
+    "pouringTitle": "Pour the ingot",
+    "pouringHelp": "Hold the crucible and lift it to pour. Higher pours flow faster; lifting too high spills metal. Release to lower it and pause. Resume while the mould is still liquid. Aim to fill at least 95% before the metal hardens. A steady pour takes about 5–6 seconds.",
+    "crucibleHeat": "Crucible: {temperature}°C",
+    "mouldHeat": "Mould metal: {temperature}°C",
+    "mouldFill": "Mould filled: {percent}%",
+    "spilled": "Spilled: {percent}%",
+    "dragCrucible": "Hold and lift crucible to pour. Keyboard: hold Space and use Up or Down; release Space to lower.",
+    "ruinedCasting": "Ruined casting",
+    "tooHigh": "Too high · spilling",
+    "castingScore": "Casting quality: {quality}%",
+    "finishPour": "Finish pouring",
+    "returnWorkshop": "Back to workshop",
+    "castingFailed": "The casting is ruined. Discard it at the mould. Reheat any crucible leftovers to melting point before discarding them.",
+    "castingFinished": "The ingot is cooling in the mould. Any crucible leftovers must be reheated and discarded before a fresh charge.",
+    "finishPourFirst": "Finish the current pour before working another station.",
+    "pouring": "Pouring",
+    "residue": "Metal remaining in crucible",
+    "reheatResidue": "Reheat crucible leftovers",
+    "dumpResidue": "Discard molten leftovers",
+    "discardCasting": "Discard ruined casting",
+    "residueCold": "Reheat the remaining metal until it is fully molten before discarding it.",
+    "residueHelp": "This metal cannot be used for another ingot. Reheat it until fully molten, then discard it before loading a fresh charge.",
+    "crucibleLeft": "Crucible remaining: {percent}%",
+    "walkingToStation": "Walking to the station…",
+    "dropGuard": "Drop guard",
+    "dropHandle": "Drop handle",
+    "fittingFalling": "Fitting…",
+    "guardSuccess": "Guard fit: {quality}%",
+    "handleSuccess": "Handle fit: {quality}%",
+    "assemblyAim": "Enter to capture the mouse. Move left/right, then left- or right-click to drop. Touch: drag and release inside. Keyboard: arrows to aim, Enter or Space to drop. Esc releases capture.",
+    "assemblyCapture": "Mouse capture was blocked. You can still move inside the frame and click to drop.",
+    "assemblyNoCapture": "This browser cannot capture the mouse. Move and click inside the frame to fit the part.",
+    "assemblyMissing": "I need a {item} in my bag before I can fit it.",
+    "assemblyCeiling": "Assembly quality ceiling: {quality}%",
+    "bladeDepth": "Lowering: {depth}%",
+    "grindContacts": "Cells in contact: {count}",
+    "noGrindingContact": "Move the blade over the wheel to sharpen it.",
+    "loading": "Adding {item} · {seconds}s",
+    "loadingBusy": "I need to finish adding this first.",
+    "pommelSuccess": "Pommel fit: {quality}%",
+    "metalHeat": "Metal: {temperature}°C",
+    "design": "Design a weapon",
+    "designRequired": "I need to save a weapon design at the workbench first.",
+    "invalidDesign": "This design needs correcting before I can forge it.",
+    "designMaterials": "I need the full charge, fuel, and chosen fittings before starting. The fittings must be in my bag.",
+    "designLocked": "I have already started this design. I cannot change it now.",
+    "designLockedTutorial": "My first dagger follows Father’s pattern. I can make my own designs afterward.",
+    "designSaved": "Weapon design saved.",
+    "bladeRuined": "This blade is ruined. I cannot repair it or recover its materials.",
+    "ruined": "Ruined",
+    "discardBlade": "Discard ruined blade",
+    "customCharge": "Charge: {count}/{ore} ore · {carbon}/{required} reducing coal",
+    "customRecipe": "A larger charge makes one large blank; heating, melting, cooling, and quenching take longer.",
+    "workingRange": "Working range: {min}–{max}°C · Quenching range: {min}–{quench}°C",
+    "finishProject": "I already have a blank for this design. I’ll finish working it before loading another charge."
+  },
+  "audio": {
+    "settings": "Settings",
+    "soundTab": "Sound",
+    "master": "Overall volume",
+    "mute": "Mute all sound",
+    "unmute": "Unmute all sound",
+    "muted": "All sound is muted. Your volume levels are kept for when you unmute.",
+    "saved": "Sound preferences are saved automatically.",
+    "startHint": "Click or press a key to enable sound.",
+    "unavailable": "Audio is unavailable in this browser.",
+    "individual": "Individual sounds",
+    "previewNamed": "Preview {sound}",
+    "enableNamed": "Enable {sound}",
+    "disableNamed": "Mute {sound}",
+    "loadFailed": "A sound could not be loaded. Other sounds will continue playing.",
+    "credits": "Music and recordings by Kenney, TinyWorlds, RandomMind, isaiah658, AntumDeluge and rubberduck (CC0).",
+    "viewCredits": "Audio credits and licences",
+    "groups": {
+      "music": "Music",
+      "ambience": "Scene ambience",
+      "woodcutting": "Woodcutting",
+      "forge": "Blacksmithing",
+      "dishes": "Dishwashing",
+      "travel": "Footsteps and doors",
+      "interface": "Interface and coins",
+      "dialogue": "Speaking text",
+      "encounters": "Encounters"
+    },
+    "sounds": {
+      "villageMusic": "Village music",
+      "innMusic": "Inn and workshop music",
+      "birds": "Birds outdoors",
+      "fire": "Crackling fire",
+      "axeSwing": "Axe swing",
+      "axeHit": "Axe impact",
+      "logMove": "Moving logs",
+      "logStack": "Stacking firewood",
+      "hammer": "Hammer strikes",
+      "bellows": "Bellows",
+      "steam": "Quenching steam",
+      "grind": "Grinding wheel",
+      "coal": "Adding coal",
+      "metal": "Handling metal",
+      "pour": "Pouring and cooling",
+      "assembly": "Fitting dagger parts",
+      "dishes": "Washing water",
+      "plate": "Dishes clinking",
+      "footstep": "Road walking",
+      "door": "Doors",
+      "click": "Button clicks",
+      "inventory": "Inventory rustle",
+      "page": "Turning pages",
+      "coins": "Handling coins",
+      "speech": "Dialogue letter tones",
+      "encounterBad": "Bad encounter",
+      "encounterGood": "Good encounter",
+      "encounterNeutral": "Neutral encounter",
+      "marketCrowd": "Market chatter and haggling",
+      "marketHorse": "Passing horses",
+      "marketCart": "Wooden cart wheels",
+      "marketCallout": "Occasional market calls"
+    }
+  },
+  "forgeLesson": {
+    "title": "At Father’s forge",
+    "continue": "Continue",
+    "reveal": "Show the rest",
+    "timePaused": "Workshop time pauses during guidance.",
+    "ore": [
+      "Your first proper blade, then. Start with four pieces of the same ore in the crucible. Choose them from your bag or the storehouse; keep the metals separate.",
+      "I do know which end of the crucible is open, Dad. I’ve been watching you since I could see over the bench.",
+      "Still, I’m glad he’s staying nearby. Watching his hands was rather easier than trusting my own."
+    ],
+    "reducer": [
+      "Now one piece of coal into the charge as the reducing agent. Heating ore alone is not enough: the carbon helps free the metal from its oxygen. This coal belongs in the crucible; the fire needs its own fuel.",
+      "One for the metal, more for the fire. Yes, I remember. I was listening, even when I looked as though I wasn’t."
+    ],
+    "fuel": [
+      "Feed some coal to the forge from your bag. A piece will burn for a good while, so there’s no need to heap it in. If your fuel is in storage, end blacksmithing and fetch it first.",
+      "He has that look again—the one that means he knows exactly how much coal I was about to waste. One piece first, then."
+    ],
+    "crucible": [
+      "The charge and fuel are ready. Put the crucible onto the forge with the heat-crucible action. We’ll bring the fire up together."
+    ],
+    "bellows": [
+      "Work the bellows in steady presses. Each stroke gives a short burst of heat, and a hotter fire gains less from it. The heat is always escaping, so watch it rather than pumping without looking.",
+      "Steady hands, watch the colour, don’t fight the fire. I might have heard that once or twice in this house."
+    ],
+    "melting": [
+      "The metal is melting. Iron’s melting point is about 1,538 degrees, but do not lift it at the first sign of liquid. Wait for a fully molten charge, with both the metal and crucible at least 100 degrees hotter—about 1,638 for iron. We need that stored heat for carrying and pouring.",
+      "I had been about to lift it. Best give it a little longer, as though that was my plan all along."
+    ],
+    "pour": [
+      "The charge is fully liquid, and both it and the crucible have at least a hundred degrees in reserve above melting. Lift it now and carry it to the mould. Hold and raise it to pour; a moderate height takes five or six seconds. Keep the casting liquid and get at least ninety-five percent into the mould. Watch both temperatures as you work.",
+      "I’ve seen you do this without spilling a drop. You could have made it look a little harder, for my sake."
+    ],
+    "ruined": [
+      "This casting won’t do. Click the mould to discard it. Don’t try to hide a cold join beneath more metal. We’ll clear the crucible, prepare another charge, and do it properly.",
+      "He hasn’t raised his voice. Somehow that makes me want to get the next one right even more."
+    ],
+    "residue": [
+      "There’s metal left in the crucible. Reheat it until fully molten, then give both the metal and crucible a hundred degrees above melting before lifting it to discard. We cannot use the leftovers to top up a casting that has already set."
+    ],
+    "collect": [
+      "The ingot has cooled enough to lift out. Take it from the mould; we’ll keep it on the rack beside the forge until you’re ready to work it."
+    ],
+    "ingot": [
+      "Now put an iron ingot onto the coal. If it’s in your bag, set it on the rack first and choose it there. Melting gave us stock; the anvil will give it a blade’s shape.",
+      "Finally, the part with the hammer. I promise I was paying attention to the rest as well."
+    ],
+    "heatBlade": [
+      "Bring the ingot to about 900 degrees, then lift it off the coal before walking to the anvil. It can be worked from 750 to 1,150, but starting at the lowest heat leaves no time to carry it or work. Give yourself that margin."
+    ],
+    "hammer": [
+      "There—about 900 degrees. Take the ingot off the forge now, then carry it to the anvil. Hold over a cell to raise the hammer, then release to strike. Work all sixteen areas toward one hundred; further blows overwork them, and reheating cannot undo that.",
+      "All sixteen, even blows, and stop before I’m improving it into scrap. You make a very convincing case for a light touch.",
+      "His eyes are on the blade rather than my hands now. Perhaps he thinks I can do this after all."
+    ],
+    "reheat": [
+      "The blade needs another heat. Bring it back to about 900 degrees before taking it off the coal. That leaves time to walk back and work before it cools below 750. There’s no prize for beating cold iron."
+    ],
+    "shape": [
+      "You’ve worked every part. Look over the scores before you finish shaping; untouched and overworked patches will stay with the blade. When you’re satisfied, finish the shape and we’ll quench it."
+    ],
+    "quenchHeat": [
+      "Bring the shaped blade to about 850 degrees before taking it off the coal for quenching. The working range is 750 to 900, but leaving at 750 lets it cool too far before it reaches the barrel. If it is too hot, lift it off and let it settle first."
+    ],
+    "quench": [
+      "That leaves enough heat for the short walk. Take it off the coal, choose water or oil and hold to quench. Water reaches the sweet spot in about two and a half seconds; oil takes a little over four. Release near one hundred. We can reheat and retry a missed treatment.",
+      "I remember the first time you let me near those barrels. You stood rather closer than you are now."
+    ],
+    "guard": [
+      "Now to the design bench. Fit the wooden guard first: enter the frame, line it up over the tang, then click. On a touchscreen, drag and lift your finger inside. Keep the fit centred; a tidy blade deserves more than a crooked hilt.",
+      "I can almost hear him finding fault with a crooked guard from the other side of the room. Better spare us both the trouble."
+    ],
+    "handle": [
+      "The guard is seated. Do the same with the handle, straight down over the tang. Take a moment to line it up, then click to let it fall. The pommel goes on after it.",
+      "You know, Dad, it does look remarkably like a dagger now. I’m choosing to take that as encouragement."
+    ],
+    "grind": [
+      "Finish at the grinding wheel. Hold the dagger against the upright wheel and move it across. Move up and down to lift or lower the blade; its width shows the tilt. Keep the angle near fifteen degrees. All overlapping areas are worked together. Release before turning it over, and check both sides before finishing."
+    ],
+    "finished": [
+      "Thank you, Dad. For staying with me through it, I mean. It helped. But I think I can manage the next one without a voice over my shoulder.",
+      "Good. I was hoping to get some work of my own done. Just remember which way round the crucible goes.",
+      "I shall carry that lesson with me always. Along with the other twenty you managed to fit into one dagger.",
+      "I turn the finished blade in my hand. He trusted me with this. Next time, I want him to see I deserved it."
+    ],
+    "pommel": [
+      "The handle is seated. Fit the pommel last, straight over the end of the tang. It holds the grip together and gives the dagger its balance. Centre it as carefully as the other two fittings.",
+      "One last piece. I was just beginning to think I could call it finished without you finding something else."
+    ]
+  },
+  "design": {
+    "intro": "I can plan my own weapon here: shape the metal, choose its edges and point, then match it with a grip and fittings.",
+    "locked": "This design is locked while its metal is being worked. Finish or discard the ruined work before changing it.",
+    "name": "Weapon name",
+    "material": "Blade material",
+    "materials": {
+      "iron": "Iron / forge iron",
+      "copper": "Copper"
+    },
+    "ingots": "Stock units",
+    "length": "Metal length",
+    "point": "Point",
+    "points": {
+      "needle": "Needle point",
+      "spear": "Spear point",
+      "rounded": "Rounded end",
+      "flat": "Flat end"
+    },
+    "handle": "Handle",
+    "guard": "Guard",
+    "pommel": "Pommel",
+    "section": "Blade section",
+    "sectionLength": "Relative section length",
+    "width": "Width",
+    "thickness": "Thickness",
+    "profile": "Cross section",
+    "profiles": {
+      "cutting": "Thin cutting section",
+      "diamond": "Diamond section",
+      "wedge": "Wedge section",
+      "rounded": "Rounded striking section"
+    },
+    "edge": "Edges",
+    "edges": {
+      "both": "Both edges",
+      "left": "First edge",
+      "right": "Second edge",
+      "none": "No cutting edge"
+    },
+    "control": "Curve control {n}",
+    "curveHelp": "Drag the three red controls to bend the whole blade. Arrow keys also move a focused control. The tang stays at the origin; X and Y are centimetres. Each stock unit adds three sections and two working faces.",
+    "damage": "Damage",
+    "cut": "Cut",
+    "pierce": "Pierce",
+    "blunt": "Blunt",
+    "weight": "Weight",
+    "speed": "Attack speed",
+    "durability": "Durability",
+    "reach": "Reach",
+    "balance": "Balance from tang (X, Y)",
+    "hands": "Hands",
+    "volume": "Metal volume: {used} / {available} cm³",
+    "recipe": "Charge: {ore} {type}, {carbon} reducing coal, plus {fuel} fuel coal. Blank mass: {mass} kg. Fittings must be in my bag.",
+    "missing": "Required: {n} × {item} ({source}).",
+    "noRecovery": "Ruined blades cannot be repaired or recovered. Unused stock becomes forging waste; finished weight follows the actual shape.",
+    "save": "Save design",
+    "saved": "Design saved.",
+    "workRegion": "Stock {n}",
+    "issues": {
+      "invalid": "Choose a valid material, point, and fittings.",
+      "metalBudget": "This shape needs more metal. Add stock or reduce the dimensions.",
+      "bendBudget": "The combined bend is too large. Bring the curve controls closer to the axis.",
+      "folded": "The blade folds into itself. Spread out the controls or reduce the bend.",
+      "gripCollision": "The blade overlaps the grip. Move its curve away from the tang.",
+      "handleLength": "The handle is too long.",
+      "weakTransition": "A sharp change in section size weakens the weapon. Match neighbouring sections more closely.",
+      "thinBlade": "This long, thin blade will have lower durability.",
+      "softCopper": "Copper is dense but soft: lower strength and edge retention than iron. Quenching copper does not harden it.",
+      "shortGrip": "A longer handle would give this large blade better leverage.",
+      "lengthBudget": "Each stock unit supports up to 20 cm of metal length. Add stock or shorten the design."
+    }
   }
 }

@@ -1,4 +1,8 @@
 <script setup>
+import { advanceTravelClock } from './travel-clock'
+import { canSleep, sleepNeedPercent, updateHunger, eatItem, nextMorningMinutes } from './needs'
+import { DISHES_PAY, MERCHANT_TIP } from './currency'
+import { canStartDailyJob, canResumeDailyJob, startDailyJob, endDailyJob } from './daily-jobs'
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch, watchEffect } from 'vue'
 import { useI18n } from 'vue-i18n'
 import PlayerSidebar from './components/PlayerSidebar.vue'
@@ -7,16 +11,39 @@ import MapHud from './components/MapHud.vue'
 import TownMap from './components/TownMap.vue'
 import MapEditor from './components/MapEditor.vue'
 import ForgeMap from './components/ForgeMap.vue'
+import { actionStation } from './forge-navigation'
+import ForgeLesson from './components/ForgeLesson.vue'
+import { nextWorkshopLesson } from './workshop-lesson'
+import WorkshopDialog from './components/WorkshopDialog.vue'
+import PouringGame from './components/PouringGame.vue'
+import { tickWorkshop, queueWorkshopLoad } from './workshop'
+import { canEnterSmithy, robPlayer } from './errand'
 import GameModal from './components/GameModal.vue'
+import AudioSettings from './components/AudioSettings.vue'
+import { encounterCue, createAudioEngine, readAudioSettings, AUDIO_SETTINGS_KEY, sceneSounds, useGameAudio } from './audio'
 import TutorialCloud from './components/TutorialCloud.vue'
-import { dayNumber, fatigueFactor, FORGE_COAL_CAPACITY, formatTime, initialState, injuryFactor, places, readSave, SAVE_KEY, staminaCap } from './game'
+import { dayNumber, fatigueFactor, formatTime, initialState, injuryFactor, places, readSave, SAVE_KEY, staminaCap } from './game'
 import { hasQuest, isUnlocked, questById, QUEST, stageFromQuests } from './progression'
 import { placePoint, pointAtDistance, routeFromPoint, travelMinutesFromPoint, mapGrid } from './routes'
+import { hasRequiredItems, items } from './inventory'
+import { merchantAt, quoteTrade, offerFingerprint, merchantMinimum, executeTrade, refreshMerchantStock } from './merchants'
 import { eventForTravelTick } from './travel-events'
 
 const { t } = useI18n()
 const game = reactive(readSave())
-const offerPercent = ref(115)
+const audioSettings = reactive(readAudioSettings(localStorage))
+const audio = createAudioEngine({ settings: audioSettings })
+useGameAudio(audio)
+const settingsOpen = ref(false)
+watch(audioSettings, settings => {
+  audio.configure(settings)
+  try { localStorage.setItem(AUDIO_SETTINGS_KEY, JSON.stringify(settings)) } catch { /* Keep settings usable if storage is full. */ }
+}, { deep: true })
+function unlockAudio(event) { if (event.isTrusted && (event.type === 'pointerdown' || !event.ctrlKey && !event.altKey && !event.metaKey)) void audio.unlock() }
+function interfaceSound(event) { if (event.target.closest?.('button:not(:disabled)') && !event.target.closest('[data-audio-ui="off"]')) audio.play('click') }
+function audioVisibility() { audio.visibilityChanged() }
+const tradeAgreement = ref(null)
+const activeMerchant = computed(() => merchantAt(game.location))
 const mapView = ref('town')
 const editingMap = ref(false)
 const gameFrame = ref(null)
@@ -34,6 +61,7 @@ function fitGameSquare() {
 function syncFullscreen() { fullscreenGame.value = document.fullscreenElement === gameFrame.value }
 function handleDisplayKey(event) {
   if (event.key === 'Escape' && !document.fullscreenElement) expandedGame.value = false
+  if (event.key.toLowerCase() === 'r' && !event.repeat && mapView.value === 'forge' && (!modal.value || modal.value === 'workshop') && game.workshop.working && ['melting', 'molten', 'pouring'].includes(game.workshop.crucible.stage) && !['INPUT', 'SELECT', 'TEXTAREA'].includes(event.target.tagName)) { event.preventDefault(); workshopCommand('pour') }
 }
 async function toggleGameFullscreen() {
   displayError.value = ''
@@ -43,6 +71,76 @@ async function toggleGameFullscreen() {
   } catch { displayError.value = t('map.fullscreenUnavailable') }
 }
 const modal = ref(null)
+watch([mapView, () => game.location, () => !!game.travel, () => game.workshop.fuel > 0, modal, settingsOpen], () => {
+  audio.setScene(sceneSounds({ mapView: mapView.value, location: game.location, traveling: !!game.travel, walking: mapView.value === 'town' && !!game.travel && !modal.value && !settingsOpen.value, woodcutting: modal.value === 'wood', fuel: game.workshop.fuel }))
+}, { immediate: true })
+watch(modal, (value, old) => {
+  if (value === 'trade' && old !== 'trade') { tradeAgreement.value = null; tradeFeedback.value = null }
+  if (value === 'inventory') audio.play('inventory'); else if (['journal', 'objective'].includes(value)) audio.play('page')
+})
+const forgeMap = ref(null)
+const forgeLesson = ref(null)
+const assemblyBusy = ref(false)
+watch(() => mapView.value === 'forge' && !assemblyBusy.value && !settingsOpen.value && modal.value !== 'pouring' ? nextWorkshopLesson(game) : null, lesson => { if (!forgeLesson.value && lesson) forgeLesson.value = lesson })
+function completeForgeLesson(id) {
+  if (!game.workshop.lessonSeen.includes(id)) game.workshop.lessonSeen.push(id)
+  if (id === 'finished') game.workshop.lessonFinishPending = false
+  forgeLesson.value = null
+}
+watch(mapView, view => { if (view !== 'forge') forgeLesson.value = null })
+watch(forgeLesson, lesson => { if (!lesson && !assemblyBusy.value && mapView.value === 'forge' && modal.value !== 'pouring') forgeLesson.value = nextWorkshopLesson(game) })
+const workshopStation = ref('crucible')
+const workshopFeedback = ref(null)
+function openWorkshop(station, arrived = false) {
+  if (forgeLesson.value || game.workshop.loading) return
+  if (!stationUnlocked(['reference', 'design'].includes(station) ? 'workbench' : station)) return
+  if (station === 'warehouse' ? game.workshop.working : !['reference', 'design', 'workbench'].includes(station) && !game.workshop.working) return
+  if (!arrived && forgeMap.value && !forgeMap.value.isNear(station)) { closeModal(); forgeMap.value.approach(station, () => openWorkshop(station, true)); return }
+  if (station === 'reference') audio.play('page')
+  else if (station === 'warehouse') audio.play('inventory')
+  workshopStation.value = station
+  workshopFeedback.value = null
+  modal.value = 'workshop'
+}
+function leaveForge(arrived = false) {
+  if (forgeLesson.value) return
+  if (game.workshop.working) return
+  if (!arrived && forgeMap.value && !forgeMap.value.isNear('door')) { closeModal(); forgeMap.value.approach('door', () => leaveForge(true)); return }
+  if (hasQuest(game.completedQuests, QUEST.IRON_ERRAND_ACCEPTED)) game.leftHomeForErrand = true
+  closeModal()
+  mapView.value = 'town'
+  audio.play('door')
+}
+function workshopCommand(action, params, arrived = false) {
+  if (forgeLesson.value || game.workshop.loading && action !== 'stop') return
+  if (mapView.value !== 'forge' || game.location !== 'smithy' || !stationUnlocked('furnace')) return
+  const station = actionStation(action, params, workshopStation.value)
+  if (!arrived && station && forgeMap.value && !forgeMap.value.isNear(station)) {
+    if (['strike', 'grind', 'transfer', 'assemble'].includes(action)) return
+    closeModal(); forgeMap.value.approach(station, () => workshopCommand(action, params, true)); return
+  }
+  const wasPouring = game.workshop.pour?.holding
+  const result = queueWorkshopLoad(game, action, params)
+  if (result.pouring) modal.value = 'pouring'
+  if (['designRequired', 'designMaterials', 'invalidDesign'].includes(result.error)) { closeModal(); openWorkshop('design') }
+  if (result.error === 'noSupplies') modal.value = 'smithingUnavailable'
+  if (!result.error && ['start', 'stop'].includes(action)) { closeModal(); audio.release('steam'); audio.release('grind') }
+  if (!result.error) {
+    const cues = { coal: 'coal', bellows: 'bellows', coolForge: 'pour', loadOre: 'metal', loadCarbon: 'coal', smelt: 'metal', dumpResidue: 'pour', discardCasting: 'metal', collect: 'metal', rackIngot: 'metal', heatIngot: 'metal', takeIngot: 'metal', heat: 'metal', removeHeat: 'metal', anvil: 'metal', strike: 'hammer', assemble: 'assembly', finish: 'metal', transfer: 'inventory' }
+    if (action === 'pourControl' && params?.holding && !wasPouring) audio.play('pour')
+    if (cues[action]) audio.play(cues[action], action === 'strike' ? { scale: .35 + (params?.power || 0) * .65 } : undefined)
+    if (action === 'grind') audio.hold('grind')
+    if (action === 'quenchStart' || action === 'quenchTick') audio.hold('steam')
+    if (action === 'quenchEnd') audio.release('steam')
+  }
+  workshopFeedback.value = result.error || (result.designSaved ? 'designSaved' : null)
+  if (result.finished) {
+    if (!hasQuest(game.completedQuests, QUEST.DAGGER_FORGED)) game.workshop.lessonFinishPending = true
+    completeQuest(QUEST.DAGGER_FORGED)
+    note('events.forged')
+    workshopFeedback.value = 'finished'
+  }
+}
 const tradeFeedback = ref(null)
 const townMenu = ref(null)
 const cloudVisible = ref(true)
@@ -54,7 +152,7 @@ watch(() => tutorialQuest.value?.id, (id) => { cloudVisible.value = true; cloudR
 const tutorialStage = computed(() => hasQuest(game.completedQuests, QUEST.BANDIT_AMBUSH_SURVIVED)
   ? null : ['intro', 'fatherCall', 'fatherTalk'].includes(game.stage) ? game.stage : 'restricted')
 function placeUnlocked(id) {
-  return !!places.find((place) => place.id === id)?.available && isUnlocked(game.completedQuests, 'places', id)
+  return (id !== 'smithy' || canEnterSmithy(game)) && !!places.find((place) => place.id === id)?.available && isUnlocked(game.completedQuests, 'places', id)
 }
 function actionUnlocked(placeId, actionId) {
   return placeUnlocked(placeId) && isUnlocked(game.completedQuests, 'actions', placeId + '.' + actionId)
@@ -80,6 +178,10 @@ watch(() => game.completedQuests, () => {
 const selectedTutorialLocked = computed(() => !placeUnlocked(game.selected))
 let introTimer
 let travelTimer
+let marketPassing = 18 + Math.random() * 15, marketCallout = 55 + Math.random() * 40
+let workshopTimer
+let lastWorkshopTick
+let workshopMinutes = 0
 const selectedPlace = computed(() => places.find((place) => place.id === game.selected) || places[0])
 const currentPlace = computed(() => places.find((place) => place.id === game.location) || places[0])
 const pawnPosition = computed(() => game.travel?.position || placePoint(game.location))
@@ -90,11 +192,10 @@ const injury = computed(() => Math.round(injuryFactor(game) * 100))
 const day = computed(() => dayNumber(game.minutes))
 const clock = computed(() => formatTime(game.minutes))
 const awakeHours = computed(() => Math.floor((game.minutes - game.awakeSince) / 60))
-const sleepNeed = computed(() => Math.min(100, Math.round((game.minutes - game.awakeSince) / (48 * 60) * 100)))
-const askingPrice = computed(() => Math.round(10 * (1.5 + Math.max(0, -game.reputation) * 0.1 - Math.max(0, game.reputation) * 0.04)))
-const offeredPrice = computed(() => Math.round(10 * offerPercent.value / 100))
+const sleepNeed = computed(() => Math.floor(sleepNeedPercent(game)))
 const moodKey = computed(() => game.reputation <= -3 ? 'refuses' : game.reputation < 0 ? 'irritated' : game.reputation > 1 ? 'friendly' : 'neutral')
 
+watch(() => game.minutes, () => { refreshMerchantStock(game); updateHunger(game) }, { immediate: true, flush: 'sync' })
 watch(game, () => localStorage.setItem(SAVE_KEY, JSON.stringify(game)), { deep: true })
 watchEffect(() => { document.title = t('app.title') + ' — ' + t('map.townName') })
 
@@ -108,6 +209,10 @@ function scheduleIntro() {
   }, 3000)
 }
 onMounted(() => {
+  document.addEventListener('pointerdown', unlockAudio, true)
+  document.addEventListener('keydown', unlockAudio, true)
+  document.addEventListener('click', interfaceSound)
+  document.addEventListener('visibilitychange', audioVisibility)
   gameSizeObserver = new ResizeObserver(fitGameSquare)
   gameSizeObserver.observe(gameFrame.value)
   for (const child of gameFrame.value.children) {
@@ -119,14 +224,36 @@ onMounted(() => {
   if (game.travel?.pausedForEvent) modal.value = 'event'
   else if (!game.travel && needsMarketNotice(game.location)) modal.value = 'marketNotice'
   else if (!game.travel && game.location === 'tavern' && hasQuest(game.completedQuests, QUEST.BANDIT_AMBUSH_SURVIVED) && !hasQuest(game.completedQuests, QUEST.TAVERN_WORK_OFFERED)) modal.value = 'tavern'
-  travelTimer = setInterval(tickTravel, 1000 / 3)
+  travelTimer = setInterval(tickTravel, 50)
+  lastWorkshopTick = performance.now()
+  workshopTimer = setInterval(() => {
+    const now = performance.now(), dt = Math.min(.25, (now - lastWorkshopTick) / 1000)
+    lastWorkshopTick = now
+    if (mapView.value === 'town' && game.location === 'market' && !game.travel && !document.hidden && !settingsOpen.value) {
+      marketPassing -= dt; marketCallout -= dt
+      if (marketPassing <= 0) { audio.play('marketHorse'); audio.play('marketCart'); marketPassing = 30 + Math.random() * 35 }
+      if (marketCallout <= 0) { audio.play('marketCallout', { rate: 1 }); marketCallout = 60 + Math.random() * 45 }
+    }
+    if (!forgeLesson.value || mapView.value !== 'forge') tickWorkshop(game, dt)
+    if (!forgeLesson.value && mapView.value === 'forge' && (modal.value === 'workshop' || game.workshop.fuel > 0 || game.workshop.blade)) {
+      workshopMinutes += dt
+      if (workshopMinutes >= 5) { game.minutes += 1; workshopMinutes -= 5 }
+    }
+  }, 200)
 })
 onBeforeUnmount(() => {
+  document.removeEventListener('pointerdown', unlockAudio, true)
+  document.removeEventListener('keydown', unlockAudio, true)
+  document.removeEventListener('click', interfaceSound)
+  document.removeEventListener('visibilitychange', audioVisibility)
+  useGameAudio(null)
+  void audio.dispose()
   gameSizeObserver?.disconnect()
   document.removeEventListener('fullscreenchange', syncFullscreen)
   document.removeEventListener('keydown', handleDisplayKey)
   clearTimeout(introTimer)
   clearInterval(travelTimer)
+  clearInterval(workshopTimer)
 })
 
 function note(key, params = {}) {
@@ -147,6 +274,7 @@ function performAction(actionId, placeId) {
   if (!actionUnlocked(placeId, actionId)) return
   if (actionId === 'enter') {
     mapView.value = 'forge'
+    audio.play('door')
     if (game.stage === 'fatherCall') {
       completeQuest(QUEST.FATHER_MET)
       note('events.fatherTalk')
@@ -156,6 +284,7 @@ function performAction(actionId, placeId) {
     modal.value = 'tavern'
   } else if (actionId === 'trade') {
     if (needsMarketNotice(placeId)) { modal.value = 'marketNotice'; return }
+    tradeAgreement.value = null
     tradeFeedback.value = null
     modal.value = 'trade'
   }
@@ -163,7 +292,9 @@ function performAction(actionId, placeId) {
 
 function performJob(jobId, placeId) {
   if (!jobUnlocked(placeId, jobId)) return
-  if (placeId === 'smithy') mapView.value = 'forge'
+  if (['wood', 'dishes'].includes(jobId) && !canStartDailyJob(game, jobId) && !canResumeDailyJob(game, jobId)) { modal.value = jobId + 'Done'; return }
+  if (jobId === 'wood' && !canResumeDailyJob(game, 'wood') && !startDailyJob(game, 'wood')) return
+  if (placeId === 'smithy') { mapView.value = 'forge'; openWorkshop('crucible'); return }
   modal.value = jobId
 }
 
@@ -186,8 +317,10 @@ function startTravel(destinationId, pending = null) {
     route: route.points,
     position: { ...pawnPosition.value },
     totalMinutes: route.minutes,
+    minutesPerCell: mapGrid.minutesPerCell || 1,
     elapsedMinutes: 0,
     secondsElapsed: 0,
+    cellSeconds: 0,
     pending,
   }
   modal.value = null
@@ -218,24 +351,24 @@ function handleJob(jobId, placeId) {
 
 function tickTravel() {
   const journey = game.travel
-  if (!journey || modal.value) return
-  journey.elapsedMinutes += 1
+  if (!journey || modal.value || settingsOpen.value || document.hidden) return
+  if (!advanceTravelClock(journey, .05, mapGrid)) return
   game.minutes += 1
-  journey.position = pointAtDistance(journey.route, journey.elapsedMinutes * mapGrid.cellSize)
+  journey.position = pointAtDistance(journey.route, journey.elapsedMinutes * mapGrid.cellSize / (mapGrid.minutesPerCell || 1))
 
-  const eventBeat = journey.elapsedMinutes % 3 === 0 || journey.elapsedMinutes >= journey.totalMinutes
-  if (eventBeat) journey.secondsElapsed += 1
-  const event = eventBeat ? eventForTravelTick(journey, game.completedQuests) : null
+  journey.secondsElapsed += 1
+  const event = eventForTravelTick(journey, game.completedQuests)
   if (event === 'bandits') {
+    audio.play(encounterCue('bad'))
     game.health = 68
-    game.coins = 0
+    const stolen = robPlayer(game)
     completeQuest(QUEST.BANDIT_AMBUSH_SURVIVED)
     journey.pausedForEvent = true
     modal.value = 'event'
-    note('events.bandits')
+    note('events.bandits', { coins: stolen })
     return
   }
-  if (event === 'roadTraveler') note('events.roadTraveler')
+  if (event === 'roadTraveler') { audio.play(encounterCue('neutral')); note('events.roadTraveler') }
 
   if (journey.elapsedMinutes >= journey.totalMinutes) {
     const { destinationId, totalMinutes, pending } = journey
@@ -275,53 +408,65 @@ function answerInnkeeper(reason) {
 
 function finishWoodcutting(result) {
   if (modal.value !== 'wood' || game.location !== 'tavern' || !jobUnlocked('tavern', 'wood')) return
+  if (!endDailyJob(game, 'wood')) return
   game.minutes += result.minutes
   game.coins += result.coins
+  if (result.coins > 0) audio.play('coins')
   note('events.wood', { coins: result.coins, pieces: result.pieces, quality: result.average })
   modal.value = null
 }
 
 function closeModal() {
+  if (modal.value === 'wood') endDailyJob(game, 'wood', 'cancelled')
   modal.value = null
   if (game.travel?.pausedForEvent) game.travel.pausedForEvent = false
 }
 
 function work(kind) {
   if (!jobUnlocked('tavern', kind)) return
-  if (kind !== 'dishes') return
+  if (kind !== 'dishes' || modal.value !== 'dishes' || game.location !== 'tavern') return
+  if (!startDailyJob(game, 'dishes')) { modal.value = 'dishesDone'; return }
+  endDailyJob(game, 'dishes')
   game.minutes += 60
-  game.coins += 3
-  note('events.dishes')
+  game.coins += DISHES_PAY
+  audio.play('dishes')
+  audio.play('plate')
+  audio.play('coins')
+  note('events.dishes', { coins: DISHES_PAY })
   modal.value = null
 }
 
-function bargain() {
-  if (!actionUnlocked('market', 'trade')) return
-  if (!hasQuest(game.completedQuests, QUEST.BANDIT_AMBUSH_SURVIVED) || hasQuest(game.completedQuests, QUEST.IRON_STOCK_BOUGHT)) return
-  if (game.reputation <= -3) {
-    note('events.refuse')
-    return
-  }
-  const minimum = Math.max(75, 100 - game.reputation * 10)
-  if (offerPercent.value < minimum) {
+function makeTradeOffer(draft) {
+  tradeAgreement.value = null
+  if (modal.value !== 'trade' || !['market', 'tavern'].includes(game.location) || !actionUnlocked(game.location, 'trade')) return
+  refreshMerchantStock(game)
+  const quote = quoteTrade(game, activeMerchant.value, draft)
+  if (quote.error) { note('events.tradeError', { reason: t('trade.errors.' + quote.error) }); return }
+  if (game.reputation <= -3) { note('events.refuse'); return }
+  if (draft.percent < merchantMinimum(game.reputation)) {
     game.reputation = Math.max(-3, game.reputation - 1)
     note('events.insult')
     return
   }
-  if (game.coins < offeredPrice.value) {
-    note('events.needCoins', { price: offeredPrice.value })
-    return
-  }
-  game.coins -= offeredPrice.value
-  completeQuest(QUEST.IRON_STOCK_BOUGHT)
-  modal.value = null
-  if (offerPercent.value >= 130) game.reputation = Math.min(3, game.reputation + 1)
-  note('events.accepted', { price: offeredPrice.value })
+  tradeAgreement.value = { merchantId: activeMerchant.value, fingerprint: offerFingerprint(draft), net: quote.net }
+  note('events.tradeOfferAccepted')
+}
+function confirmTrade(draft) {
+  if (modal.value !== 'trade' || !['market', 'tavern'].includes(game.location) || !actionUnlocked(game.location, 'trade')) return
+  const agreement = tradeAgreement.value
+  tradeAgreement.value = null
+  const result = executeTrade(game, activeMerchant.value, draft, agreement)
+  if (result.error) { note('events.tradeError', { reason: t('trade.errors.' + result.error) }); return }
+  audio.play('coins')
+  const supplies = questById(QUEST.IRON_STOCK_BOUGHT).requiredItems
+  if (!hasQuest(game.completedQuests, QUEST.IRON_STOCK_BOUGHT) && hasRequiredItems(game.inventory, supplies)) completeQuest(QUEST.IRON_STOCK_BOUGHT)
+  note('events.tradeCompleted', { paid: Math.max(0, result.net), received: Math.max(0, -result.net) })
 }
 
 function tip() {
-  if (!actionUnlocked('market', 'trade')) return
-  if (game.coins < 1) {
+  tradeAgreement.value = null
+  if (!['market', 'tavern'].includes(game.location) || !actionUnlocked(game.location, 'trade')) return
+  if (game.coins < MERCHANT_TIP) {
     note('events.needTip')
     return
   }
@@ -329,28 +474,39 @@ function tip() {
     note('events.refuseTip')
     return
   }
-  game.coins -= 1
+  game.coins -= MERCHANT_TIP
+  audio.play('coins')
   game.reputation = Math.min(3, game.reputation + 1)
   note('events.tipped')
 }
 
-function addCoal() {
-  if (!stationUnlocked('furnace') || game.coalStock <= 0 || game.forgeCoal >= FORGE_COAL_CAPACITY) return
-  game.coalStock -= 1
-  game.forgeCoal += 1
+function forge() {
+  openWorkshop('crucible')
 }
 
-function forge() {
-  if (!stationUnlocked('anvil') || !game.materials || game.dagger) return
-  game.minutes += 120
-  completeQuest(QUEST.DAGGER_FORGED)
+function openHomeModal(name) {
+  if (forgeLesson.value) return
+  if (name === 'sleep' && mapView.value === 'forge' && forgeMap.value && !forgeMap.value.isNear('sonBed')) { closeModal(); forgeMap.value.approach('sonBed', () => { modal.value = name }); return }
+  modal.value = name
+}
+
+function rest(hours) {
+  if (game.workshop.working) return
+  if (game.travel || game.location !== 'smithy' || !isUnlocked(game.completedQuests, 'hud', 'sleep') || ![1, 2, 4, 8].includes(hours)) return
+  game.minutes += hours * 60
+  note('events.waited', { hours })
   modal.value = null
-  note('events.forged')
+}
+function eat(instanceId) {
+  const food = game.inventory.find(entry => entry.id === instanceId)
+  if (modal.value !== 'inventory' || !food || !eatItem(game, instanceId)) return
+  note('events.consumed', { item: t(items[food.itemId].nameKey) })
 }
 
 function sleep() {
-  if (game.travel || !isUnlocked(game.completedQuests, 'hud', 'sleep')) return
-  const nextMorning = Math.floor(game.minutes / 1440 + 1) * 1440 + 7 * 60
+  if (game.workshop.working) return
+  if (game.travel || game.location !== 'smithy' || !isUnlocked(game.completedQuests, 'hud', 'sleep') || !canSleep(game)) return
+  const nextMorning = nextMorningMinutes(game.minutes)
   game.minutes = nextMorning
   game.awakeSince = nextMorning
   game.health = Math.min(100, game.health + 12)
@@ -374,7 +530,6 @@ function acceptFatherErrand() {
 function reset() {
   Object.assign(game, initialState())
   scheduleIntro()
-  offerPercent.value = 115
   mapView.value = 'town'
   tradeFeedback.value = null
   townMenu.value = null
@@ -415,22 +570,29 @@ function reset() {
           <div class="game-display-controls">
             <button type="button" :aria-pressed="expandedGame" :disabled="fullscreenGame" @click="expandedGame = !expandedGame">{{ t(expandedGame ? 'map.restoreWindow' : 'map.expandWindow') }}</button>
             <button type="button" :aria-pressed="fullscreenGame" @click="toggleGameFullscreen">{{ t(fullscreenGame ? 'map.exitFullscreen' : 'map.enterFullscreen') }}</button>
+            <button class="game-audio-icon" type="button" data-audio-ui="off" :aria-pressed="audioSettings.muted" :aria-label="t(audioSettings.muted ? 'audio.unmute' : 'audio.mute')" :title="t(audioSettings.muted ? 'audio.unmute' : 'audio.mute')" @click="audioSettings.muted = !audioSettings.muted"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4Z"/><path v-if="audioSettings.muted" d="m17 9 5 6m0-6-5 6"/><path v-else d="M17 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button>
+            <button class="game-audio-icon" type="button" :aria-label="t('audio.settings')" :title="t('audio.settings')" :aria-expanded="settingsOpen" @click="settingsOpen = !settingsOpen"><span aria-hidden="true">⚙</span></button>
             <span v-if="displayError" role="status">{{ displayError }}</span>
           </div>
           <div v-if="mapView === 'town' && !editingMap" class="map-edit-toggle"><button type="button" @click="editingMap = !editingMap">{{ t(editingMap ? 'mapEditor.close' : 'mapEditor.open') }}</button></div>
           <MapEditor v-if="editingMap && mapView === 'town'" @close="editingMap = false" />
           <template v-else>
-          <MapHud :health="game.health" :stamina="stamina" :sleep-need="sleepNeed" :coins="game.coins" :completed-quests="game.completedQuests" :traveling="!!game.travel" @modal="modal = $event" />
+          <MapHud :at-home="game.location === 'smithy' && !game.workshop.working" :busy="!!forgeLesson || !!modal && modal !== 'workshop'" :health="game.health" :stamina="stamina" :sleep-need="sleepNeed" :coins="game.coins" :hunger="Math.round(game.hunger)" :completed-quests="game.completedQuests" :traveling="!!game.travel" @modal="openHomeModal" />
           <div class="map-canvas">
-            <TownMap v-if="mapView === 'town'" :current-location="game.location" :pawn-position="pawnPosition" :travel="game.travel" :building-tiers="game.buildingTiers" :dialogue-blocked="!!tutorialQuest && !cloudReady" :selected-id="game.selected" :tutorial-stage="tutorialStage" :completed-quests="game.completedQuests" @menu="townMenu = $event" @select="selectPlace" @action="handleAction" @job="handleJob" />
-            <ForgeMap v-else :dialogue-blocked="!!tutorialQuest && !cloudReady" :completed-quests="game.completedQuests" :forge-coal="game.forgeCoal" :coal-stock="game.coalStock" :coal-capacity="FORGE_COAL_CAPACITY" @add-coal="addCoal" @town="mapView = 'town'" @modal="modal = $event" />
+            <TownMap :ambience-paused="settingsOpen" :smithy-entry-locked="!canEnterSmithy(game)" v-if="mapView === 'town'" :current-location="game.location" :pawn-position="pawnPosition" :travel="game.travel" :building-tiers="game.buildingTiers" :dialogue-blocked="!!tutorialQuest && !cloudReady" :selected-id="game.selected" :tutorial-stage="tutorialStage" :completed-quests="game.completedQuests" @menu="townMenu = $event" @select="selectPlace" @action="handleAction" @job="handleJob" />
+            <ForgeMap v-else ref="forgeMap" :guiding="!!forgeLesson || !!tutorialQuest" :occupied="!!modal" :paused="settingsOpen" :dialogue-blocked="!!forgeLesson || !!tutorialQuest && !cloudReady" :completed-quests="game.completedQuests" :workshop="game.workshop" :storehouse="game.storehouse" :inventory="game.inventory" :feedback="workshopFeedback" @command="workshopCommand" @station="openWorkshop" @town="leaveForge()" @modal="openHomeModal" />
             <button v-if="tutorialQuest" class="cloud-toggle" type="button" :aria-label="t(cloudVisible ? 'map.hideCloud' : 'map.showCloud')" :title="t(cloudVisible ? 'map.hideCloud' : 'map.showCloud')" @click="cloudVisible = !cloudVisible">{{ cloudVisible ? '−' : '+' }}</button>
             <TutorialCloud :hidden="!cloudVisible" :quest="tutorialQuest" :marker-open="townMenu === 'smithy'" @ready="cloudReady = $event" @accept="acceptFatherErrand" />
-            <GameModal :modal="modal" :game="game" :selected-place="selectedPlace" :trip-minutes="tripMinutes"
-              :stamina="stamina" :sleep-need="sleepNeed" :asking-price="askingPrice" :offered-price="offeredPrice"
-              v-model:offer-percent="offerPercent" :mood-key="moodKey" :trade-feedback="tradeFeedback" :tavern-reply="tavernReply"
-              @market-notice-read="readMarketNotice" @close="closeModal" @modal="modal = $event" @reset="reset" @bargain="bargain" @tip="tip"
+            <button class="inventory-map-button" type="button" :disabled="!!forgeLesson || !!modal || (!!tutorialQuest && !cloudReady)" :aria-label="t('inventory.open')" :title="t('inventory.open')" @click="modal = 'inventory'"><svg viewBox="0 0 84 60" aria-hidden="true"><path d="M42 2 81 30 42 58 3 30Z" fill="#394535" stroke="#c3aa70" stroke-width="2" /><image href="/images/items/leather_backpack.svg" x="23" y="10" width="38" height="40" /></svg></button>
+            <ForgeLesson v-if="forgeLesson && mapView === 'forge'" :lesson="forgeLesson" :paused="settingsOpen" @complete="completeForgeLesson" />
+            <WorkshopDialog v-if="!forgeLesson && modal === 'workshop' && mapView === 'forge'" embedded @assembly-busy="assemblyBusy = $event" :paused="settingsOpen" :game="game" :station="workshopStation" :feedback="workshopFeedback" @command="workshopCommand" @station="openWorkshop" @close="closeModal" />
+            <PouringGame v-if="modal === 'pouring'" :workshop="game.workshop" :paused="settingsOpen" @command="workshopCommand" @close="closeModal" />
+            <GameModal :merchant-id="activeMerchant" :audio-paused="settingsOpen" :modal="['workshop', 'pouring'].includes(modal) ? null : modal" :game="game" :selected-place="selectedPlace" :trip-minutes="tripMinutes"
+              :trade-agreement="tradeAgreement" :stamina="stamina" :sleep-need="sleepNeed"
+              :mood-key="moodKey" :trade-feedback="tradeFeedback" :tavern-reply="tavernReply"
+              @eat="eat" @rest="rest" @equip="game.equipment = $event" @market-notice-read="readMarketNotice" @close="closeModal" @modal="modal = $event" @reset="reset" @trade-offer="makeTradeOffer" @trade-confirm="confirmTrade" @tip="tip"
               @update:skip-woodcutting-intro="game.skipWoodcuttingIntro = $event" @work="work" @wood-finished="finishWoodcutting" @tavern-answer="answerInnkeeper" @forge="forge" @sleep="sleep" />
+            <AudioSettings v-if="settingsOpen" :settings="audioSettings" :status="audio.status" @change="Object.assign(audioSettings, $event)" @preview="audio.preview($event)" @close="settingsOpen = false" />
           </div>
           </template>
           <div class="map-footer">

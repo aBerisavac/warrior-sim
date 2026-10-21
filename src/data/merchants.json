@@ -1,0 +1,136 @@
+[
+  {
+    "id": "market_smith_supplies",
+    "stock": [
+      {
+        "itemId": "copper_ore",
+        "quantity": 72
+      },
+      {
+        "itemId": "copper_ingot",
+        "quantity": 6
+      },
+      {
+        "itemId": "iron_ore",
+        "quantity": 48
+      },
+      {
+        "itemId": "iron_ingot",
+        "quantity": 6
+      },
+      {
+        "itemId": "coal",
+        "quantity": 48
+      },
+      {
+        "itemId": "bread",
+        "quantity": 576
+      },
+      {
+        "itemId": "dagger_guard",
+        "quantity": 8
+      },
+      {
+        "itemId": "dagger_handle",
+        "quantity": 8
+      },
+      {
+        "itemId": "dagger_pommel",
+        "quantity": 8
+      },
+      {
+        "itemId": "handle_oak_short",
+        "quantity": 6
+      },
+      {
+        "itemId": "handle_oak_long",
+        "quantity": 6
+      },
+      {
+        "itemId": "handle_oak_staff",
+        "quantity": 6
+      },
+      {
+        "itemId": "handle_oak_pole",
+        "quantity": 6
+      },
+      {
+        "itemId": "handle_ash_short",
+        "quantity": 6
+      },
+      {
+        "itemId": "handle_ash_long",
+        "quantity": 6
+      },
+      {
+        "itemId": "handle_ash_staff",
+        "quantity": 6
+      },
+      {
+        "itemId": "handle_ash_pole",
+        "quantity": 6
+      },
+      {
+        "itemId": "guard_copper",
+        "quantity": 6
+      },
+      {
+        "itemId": "guard_iron",
+        "quantity": 6
+      },
+      {
+        "itemId": "pommel_copper",
+        "quantity": 6
+      },
+      {
+        "itemId": "pommel_iron",
+        "quantity": 6
+      }
+    ],
+    "restockDays": 3,
+    "villageProvisioning": {
+      "houses": 16,
+      "peoplePerHouse": 4,
+      "breadPerPersonPerDay": 3
+    },
+    "placeId": "market",
+    "speaker": "merchant",
+    "buyModifiers": {
+      "food": 2,
+      "materials": 1
+    },
+    "sellModifiers": {
+      "food": 0.8
+    }
+  },
+  {
+    "id": "oswin_inn",
+    "placeId": "tavern",
+    "speaker": "innkeeper",
+    "stock": [
+      {
+        "itemId": "bread",
+        "quantity": 96
+      },
+      {
+        "itemId": "stew",
+        "quantity": 48
+      },
+      {
+        "itemId": "ale",
+        "quantity": 96
+      }
+    ],
+    "restockDays": 3,
+    "buyModifiers": {
+      "food": 1
+    },
+    "sellModifiers": {
+      "food": 1,
+      "materials": 0.7,
+      "weapons": 0.7,
+      "apparel": 0.8,
+      "tools": 0.8
+    }
+  }
+]

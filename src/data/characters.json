@@ -1,0 +1,25 @@
+{
+  "player": {
+    "nameKey": "speakers.player",
+    "portraitSrc": "/images/profile/blacksmith.png"
+  },
+  "father": {
+    "nameKey": "speakers.father",
+    "portraitSrc": "/images/briarwick-blacksmith/older_serious_blacksmith_profile.png",
+    "sceneSrc": "/images/briarwick-blacksmith/older_serious_blacksmith_full_body.png"
+  },
+  "innkeeper": {
+    "nameKey": "speakers.innkeeper",
+    "portraitSrc": "/images/briarwick-innkeeper/profile.png",
+    "sceneSrc": "/images/briarwick-innkeeper/ChatGPT Image Oct 21, 2026, 02_33_14 PM-1.png"
+  },
+  "merchant": {
+    "nameKey": "speakers.merchant",
+    "portraitSrc": "/images/briarwick-merchant/profile.png.png",
+    "sceneSrc": "/images/briarwick-merchant/Friendly Medieval Travelling Merchant and Goods.png"
+  },
+  "notice": {
+    "nameKey": "speakers.notice",
+    "portraitSrc": "/images/portraits/notice.svg"
+  }
+}

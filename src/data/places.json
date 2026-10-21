@@ -6,17 +6,14 @@
     "actions": [
       "info",
       "walk",
-      "work",
       "enter"
     ],
-    "jobs": [
-      "forge"
-    ]
+    "jobs": []
   },
   {
     "id": "market",
     "available": true,
-    "icon": "◈",
+    "icon": "scales",
     "actions": [
       "info",
       "walk",
@@ -26,7 +23,7 @@
   },
   {
     "id": "square",
-    "available": true,
+    "available": false,
     "icon": "✧",
     "actions": [
       "info",
@@ -37,12 +34,13 @@
   {
     "id": "tavern",
     "available": true,
-    "icon": "✦",
+    "icon": "beer",
     "actions": [
       "info",
       "walk",
       "work",
-      "talk"
+      "talk",
+      "trade"
     ],
     "jobs": [
       "wood",

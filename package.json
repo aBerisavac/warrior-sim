@@ -8,7 +8,12 @@
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
     "check:content": "node scripts/check-content.mjs",
-    "check:progression": "node scripts/check-progression.mjs"
+    "check:progression": "node scripts/check-progression.mjs",
+    "check:trading": "node scripts/check-trading.mjs",
+    "check:workshop": "node scripts/check-workshop.mjs",
+    "check:audio": "node scripts/check-audio.mjs",
+    "check:ambience": "node scripts/check-ambience.mjs",
+    "check:weapons": "node scripts/check-weapons.mjs"
   },
   "dependencies": {
     "vue": "^3.5.0",

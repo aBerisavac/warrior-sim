@@ -68,7 +68,7 @@ export function splitPiece(piece, rotation, offset, roll = Math.random()) {
 
 export function woodcutPay(scores) {
   const average = scores.length ? scores.reduce((sum, score) => sum + score, 0) / scores.length : 0
-  return 3 + Math.round(average * 6 / 100)
+  return 30 + Math.round(average * 60 / 100)
 }
 
 export function strengthQuality(strength) {
@@ -78,7 +78,7 @@ export function strengthQuality(strength) {
 export function firewoodValue(precision, quality) {
   const combined = precision < 50 || quality < 50 ? 0
     : Math.max(0, Math.min(100, precision)) * .6 + Math.max(0, Math.min(100, quality)) * .4
-  return { combined, coins: combined < 50 ? 0 : .2 + .6 * combined / 100 }
+  return { combined, coins: combined < 50 ? 0 : Math.round(2 + 6 * combined / 100) }
 }
 
 export function chargeDuration(progress, random = Math.random) {

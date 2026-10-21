@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import sourceMap from '../data/town-map.json'
 import { buildingCells, gateCells } from '../town-grid'
 import { validateTownMap } from '../map-validation'
+import { groundAccents, dustPatches, roofPerch } from '../map-ambience'
 import TownArt from './TownArt.vue'
 
 const emit = defineEmits(['close'])
@@ -12,7 +13,7 @@ const draftKey = 'briarwick-town-map-draft-v1'
 function loadDraft() {
   try {
     const saved = JSON.parse(localStorage.getItem(draftKey))
-    if (saved?.columns === 30 && saved?.rows === 30) return saved
+    if (saved?.columns === 30 && saved?.rows === 30) return { ...saved, id: sourceMap.id, ambience: saved.ambience || structuredClone(sourceMap.ambience) }
   } catch { /* An incomplete draft can be discarded. */ }
   return structuredClone(sourceMap)
 }
@@ -35,7 +36,12 @@ const decorTools = ['well', 'crates', 'flowers', 'bush', 'tree', 'rock', 'barrel
 const isTileTool = computed(() => terrainTools.some(([code]) => code === tool.value))
 const isBuildingTool = computed(() => buildingTools.includes(tool.value))
 const isGateTool = computed(() => gateTools.includes(tool.value))
-const problems = computed(() => validateTownMap(map.value))
+const exportMap = computed(() => {
+  const current = map.value
+  if (!current.ambience) return current
+  return { ...current, ambience: { ...current.ambience, accents: groundAccents(current), dust: dustPatches(current), birds: (current.ambience.birds || []).filter(bird => roofPerch(current, bird.perch)) } }
+})
+const problems = computed(() => validateTownMap(exportMap.value))
 const imageSource = computed({
   get() {
     if (isTileTool.value) return map.value.tileImages?.[tool.value] || ''
@@ -195,7 +201,7 @@ function resetDraft() {
   status.value = t('mapEditor.resetDone')
 }
 function downloadJson() {
-  const blob = new Blob([JSON.stringify(map.value, null, 2) + '\n'], { type: 'application/json' })
+  const blob = new Blob([JSON.stringify(exportMap.value, null, 2) + '\n'], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url; link.download = 'town-map.json'; link.click()
@@ -205,7 +211,7 @@ async function saveJson() {
   if (problems.value.length) { status.value = t('mapEditor.fixErrors'); return }
   saving.value = true
   try {
-    const response = await fetch('/__map-editor/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(map.value) })
+    const response = await fetch('/__map-editor/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(exportMap.value) })
     const result = await response.json()
     if (!response.ok) throw new Error(result.error || t('mapEditor.saveFailed'))
     localStorage.removeItem(draftKey)
@@ -235,7 +241,7 @@ async function saveJson() {
     </div>
     <p class="map-editor-help">{{ isBuildingTool ? t('mapEditor.buildingHelp') : isGateTool ? t('mapEditor.gateHelp') : t('mapEditor.paintHelp') }}</p>
     <div class="map-editor-canvas">
-      <TownArt :map="map" />
+      <TownArt :map="map" :ambience-enabled="false" />
       <div class="map-editor-hit" @pointerdown="pointerDown" @pointermove="pointerMove" @pointerup="pointerUp" @pointercancel="pointerUp" @pointerleave="hoverCell = null"></div>
       <div v-if="preview" class="map-editor-preview" :style="{ left: preview.x / 30 * 100 + '%', top: preview.y / 30 * 100 + '%', width: preview.width / 30 * 100 + '%', height: preview.height / 30 * 100 + '%' }"></div>
       <div v-else-if="hoverCell" class="map-editor-hover" :style="{ left: hoverCell.x / 30 * 100 + '%', top: hoverCell.y / 30 * 100 + '%' }"></div>

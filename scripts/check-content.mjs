@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { validateMapAmbience } from '../src/map-ambience.js'
 import { validateTownMap } from '../src/map-validation.js'
 import { gateCells } from '../src/town-grid.js'
 
@@ -21,8 +22,10 @@ const quests = readJson('../src/data/quests.json')
 const unlocks = readJson('../src/data/unlocks.json')
 
 const townMap = readJson('../src/data/town-map.json')
+assert.deepEqual(validateMapAmbience(townMap), [])
 
 const travelEvents = readJson('../src/data/travel-events.json')
+const characterIds = new Set(Object.keys(readJson('../src/data/characters.json')))
 
 const lookup = (key) => key.split('.').reduce((value, part) => value?.[part], en)
 
@@ -62,6 +65,10 @@ for (const quest of quests) {
 
     if (key.endsWith('Key')) assert.equal(typeof lookup(value), 'string', 'Missing cloud text: ' + quest.id + '.' + key)
 
+  }
+  for (const line of quest.cloud?.conversation || []) {
+    assert(characterIds.has(line.speaker), 'Unknown conversation speaker')
+    assert.equal(typeof lookup(line.textKey), 'string', 'Missing conversation line: ' + line.textKey)
   }
 
 }
@@ -254,3 +261,32 @@ for (const id of ['pawn', 'objective', 'journal', 'sleep']) assert(unlocks.hud[i
 
 console.log('Content catalogs valid')
 
+
+const itemCatalog = readJson('../src/data/items.json')
+const itemIds = new Set(itemCatalog.map(item => item.id))
+assert.equal(itemIds.size, itemCatalog.length)
+for (const item of itemCatalog) {
+  assert.equal(typeof lookup(item.nameKey), 'string')
+  assert.equal(typeof lookup(item.descriptionKey), 'string')
+  assert(item.weightKg > 0)
+  assert(item.imageSrc.startsWith('/images/items/'))
+  assert(readFileSync(new URL('../public' + item.imageSrc, import.meta.url)).length > 0)
+}
+for (const merchant of readJson('../src/data/merchants.json')) for (const entry of merchant.stock) {
+  assert(itemIds.has(entry.itemId))
+  assert(Number.isInteger(entry.quantity) && entry.quantity >= 0)
+}
+
+for (const character of Object.values(readJson('../src/data/characters.json'))) {
+  assert.equal(typeof lookup(character.nameKey), 'string')
+  for (const key of ['portraitSrc', 'sceneSrc']) if (character[key]) {
+    assert(readFileSync(new URL('../public' + character[key], import.meta.url)).length > 0)
+  }
+}
+
+for (const quest of quests) for (const requirement of quest.requiredItems || []) {
+  assert(itemIds.has(requirement.itemId), 'Unknown quest item')
+  assert(Number.isInteger(requirement.quantity) && requirement.quantity > 0)
+}
+
+for (const item of itemCatalog.filter(item => item.category === 'food')) assert(Number.isFinite(item.hungerRestore) && item.hungerRestore > 0 && item.hungerRestore <= 100)

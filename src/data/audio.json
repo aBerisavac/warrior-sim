@@ -1,0 +1,254 @@
+{
+  "speech": {
+    "synthesis": "speech",
+    "group": "dialogue",
+    "gain": 0.28,
+    "credit": "Original procedural sound"
+  },
+  "villageMusic": {
+    "file": "forest-ambience.mp3",
+    "group": "music",
+    "gain": 0.45,
+    "loop": true,
+    "credit": "TinyWorlds"
+  },
+  "innMusic": {
+    "file": "old-tower-inn.mp3",
+    "group": "music",
+    "gain": 0.4,
+    "loop": true,
+    "credit": "RandomMind"
+  },
+  "birds": {
+    "file": "birds.ogg",
+    "group": "ambience",
+    "gain": 0.45,
+    "loop": true,
+    "credit": "isaiah658"
+  },
+  "fire": {
+    "file": "fire.ogg",
+    "group": "ambience",
+    "gain": 0.32,
+    "loop": true,
+    "credit": "AntumDeluge"
+  },
+  "axeSwing": {
+    "files": [
+      "knifeSlice.ogg"
+    ],
+    "group": "woodcutting",
+    "gain": 0.45,
+    "credit": "Kenney RPG Audio"
+  },
+  "axeHit": {
+    "files": [
+      "chop.ogg",
+      "impactWood_heavy_000.ogg",
+      "impactWood_heavy_001.ogg"
+    ],
+    "group": "woodcutting",
+    "gain": 0.8,
+    "credit": "Kenney RPG Audio / Impact Sounds"
+  },
+  "logMove": {
+    "files": [
+      "impactWood_light_000.ogg"
+    ],
+    "group": "woodcutting",
+    "gain": 0.6,
+    "credit": "Kenney Impact Sounds"
+  },
+  "logStack": {
+    "files": [
+      "impactWood_heavy_000.ogg",
+      "impactWood_heavy_001.ogg"
+    ],
+    "group": "woodcutting",
+    "gain": 0.55,
+    "credit": "Kenney Impact Sounds"
+  },
+  "hammer": {
+    "files": [
+      "impactMetal_medium_000.ogg",
+      "impactMetal_medium_001.ogg"
+    ],
+    "group": "forge",
+    "gain": 0.6,
+    "credit": "Kenney Impact Sounds"
+  },
+  "bellows": {
+    "synthesis": "air",
+    "group": "forge",
+    "gain": 0.28,
+    "credit": "Original procedural sound"
+  },
+  "steam": {
+    "synthesis": "steam",
+    "group": "forge",
+    "gain": 0.3,
+    "loop": true,
+    "credit": "Original procedural sound"
+  },
+  "grind": {
+    "synthesis": "grind",
+    "group": "forge",
+    "gain": 0.19,
+    "loop": true,
+    "credit": "Original procedural sound"
+  },
+  "coal": {
+    "files": [
+      "impactWood_light_000.ogg",
+      "cloth1.ogg"
+    ],
+    "group": "forge",
+    "gain": 0.5,
+    "credit": "Kenney RPG Audio / Impact Sounds"
+  },
+  "metal": {
+    "files": [
+      "metalPot1.ogg",
+      "metalClick.ogg"
+    ],
+    "group": "forge",
+    "gain": 0.45,
+    "credit": "Kenney RPG Audio"
+  },
+  "pour": {
+    "file": "water-pour.ogg",
+    "group": "forge",
+    "gain": 0.45,
+    "credit": "rubberduck"
+  },
+  "assembly": {
+    "files": [
+      "impactWood_light_000.ogg",
+      "metalClick.ogg"
+    ],
+    "group": "forge",
+    "gain": 0.45,
+    "credit": "Kenney RPG Audio / Impact Sounds"
+  },
+  "dishes": {
+    "file": "water-pour.ogg",
+    "group": "dishes",
+    "gain": 0.5,
+    "credit": "rubberduck"
+  },
+  "plate": {
+    "files": [
+      "impactPlate_light_000.ogg"
+    ],
+    "group": "dishes",
+    "gain": 0.4,
+    "credit": "Kenney Impact Sounds"
+  },
+  "footstep": {
+    "file": "road-walking-loop.mp3",
+    "group": "travel",
+    "gain": 0.35,
+    "loop": true,
+    "loopCrossfade": 0.18,
+    "fadeIn": 0.25,
+    "fadeOut": 0.18,
+    "smoothVariation": true,
+    "rateRange": [
+      0.96,
+      1.04
+    ],
+    "volumeRange": [
+      0.82,
+      1
+    ],
+    "credit": "Joseph SARDIN & Axeline T. \u2014 BigSoundBank (CC0)"
+  },
+  "door": {
+    "files": [
+      "doorOpen_1.ogg"
+    ],
+    "group": "travel",
+    "gain": 0.45,
+    "credit": "Kenney RPG Audio"
+  },
+  "click": {
+    "files": [
+      "metalClick.ogg"
+    ],
+    "group": "interface",
+    "gain": 0.14,
+    "credit": "Kenney RPG Audio"
+  },
+  "inventory": {
+    "files": [
+      "cloth1.ogg"
+    ],
+    "group": "interface",
+    "gain": 0.5,
+    "credit": "Kenney RPG Audio"
+  },
+  "page": {
+    "files": [
+      "bookOpen.ogg",
+      "bookFlip1.ogg"
+    ],
+    "group": "interface",
+    "gain": 0.5,
+    "credit": "Kenney RPG Audio"
+  },
+  "coins": {
+    "files": [
+      "handleCoins.ogg",
+      "handleCoins2.ogg"
+    ],
+    "group": "interface",
+    "gain": 0.65,
+    "credit": "Kenney RPG Audio"
+  },
+  "encounterBad": {
+    "synthesis": "encounterBad",
+    "group": "encounters",
+    "gain": 0.55,
+    "credit": "Original procedural musical cue"
+  },
+  "encounterGood": {
+    "synthesis": "encounterGood",
+    "group": "encounters",
+    "gain": 0.55,
+    "credit": "Original procedural musical cue"
+  },
+  "encounterNeutral": {
+    "synthesis": "encounterNeutral",
+    "group": "encounters",
+    "gain": 0.55,
+    "credit": "Original procedural musical cue"
+  },
+  "marketCrowd": {
+    "file": "market-crowd.mp3",
+    "group": "ambience",
+    "gain": 0.24,
+    "loop": true,
+    "credit": "Joseph SARDIN \u2014 BigSoundBank (CC0)"
+  },
+  "marketCallout": {
+    "files": [
+      "market-watch-out.wav",
+      "market-coming-through.wav"
+    ],
+    "group": "ambience",
+    "gain": 0.32,
+    "credit": "Original dialogue, synthesized locally with Windows System.Speech"
+  },
+  "marketCart": {
+    "synthesis": "cart",
+    "group": "ambience",
+    "gain": 0.22,
+    "credit": "Original procedural wooden cart rattle"
+  },
+  "marketHorse": {
+    "file": "horse-trot.ogg",
+    "group": "ambience",
+    "gain": 0.23,
+    "credit": "EZduzziteh \u2014 OpenGameArt (CC0)"
+  }
+}

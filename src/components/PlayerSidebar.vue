@@ -1,4 +1,5 @@
 <script setup>
+import CurrencyAmount from './CurrencyAmount.vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { activeQuests, hasQuest, primaryQuest } from '../progression'
@@ -24,7 +25,7 @@ const questComplete = computed(() => quest.value && hasQuest(props.game.complete
       <div class="panel-kicker">{{ t('sidebar.yourPawn') }} <span>{{ t('sidebar.age', { age: game.stage === 'drafted' ? 16 : 15 }) }}</span></div>
       <div class="profile-main">
         <div class="portrait"><img src="/images/profile/blacksmith.png" :alt="t('app.smithSon')" /></div>
-        <div><div class="profile-name">{{ t('app.smithSon') }}</div><div class="profile-role">{{ t('app.peasantTown') }}</div><div class="profile-coins">◈ <strong>{{ game.coins }}</strong> {{ t('app.coinUnit') }}</div></div>
+        <div><div class="profile-name">{{ t('app.smithSon') }}</div><div class="profile-role">{{ t('app.peasantTown') }}</div><div class="profile-coins"><CurrencyAmount :amount="game.coins" /></div></div>
       </div>
       <div class="stat"><div class="stat-top"><span>{{ t('sidebar.health') }} <small>{{ t('sidebar.wounds') }}</small></span><strong>{{ game.health }} / 100</strong></div><div class="meter"><div class="meter-fill health-fill" :style="{ width: game.health + '%' }"></div></div></div>
       <div class="stat"><div class="stat-top"><span>{{ t('sidebar.stamina') }} <small>{{ t('sidebar.activityStamina') }}</small></span><strong>{{ stamina }} / 100</strong></div><div class="meter"><div class="meter-fill stamina-fill" :style="{ width: stamina + '%' }"></div></div></div>

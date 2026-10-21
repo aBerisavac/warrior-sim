@@ -23,9 +23,6 @@
     "smithy.walk": [
       "bandit_ambush_survived"
     ],
-    "smithy.work": [
-      "iron_stock_bought"
-    ],
     "market.info": [
       "iron_errand_accepted"
     ],
@@ -52,12 +49,12 @@
     ],
     "tavern.talk": [
       "market_job_notice_read"
+    ],
+    "tavern.trade": [
+      "market_job_notice_read"
     ]
   },
   "jobs": {
-    "smithy.forge": [
-      "iron_stock_bought"
-    ],
     "tavern.dishes": [
       "tavern_work_offered"
     ],
@@ -76,7 +73,7 @@
       "bandit_ambush_survived"
     ],
     "oil": [
-      "oil_quenching_unlocked"
+      "bandit_ambush_survived"
     ],
     "workbench": [
       "bandit_ambush_survived"
@@ -92,6 +89,21 @@
     ],
     "door": [
       "father_called"
+    ],
+    "bellows": [
+      "bandit_ambush_survived"
+    ],
+    "crucible": [
+      "bandit_ambush_survived"
+    ],
+    "mould": [
+      "bandit_ambush_survived"
+    ],
+    "grinder": [
+      "bandit_ambush_survived"
+    ],
+    "rack": [
+      "bandit_ambush_survived"
     ]
   },
   "hud": {

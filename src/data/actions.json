@@ -17,7 +17,7 @@
       "labelKey": "actions.enter"
     },
     "trade": {
-      "icon": "◈",
+      "icon": "scales",
       "labelKey": "actions.trade"
     },
     "upgrade": {
@@ -25,7 +25,7 @@
       "labelKey": "actions.upgrade"
     },
     "talk": {
-      "icon": "❞",
+      "icon": "chat",
       "labelKey": "actions.talk"
     }
   },
@@ -35,7 +35,7 @@
       "labelKey": "actions.forge"
     },
     "wood": {
-      "icon": "▥",
+      "icon": "woodcutting",
       "labelKey": "actions.wood"
     },
     "dishes": {

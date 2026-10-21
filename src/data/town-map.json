@@ -2,6 +2,7 @@
   "columns": 30,
   "rows": 30,
   "cellSize": 40,
+  "minutesPerCell": 1,
   "legend": {
     ".": "open ground",
     "R": "road",
@@ -849,5 +850,195 @@
     "~": null
   },
   "cellImages": [],
-  "revision": 7
+  "revision": 7,
+  "secondsPerCell": 1,
+  "id": "briarwick-town",
+  "ambience": {
+    "enabled": true,
+    "mapId": "briarwick-town",
+    "vegetation": {
+      "tree": {
+        "seconds": 7,
+        "degrees": 1.4
+      },
+      "bush": {
+        "seconds": 5,
+        "degrees": 2.2
+      },
+      "flowers": {
+        "seconds": 6,
+        "degrees": 3
+      },
+      "grass": {
+        "seconds": 5,
+        "degrees": 3.5
+      },
+      "forest": {
+        "seconds": 8,
+        "degrees": 0.9
+      }
+    },
+    "water": true,
+    "crops": true,
+    "accents": [
+      {
+        "type": "flowers",
+        "x": 15,
+        "y": 13
+      },
+      {
+        "type": "grass",
+        "x": 4,
+        "y": 16
+      },
+      {
+        "type": "grass",
+        "x": 5,
+        "y": 20
+      },
+      {
+        "type": "grass",
+        "x": 17,
+        "y": 21
+      },
+      {
+        "type": "flowers",
+        "x": 18,
+        "y": 25
+      }
+    ],
+    "dust": [
+      {
+        "id": "market-lane",
+        "tiles": [
+          {
+            "x": 14,
+            "y": 17
+          },
+          {
+            "x": 14,
+            "y": 18
+          },
+          {
+            "x": 14,
+            "y": 19
+          }
+        ],
+        "seconds": 18,
+        "phase": 4
+      },
+      {
+        "id": "north-lane",
+        "tiles": [
+          {
+            "x": 16,
+            "y": 7
+          },
+          {
+            "x": 17,
+            "y": 7
+          }
+        ],
+        "seconds": 18,
+        "phase": 11
+      },
+      {
+        "id": "south-lane",
+        "tiles": [
+          {
+            "x": 7,
+            "y": 23
+          },
+          {
+            "x": 8,
+            "y": 23
+          },
+          {
+            "x": 9,
+            "y": 23
+          }
+        ],
+        "seconds": 18,
+        "phase": 0
+      }
+    ],
+    "birds": [
+      {
+        "id": "west-rooftop-sparrow",
+        "period": 52,
+        "phase": 0,
+        "perch": {
+          "buildingId": "house1792491309100",
+          "cell": {
+            "x": 0,
+            "y": 0
+          },
+          "edge": "north",
+          "offset": 0.7
+        },
+        "arrival": {
+          "from": {
+            "x": -1,
+            "y": 12
+          },
+          "control": {
+            "x": 5,
+            "y": 1
+          },
+          "seconds": 7
+        },
+        "restSeconds": 8,
+        "departure": {
+          "control": {
+            "x": 8,
+            "y": 4
+          },
+          "to": {
+            "x": 31,
+            "y": -2
+          },
+          "seconds": 9
+        },
+        "facing": 1
+      },
+      {
+        "id": "south-rooftop-sparrow",
+        "period": 67,
+        "phase": 38,
+        "perch": {
+          "buildingId": "house1792491353916",
+          "cell": {
+            "x": 1,
+            "y": 1
+          },
+          "edge": "east",
+          "offset": 0.4
+        },
+        "arrival": {
+          "from": {
+            "x": 31,
+            "y": 27
+          },
+          "control": {
+            "x": 20,
+            "y": 16
+          },
+          "seconds": 8
+        },
+        "restSeconds": 10,
+        "departure": {
+          "control": {
+            "x": 9,
+            "y": 20
+          },
+          "to": {
+            "x": -2,
+            "y": 28
+          },
+          "seconds": 8
+        },
+        "facing": -1
+      }
+    ]
+  }
 }

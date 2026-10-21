@@ -1,4 +1,7 @@
 <script setup>
+import { formatCurrency } from '../currency'
+import { playSound } from '../audio'
+import CurrencyAmount from './CurrencyAmount.vue'
 
 import { computed, onBeforeUnmount, onMounted, nextTick, reactive, ref, watch } from 'vue'
 
@@ -9,7 +12,7 @@ import CoinPouch from './CoinPouch.vue'
 
 import { firstPiece, splitPiece, createWoodcuttingJob, strengthQuality, firewoodValue, chargeDuration } from '../woodcutting'
 
-const props = defineProps({ showOpeningTutorial: { type: Boolean, default: false } })
+const props = defineProps({ showOpeningTutorial: { type: Boolean, default: false }, paused: { type: Boolean, default: false } })
 
 const emit = defineEmits(['finish', 'completed'])
 
@@ -77,6 +80,7 @@ let chargeStarted = 0
 let chargeSeconds = 2
 const totalCuts = jobLogs.reduce((sum, log) => sum + log.expectedPieces - 1, 0)
 function startCharge(event) {
+  if (props.paused) return
   if (!canChop.value || finished.value || charging.value || (event?.button !== undefined && event.button !== 0)) return
   event?.preventDefault()
   if (event?.pointerId !== undefined) event.currentTarget.setPointerCapture(event.pointerId)
@@ -198,6 +202,7 @@ function resetMotion() {
 }
 
 function handleKey(event) {
+  if (props.paused) return
 
   hasPressedKey = true
 
@@ -219,9 +224,11 @@ function handleKey(event) {
 
 function releaseKey(event) { heldKeys.delete(event.code); scheduleHints() }
 
+watch(() => props.paused, paused => { if (paused) clearKeys() })
 function clearKeys() { heldKeys.clear(); touchKeys.clear(); cancelCharge(); scheduleHints() }
 
 function animate(now) {
+  if (props.paused) { lastFrame = now; frameId = requestAnimationFrame(animate); return }
   if (charging.value) strength.value = Math.min(100, (now - chargeStarted) / (chargeSeconds * 1000) * 100)
 
   if (lastFrame !== undefined && selected.value && !impact.value && !charging.value && !loadingPiece.value && !finished.value) {
@@ -276,6 +283,7 @@ onBeforeUnmount(() => {
 
 function choose(piece, event, origin = null) {
   if (!piece || impact.value || charging.value || loadingPiece.value || piece.piecesNeeded < 2) return
+  playSound('logMove')
   const wasOnBlock = piece.onBlock
   const source = origin || event?.currentTarget?.getBoundingClientRect() || fallenPileElement.value?.getBoundingClientRect()
   piece.onBlock = true
@@ -295,6 +303,7 @@ async function setOtherPiecesAside() {
   if (impact.value || charging.value || loadingPiece.value) return
   const others = onBlock.value.filter(piece => piece.id !== selectedId.value)
   if (!others.length) return
+  playSound('logMove')
   const matrix = stageElement.value?.getScreenCTM()
   impact.value = true
   others.forEach(piece => { piece.onBlock = false; piece.falling = true })
@@ -312,6 +321,7 @@ async function setOtherPiecesAside() {
       startScale: 76 * matrix.a / 60, endScale: 100 * targetMatrix.a / 60 })
   })
   fallTimer = setTimeout(() => {
+    playSound('logMove', { scale: .6 })
     others.forEach(piece => { piece.falling = false })
     flights.value = []
     impact.value = false
@@ -323,6 +333,7 @@ function chop(quality) {
   const piece = selected.value
 
   if (!canChop.value || !piece || finished.value || roundCuts.value >= stump.value.expectedPieces - 1) return
+  playSound('axeSwing')
 
   const struckRotation = rotation.value
 
@@ -340,6 +351,7 @@ function chop(quality) {
 
   impactTimer = setTimeout(() => {
     cutContact.value = true
+    playSound('axeHit')
 
     const { children, score } = splitPiece(piece, struckRotation, struckOffset)
 
@@ -390,6 +402,7 @@ function chop(quality) {
     if (flights.value.length) {
 
       fallTimer = setTimeout(() => {
+        playSound('logMove', { scale: .7 })
 
         pieces.value.forEach(item => { item.falling = false })
 
@@ -410,6 +423,7 @@ function activatePiece(piece, event) {
   if (impact.value) return
 
   if (piece.piecesNeeded > 1) { choose(piece, event); return }
+  playSound('logStack')
 
   pieces.value = pieces.value.filter(item => item.id !== piece.id)
 
@@ -477,7 +491,7 @@ function finish() {
 
       <strong>{{ t('woodcut.round', { current: stumpIndex + 1, total: jobLogs.length, wood: t(stump.nameKey) }) }}</strong>
 
-      <span>{{ t('woodcut.pay', { coins: earned }) }}</span>
+      <span>{{ t('woodcut.pay', { coins: formatCurrency(earned, t) }) }}</span>
 
     </div>
 
@@ -617,9 +631,9 @@ function finish() {
 
         <g v-for="(wood, index) in storedFirewood" :key="wood.id" :transform="`translate(${8 + (index % 3) * 27 + (Math.floor(index / 3) % 2 ? 4 : 0)} ${173 - Math.floor(index / 3) * 23})`">
 
-          <g class="woodcut-stored-piece" :class="{ 'woodcut-stored-piece--hovered': hoveredWood?.id === wood.id }" tabindex="0" role="img" :aria-label="t('woodcut.pieceDetails', { precision: wood.precision, quality: wood.quality, total: Math.round(wood.combined), coins: wood.coins.toFixed(2) })" @mouseenter="hoveredWood = wood" @mouseleave="hoveredWood = null" @focus="hoveredWood = wood" @blur="hoveredWood = null">
+          <g class="woodcut-stored-piece" :class="{ 'woodcut-stored-piece--hovered': hoveredWood?.id === wood.id }" tabindex="0" role="img" :aria-label="t('woodcut.pieceDetails', { precision: wood.precision, quality: wood.quality, total: Math.round(wood.combined), coins: formatCurrency(wood.coins, t) })" @mouseenter="hoveredWood = wood" @mouseleave="hoveredWood = null" @focus="hoveredWood = wood" @blur="hoveredWood = null">
 
-            <title>{{ t('woodcut.pieceDetails', { precision: wood.precision, quality: wood.quality, total: Math.round(wood.combined), coins: wood.coins.toFixed(2) }) }}</title>
+            <title>{{ t('woodcut.pieceDetails', { precision: wood.precision, quality: wood.quality, total: Math.round(wood.combined), coins: formatCurrency(wood.coins, t) }) }}</title>
 
             <path d="M0 -2 L3 -18 L15 -24 L26 -18 L24 -3 Z" :fill="woodColor(wood.combined, 'bark')" stroke="#30281d" stroke-width="1.5" />
 
@@ -640,7 +654,7 @@ function finish() {
         <strong>{{ t('woodcut.precisionValue', { value: hoveredWood.precision }) }}</strong>
         <span>{{ t('woodcut.qualityValue', { value: hoveredWood.quality }) }}</span>
         <span>{{ t('woodcut.totalQualityValue', { value: Math.round(hoveredWood.combined) }) }}</span>
-        <span>{{ t('woodcut.piecePrice', { coins: hoveredWood.coins.toFixed(2) }) }}</span>
+        <span>{{ t('woodcut.piecePrice', { coins: formatCurrency(hoveredWood.coins, t) }) }}</span>
       </div>
 
     </aside>
@@ -655,10 +669,10 @@ function finish() {
       <div class="woodcut-reward-card">
         <span class="woodcut-reward-kicker">{{ t('woodcut.rewardTitle') }}</span>
         <div class="woodcut-reward-coins" aria-hidden="true"><i></i><i></i><i></i></div>
-        <strong class="woodcut-reward-amount">+{{ earned }}</strong>
+        <strong class="woodcut-reward-amount">+<CurrencyAmount :amount="earned" /></strong>
         <span class="woodcut-reward-label">{{ t('woodcut.goldEarned') }}</span>
         <p>{{ t('woodcut.rewardDetails', { pieces: totalExpected, quality: averageQuality ?? 0 }) }}</p>
-        <button class="woodcut-collect-gold" type="button" @click.stop="finish" :aria-label="t('woodcut.collectGold', { coins: earned })">
+        <button class="woodcut-collect-gold" type="button" @click.stop="finish" :aria-label="t('woodcut.collectGold', { coins: formatCurrency(earned, t) })">
           <CoinPouch />
           <span>{{ t('woodcut.collect') }}</span>
         </button>

@@ -10,6 +10,7 @@ import MapLegend from './MapLegend.vue'
 import { isUnlocked } from '../progression'
 
 const props = defineProps({
+  ambiencePaused: Boolean,
   currentLocation: { type: String, required: true },
   selectedId: { type: String, required: true },
   tutorialStage: { type: String, default: null },
@@ -18,6 +19,7 @@ const props = defineProps({
   travel: { type: Object, default: null },
   buildingTiers: { type: Object, default: () => ({}) },
   dialogueBlocked: { type: Boolean, default: false },
+  smithyEntryLocked: { type: Boolean, default: false },
 })
 const emit = defineEmits(['select', 'action', 'job', 'menu'])
 const { t } = useI18n()
@@ -28,7 +30,7 @@ let closeTimer = null
 watch(activeMenu, (id) => emit('menu', id))
 
 function placeUnlocked(place) {
-  return place.available && isUnlocked(props.completedQuests, 'places', place.id)
+  return !(place.id === 'smithy' && props.smithyEntryLocked) && place.available && isUnlocked(props.completedQuests, 'places', place.id)
 }
 function tutorialLocked(id) {
   const place = places.find((item) => item.id === id)
@@ -132,23 +134,24 @@ onBeforeUnmount(cancelMenuClose)
 </script>
 
 <template>
-<TownArt :map="mapGrid" :tiers="buildingTiers" :marked-entrances="places.filter((place) => place.actions.length).map((place) => place.id)" @click="clearMenus" />
+<TownArt :paused="ambiencePaused" :map="mapGrid" :tiers="buildingTiers" :marked-entrances="places.filter((place) => place.actions.length).map((place) => place.id)" @click="clearMenus" />
   <svg v-if="travel" class="town-route" :viewBox="'0 0 ' + mapSize.width + ' ' + mapSize.height" preserveAspectRatio="none" aria-hidden="true">
     <polyline :points="travel.route.map((point) => point.x + ',' + point.y).join(' ')" />
   </svg>
   <div class="pawn-walker" :style="{ left: pawnPosition.x / mapSize.width * 100 + '%', top: pawnPosition.y / mapSize.height * 100 + '%' }" aria-hidden="true"><img src="/images/profile/blacksmith.png" alt="" /></div>
   <div v-if="travel" class="travel-banner" role="status" aria-live="polite">
     <strong>{{ t('map.walkingTo', { place: t('places.' + travel.destinationId + '.name') }) }}</strong>
-    <span>{{ t('map.walkingTimeLeft', { seconds: Math.ceil((travel.totalMinutes - travel.elapsedMinutes) / 3), minutes: travel.totalMinutes - travel.elapsedMinutes }) }}</span>
+    <span>{{ t('map.walkingTimeLeft', { seconds: Math.ceil((travel.totalMinutes - travel.elapsedMinutes) * (mapGrid.secondsPerCell || 2) - (travel.cellSeconds || 0)), minutes: travel.totalMinutes - travel.elapsedMinutes }) }}</span>
     <small>{{ t('map.rerouteHint') }}</small>
   </div>
 
-  <div v-for="place in places" :key="place.id" class="map-node"
+  <div v-for="place in places" :key="place.id" class="map-node" :data-place="place.id"
     :class="{ 'menu-open': activeMenu === place.id, 'tutorial-guide-pin': (tutorialStage === 'fatherCall' || tutorialStage === 'fatherTalk') && place.id === 'smithy' }"
     :style="{ left: (place.x / mapSize.width * 100) + '%', top: (place.y / mapSize.height * 100) + '%' }"
     @pointerenter="hoverOpen(place.id, $event)"
     @pointerleave="scheduleMenuClose(place.id, $event)">
     <button class="map-pin"
+      :title="place.id === 'smithy' && smithyEntryLocked ? t('workshop.returnLocked') : t('places.' + place.id + '.name')"
       :class="{ active: !tutorialLocked(place.id) && (activeMenu === place.id || selectedId === place.id), locked: !place.available || tutorialLocked(place.id), current: !travel && !tutorialLocked(place.id) && currentLocation === place.id }"
       :aria-label="tutorialLocked(place.id) ? t('places.' + place.id + '.name') + ' · ' + t('tutorial.lockedPlace') : t('actions.placeActions', { place: t('places.' + place.id + '.name') })"
       :aria-expanded="activeMenu === place.id" :disabled="dialogueBlocked || tutorialLocked(place.id)" @click="select(place.id)">
@@ -179,3 +182,10 @@ onBeforeUnmount(cancelMenuClose)
     :dialogue-blocked="dialogueBlocked" @focus="focusPlace" />
   <div class="map-stamp">{{ t('map.townName').toUpperCase() }} <span>{{ t('map.established') }}</span></div>
 </template>
+
+<style scoped>
+.map-node[data-place="tavern"] .radial-work{--dx:-32px!important;--dy:-45px!important}
+.map-node[data-place="tavern"] .radial-trade{--dx:32px!important;--dy:-45px!important}
+.map-node[data-place="tavern"] .job-orbit{left:-32px;top:-49px}
+@media(max-width:570px){.map-node[data-place="tavern"] .radial-work{--dx:-27px!important;--dy:-40px!important}.map-node[data-place="tavern"] .radial-trade{--dx:27px!important;--dy:-40px!important}.map-node[data-place="tavern"] .job-orbit{left:-27px;top:-44px}}
+</style>

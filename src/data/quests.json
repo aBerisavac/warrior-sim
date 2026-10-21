@@ -28,6 +28,9 @@
     "cloud": {
       "mode": "town",
       "titleKey": "tutorial.callTitle",
+      "introKey": "tutorial.fatherCallYell",
+      "spokenKey": "tutorial.callSpoken",
+      "thoughtKey": "tutorial.callThought",
       "messageKey": "tutorial.callMessage",
       "guideClosedKey": "tutorial.openMarker",
       "guideOpenKey": "tutorial.chooseEnter"
@@ -54,7 +57,38 @@
       "messageKey": "tutorial.fatherMessage",
       "acceptKey": "tutorial.acceptErrand",
       "replyKey": "tutorial.fatherWorkReply",
-      "replyAcceptKey": "tutorial.leaveForIron"
+      "replyAcceptKey": "tutorial.leaveForIron",
+      "conversation": [
+        {
+          "speaker": "father",
+          "textKey": "tutorial.fatherMessage"
+        },
+        {
+          "speaker": "player",
+          "textKey": "tutorial.acceptErrand"
+        },
+        {
+          "speaker": "father",
+          "textKey": "tutorial.fatherWorkReply"
+        },
+        {
+          "speaker": "father",
+          "textKey": "tutorial.firstBlade"
+        },
+        {
+          "speaker": "player",
+          "textKey": "tutorial.firstBladeReply"
+        },
+        {
+          "speaker": "player",
+          "thought": true,
+          "textKey": "tutorial.firstBladeThought"
+        },
+        {
+          "speaker": "father",
+          "textKey": "tutorial.fittingsRequest"
+        }
+      ]
     }
   },
   {
@@ -139,6 +173,28 @@
         "textKey": "quests.iron_stock_bought.buy",
         "placeId": "market",
         "actionId": "trade"
+      }
+    ],
+    "requiredItems": [
+      {
+        "itemId": "iron_ore",
+        "quantity": 4
+      },
+      {
+        "itemId": "coal",
+        "quantity": 4
+      },
+      {
+        "itemId": "dagger_guard",
+        "quantity": 1
+      },
+      {
+        "itemId": "dagger_handle",
+        "quantity": 1
+      },
+      {
+        "itemId": "dagger_pommel",
+        "quantity": 1
       }
     ]
   },
