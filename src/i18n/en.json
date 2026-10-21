@@ -25,12 +25,12 @@
     "square": {
       "name": "Town Square",
       "sub": "Work & notices",
-      "description": "Briarwick’s meeting place. Notices, odd jobs, and the woodpile gather here."
+      "description": "Briarwick’s meeting place for notices and village affairs."
     },
     "tavern": {
       "name": "Tavern",
       "sub": "The Copper Cup",
-      "description": "The Copper Cup always has dishes to wash. The work is reliable, even if the pay is poor."
+      "description": "Meals, dishwashing shifts, and the firewood pile keep this tavern busy."
     },
     "barracks": {
       "name": "Barracks",
@@ -76,7 +76,9 @@
     "dishes": "Wash dishes",
     "placeActions": "{place} actions",
     "travelBadge": "{minutes}m",
-    "walkTo": "Walk to {place}"
+    "walkTo": "Walk to {place}",
+    "upgrade": "Upgrade (coming later)",
+    "talk": "Speak to innkeeper"
   },
   "objectives": {
     "errand": "Go to the market for iron stock.",
@@ -134,7 +136,8 @@
     "tutorialHint": "Follow the glowing blacksmith marker on the town map.",
     "fatherTalkHint": "Father is speaking to you in the forge.",
     "returnForgeHint": "Return to the forge to finish speaking with Father.",
-    "routeLockedHint": "The market remains closed for now. You can return to the forge."
+    "routeLockedHint": "The market remains closed for now. You can return to the forge.",
+    "buildingTier": "{tier} tier"
   },
   "map": {
     "townEyebrow": "THE BEGINNING OF A KINGDOM",
@@ -169,7 +172,13 @@
     "walkingTo": "Walking to {place}",
     "walkingTimeLeft": "{seconds}s left · {minutes} game minutes remain",
     "rerouteHint": "Choose Walk at another unlocked location to change course.",
-    "onRoad": "On the road to {place}"
+    "onRoad": "On the road to {place}",
+    "legendTitle": "Map legend",
+    "showLegend": "Show map legend",
+    "hideLegend": "Hide map legend",
+    "showCloud": "Show message",
+    "hideCloud": "Hide message",
+    "pawnHere": "Your pawn is here"
   },
   "hud": {
     "openPawn": "Open pawn details",
@@ -194,7 +203,8 @@
       "workbench": "WORKBENCH",
       "wood": "ODD JOB",
       "dishes": "ODD JOB",
-      "restart": "RESTART"
+      "restart": "RESTART",
+      "tavern": "THE COPPER CUP"
     },
     "close": "Close",
     "objectiveHint": "Use the location icons to choose where to go next. Time passes whenever you travel or work.",
@@ -229,8 +239,8 @@
     "tip": "Tip 1 coin",
     "fatherAsked": "Father asked you to bring back iron stock.",
     "woodTitle": "Split firewood",
-    "woodHelp": "A 90-minute placeholder work shift earns 5 coins. The precise cutting mini game will be added later.",
-    "woodAction": "Work 90 minutes · +5 coins",
+    "woodHelp": "The log turns and drifts by itself. Strike when a split mark lines up with the fixed axe and the log is centered. For unmarked pieces, aim through the middle.",
+    "woodAction": "Chop wood",
     "dishesTitle": "Wash dishes",
     "dishesHelp": "A one-hour placeholder work shift earns 3 coins. The washing mini game will be added later.",
     "dishesAction": "Work 1 hour · +3 coins",
@@ -259,7 +269,7 @@
     "startJournal": "Father sent you to the market for iron stock.",
     "bandits": "Bandits stop you on the road to the market. You fight, lose your coin, and are left wounded. Combat will be built in the next phase.",
     "travel": "You walk to the {place}. The journey takes {duration} minutes.",
-    "wood": "You split firewood for 90 minutes and earn 5 coins. Precise cutting will become a playable mini game.",
+    "wood": "You split {pieces} pieces of firewood with an average cut quality of {quality}% and earn {coins} coins.",
     "dishes": "You wash dishes for an hour and earn 3 coins. The washing mini game is planned for a later pass.",
     "refuse": "The merchant has had enough of your offers and refuses to sell to you today.",
     "insult": "The merchant calls that offer insulting. His opinion of you worsens, and future asking prices rise.",
@@ -276,7 +286,8 @@
     "intro": "A quiet morning begins at your father’s house.",
     "fatherCall": "Father calls you over. He wants to speak with you in the forge.",
     "fatherTalk": "Father is waiting by the anvil with an errand for you.",
-    "roadTraveler": "A passing traveler gives you a nod as you continue along the road."
+    "roadTraveler": "A passing traveler gives you a nod as you continue along the road.",
+    "tavernWork": "The innkeeper offers you work splitting logs or washing dishes."
   },
   "forgeHouse": {
     "forgeRoom": "THE FORGE",
@@ -371,7 +382,12 @@
       "title": "Oil quenching",
       "description": "A future blacksmithing lesson."
     },
-    "moreActive": "{count} more active quests"
+    "moreActive": "{count} more active quests",
+    "tavern_work_offered": {
+      "title": "Find work at the tavern",
+      "description": "The Copper Cup might have odd jobs that can replace your lost coin.",
+      "speak": "Walk to the tavern and speak with the innkeeper."
+    }
   },
   "mapEditor": {
     "open": "Edit town map",
@@ -419,6 +435,62 @@
     "saveFailed": "Could not save the map to the project. Download the JSON instead.",
     "fixErrors": "Fix the map issues before saving.",
     "errors": "{count} map issue(s).",
-    "ready": "Map is ready to save."
+    "ready": "Map is ready to save.",
+    "bush": "Bush",
+    "tree": "Tree",
+    "rock": "Rock",
+    "barrel": "Barrel",
+    "cart": "Cart",
+    "gateImageHelp": "Each gate can use its own image path."
+  },
+  "tiers": {
+    "straw": "Straw",
+    "mud": "Mud",
+    "wood": "Wood",
+    "stone": "Stone"
+  },
+  "tavern": {
+    "innkeeper": "The innkeeper",
+    "greeting": "Welcome to the Copper Cup. You look like you need coin more than ale. What brings you here, lad?",
+    "answer": {
+      "bandits": "Bandits took the money Father gave me.",
+      "father": "I need to buy iron for my father’s forge.",
+      "work": "I am looking for honest work."
+    },
+    "reply": {
+      "bandits": "Road thieves again? I am sorry, lad. The woodpile needs splitting, and there are dishes in the kitchen. Do either job well and I will pay you.",
+      "father": "Your father has helped this tavern often enough. Split firewood for the hearth or wash up in the kitchen, and you can earn your iron money.",
+      "work": "Good. I can use steady hands. The woodpile pays better if you split cleanly; the dishes are easier but pay less."
+    },
+    "acceptWork": "I’ll get to work"
+  },
+  "woodcut": {
+    "ash": "Ash",
+    "beech": "Beech",
+    "oak": "Oak",
+    "round": "Log {current}/{total} · {wood}",
+    "pay": "Estimated pay: {coins} coins",
+    "yield": "Firewood {current}/{expected}",
+    "cuts": "Cuts {current}/{limit}",
+    "illustration": "A log turning and shifting beneath a fixed axe line",
+    "choosePiece": "Choose a piece on the block or lift one that fell.",
+    "onBlock": "ON THE BLOCK",
+    "fallen": "FALLEN PIECES",
+    "none": "None",
+    "piece": "Piece for {count} logs",
+    "chop": "Drop the axe",
+    "excellent": "Clean cut! {score}% accuracy.",
+    "fair": "Fair split. {score}% accuracy.",
+    "rough": "Rough cut. {score}% accuracy.",
+    "landing": {
+      "0": "Both pieces fell off.",
+      "1": "One piece stayed on the block.",
+      "2": "Both pieces stayed on the block."
+    },
+    "finished": "{pieces} pieces ready. The innkeeper offers {coins} coins.",
+    "collect": "Collect wages",
+    "ready": "Firewood ✓",
+    "timingHint": "Watch the moving log. Press the axe button at the right moment.",
+    "totalYield": "Firewood stacked: {current} of {total} pieces"
   }
 }

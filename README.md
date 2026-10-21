@@ -13,7 +13,7 @@ Open the local URL printed by Vite.
 
 ## Playable now
 
-- Select a town location, then walk there. Travel follows the 30x30 cell grid and road network, advances three game minutes per real second, and takes `ceil(travel minutes / 3)` seconds. Choose Walk at another unlocked location to reroute from the pawn’s current position.
+- Select a town location, then walk there. Travel follows connected road, bridge, and gate cells. Crossing one cell costs one game minute; the pawn advances up to three cells per real second, so travel time updates when the map changes. Choose Walk at another unlocked location to reroute from the pawn’s current position.
 
 - The first market trip triggers the planned bandit defeat on the second travel tick. Each travel tick also rolls for a small ambient road event. Health and money change, and injury lowers available stamina.
 
@@ -29,7 +29,7 @@ Open the local URL printed by Vite.
 
 Fatigue begins after 16 hours awake and reduces the stamina cap linearly to 50% at 48 hours. Injury multiplies the available stamina within that fatigue cap. Activities will begin at the resulting available stamina once their mini games are built. Sleep resets fatigue and restores 12 health; health otherwise carries over.
 
-Combat, detailed woodcutting, dishwashing, blacksmithing, and skill purchases are intentionally represented as placeholders for the next design passes. The map has four playable locations and additional visible future locations. Its road layout leaves space for Briarwick to grow toward a capital.
+Combat, detailed woodcutting, dishwashing, blacksmithing, and skill purchases are intentionally represented as placeholders for the next design passes. The map has four playable locations and additional visible future locations. Firewood and dishes are both tavern jobs. Its road layout leaves space for Briarwick to grow toward a capital.
 
 ## Map interface
 
@@ -66,3 +66,7 @@ For example, adding `"iron_errand_accepted"` to `completedQuests` and reloading 
 Use **Edit town map** above the game window to paint cells or drag a 2x2 to 4x4 building footprint. The footprint selector supports rectangles and L shapes. Place an entrance by selecting a neighboring road cell. The editor keeps a browser draft until you save or reset it, and it flags disconnected roads or missing entrances.
 
 **Save to project** writes the 30x30 layout to `src/data/town-map.json` while the local Vite dev server is running. **Download JSON** exports a copy. Put image files in `public/images/` and enter paths such as `/images/town/roof.png` in the editor. `tileImages` applies an image to every cell of a terrain type, `cellImages` overrides individual cells, and each building has its own `imageSrc`. Saving a revised layout clears travel routes that were recorded on an older map.
+
+## Map art and upgrades
+
+The town editor can paint bushes, trees, rocks, barrels, and carts. Select a gate and enter an image path to override its default art. Saved structure tiers live in the game save as `buildingTiers` keyed by building or gate ID. Tiers progress from straw to mud to wood to stone; `/images/straw/<name>.png` paths resolve to the matching tier folder. The upgrade action is displayed but disabled until its gameplay rules are designed. Map layout and art sources remain in `src/data/town-map.json`; route generation lives in reusable `src/map-routing.js` and can be used with another map object.

@@ -73,10 +73,13 @@ export function validateTownMap(map) {
       gateOccupied.add(key)
       if (at(cell.x, cell.y) !== 'G') errors.push(`Gate tile missing: ${gate.id}`)
     }
+    if (gate.imageSrc != null && typeof gate.imageSrc !== 'string') errors.push(`Invalid gate image source: ${gate.id}`)
     if (gate.underTiles != null && (!Array.isArray(gate.underTiles) || gate.underTiles.some((cell) => !Number.isInteger(cell.x) || !Number.isInteger(cell.y) || typeof cell.tile !== 'string' || !validTiles.has(cell.tile)))) errors.push(`Invalid gate backing tiles: ${gate.id}`)
   }
   for (const id of requiredGates) if (!gateIds.has(id)) errors.push(`Missing gate: ${id}`)
   for (let y = 0; y < 30; y++) for (let x = 0; x < 30; x++) if (at(x, y) === 'G' && !gateOccupied.has(cellKey(x, y))) errors.push(`Unassigned gate cell: ${x},${y}`)
+  const decorTypes = new Set(['well', 'crates', 'flowers', 'bush', 'tree', 'rock', 'barrel', 'cart'])
+  if (!Array.isArray(map.decor) || map.decor.some((item) => !decorTypes.has(item.type) || !Number.isInteger(item.x) || !Number.isInteger(item.y) || item.x < 0 || item.x >= 30 || item.y < 0 || item.y >= 30)) errors.push('Invalid decorations')
   if (!map.tileImages || Object.values(map.tileImages).some((src) => src != null && typeof src !== 'string')) errors.push('Invalid tile image sources')
   if (!Array.isArray(map.cellImages) || map.cellImages.some((image) => !Number.isInteger(image.x) || !Number.isInteger(image.y) || image.x < 0 || image.x >= 30 || image.y < 0 || image.y >= 30 || typeof image.src !== 'string')) errors.push('Invalid cell image sources')
   const roads = new Set()

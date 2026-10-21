@@ -73,6 +73,22 @@
     ]
   },
   {
+    "id": "tavern_work_offered",
+    "requires": [
+      "bandit_ambush_survived"
+    ],
+    "priority": 35,
+    "titleKey": "quests.tavern_work_offered.title",
+    "descriptionKey": "quests.tavern_work_offered.description",
+    "objectives": [
+      {
+        "textKey": "quests.tavern_work_offered.speak",
+        "placeId": "tavern",
+        "actionId": "talk"
+      }
+    ]
+  },
+  {
     "id": "iron_stock_bought",
     "requires": [
       "bandit_ambush_survived"
@@ -84,7 +100,7 @@
     "objectives": [
       {
         "textKey": "quests.iron_stock_bought.earn",
-        "placeId": "square",
+        "placeId": "tavern",
         "actionId": "work"
       },
       {

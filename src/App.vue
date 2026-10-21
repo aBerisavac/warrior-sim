@@ -11,7 +11,7 @@ import GameModal from './components/GameModal.vue'
 import TutorialCloud from './components/TutorialCloud.vue'
 import { dayNumber, fatigueFactor, FORGE_COAL_CAPACITY, formatTime, initialState, injuryFactor, places, readSave, SAVE_KEY, staminaCap } from './game'
 import { hasQuest, isUnlocked, questById, QUEST, stageFromQuests } from './progression'
-import { placePoint, pointOnRoute, routeFromPoint, travelMinutesFromPoint } from './routes'
+import { placePoint, pointAtDistance, routeFromPoint, travelMinutesFromPoint, mapGrid } from './routes'
 import { eventForTravelTick } from './travel-events'
 
 const { t } = useI18n()
@@ -22,8 +22,12 @@ const editingMap = ref(false)
 const modal = ref(null)
 const tradeFeedback = ref(null)
 const townMenu = ref(null)
+const cloudVisible = ref(true)
+const cloudReady = ref(true)
+const tavernReply = ref(null)
 const tutorialQuest = computed(() => game.stage === 'fatherCall' || game.stage === 'fatherTalk' && mapView.value === 'town'
   ? questById(QUEST.FATHER_MET) : game.stage === 'fatherTalk' ? questById(QUEST.IRON_ERRAND_ACCEPTED) : null)
+watch(() => tutorialQuest.value?.id, (id) => { cloudVisible.value = true; cloudReady.value = !id }, { immediate: true })
 const tutorialStage = computed(() => hasQuest(game.completedQuests, QUEST.BANDIT_AMBUSH_SURVIVED)
   ? null : ['intro', 'fatherCall', 'fatherTalk'].includes(game.stage) ? game.stage : 'restricted')
 function placeUnlocked(id) {
@@ -83,7 +87,8 @@ function scheduleIntro() {
 onMounted(() => {
   scheduleIntro()
   if (game.travel?.pausedForEvent) modal.value = 'event'
-  travelTimer = setInterval(tickTravel, 1000)
+  else if (!game.travel && game.location === 'tavern' && hasQuest(game.completedQuests, QUEST.BANDIT_AMBUSH_SURVIVED) && !hasQuest(game.completedQuests, QUEST.TAVERN_WORK_OFFERED)) modal.value = 'tavern'
+  travelTimer = setInterval(tickTravel, 1000 / 3)
 })
 onBeforeUnmount(() => {
   clearTimeout(introTimer)
@@ -112,6 +117,9 @@ function performAction(actionId, placeId) {
       completeQuest(QUEST.FATHER_MET)
       note('events.fatherTalk')
     }
+  } else if (actionId === 'talk') {
+    tavernReply.value = null
+    modal.value = 'tavern'
   } else if (actionId === 'trade') {
     tradeFeedback.value = null
     modal.value = 'trade'
@@ -134,6 +142,7 @@ function startTravel(destinationId, pending = null) {
     game.location = destinationId
     if (pending?.kind === 'action') performAction(pending.id, destinationId)
     if (pending?.kind === 'job') performJob(pending.id, destinationId)
+    offerTavernWork(destinationId)
     return
   }
   game.travel = {
@@ -174,13 +183,13 @@ function handleJob(jobId, placeId) {
 function tickTravel() {
   const journey = game.travel
   if (!journey || modal.value) return
-  journey.secondsElapsed += 1
-  const minutes = Math.min(3, journey.totalMinutes - journey.elapsedMinutes)
-  journey.elapsedMinutes += minutes
-  game.minutes += minutes
-  journey.position = pointOnRoute(journey.route, journey.elapsedMinutes / journey.totalMinutes)
+  journey.elapsedMinutes += 1
+  game.minutes += 1
+  journey.position = pointAtDistance(journey.route, journey.elapsedMinutes * mapGrid.cellSize)
 
-  const event = eventForTravelTick(journey, game.completedQuests)
+  const eventBeat = journey.elapsedMinutes % 3 === 0 || journey.elapsedMinutes >= journey.totalMinutes
+  if (eventBeat) journey.secondsElapsed += 1
+  const event = eventBeat ? eventForTravelTick(journey, game.completedQuests) : null
   if (event === 'bandits') {
     game.health = 68
     game.coins = 0
@@ -199,7 +208,29 @@ function tickTravel() {
     note('events.travel', { placeId: destinationId, duration: totalMinutes })
     if (pending?.kind === 'action') performAction(pending.id, destinationId)
     if (pending?.kind === 'job') performJob(pending.id, destinationId)
+    offerTavernWork(destinationId)
   }
+}
+
+function offerTavernWork(destinationId) {
+  if (destinationId !== 'tavern' || !hasQuest(game.completedQuests, QUEST.BANDIT_AMBUSH_SURVIVED) || hasQuest(game.completedQuests, QUEST.TAVERN_WORK_OFFERED)) return
+  tavernReply.value = null
+  modal.value = 'tavern'
+}
+
+function answerInnkeeper(reason) {
+  if (modal.value !== 'tavern' || tavernReply.value || !['bandits', 'father', 'work'].includes(reason)) return
+  tavernReply.value = reason
+  completeQuest(QUEST.TAVERN_WORK_OFFERED)
+  note('events.tavernWork')
+}
+
+function finishWoodcutting(result) {
+  if (modal.value !== 'wood' || game.location !== 'tavern' || !jobUnlocked('tavern', 'wood')) return
+  game.minutes += result.minutes
+  game.coins += result.coins
+  note('events.wood', { coins: result.coins, pieces: result.pieces, quality: result.average })
+  modal.value = null
 }
 
 function closeModal() {
@@ -208,16 +239,11 @@ function closeModal() {
 }
 
 function work(kind) {
-  if (!jobUnlocked(kind === 'wood' ? 'square' : 'tavern', kind)) return
-  if (kind === 'wood') {
-    game.minutes += 90
-    game.coins += 5
-    note('events.wood')
-  } else {
-    game.minutes += 60
-    game.coins += 3
-    note('events.dishes')
-  }
+  if (!jobUnlocked('tavern', kind)) return
+  if (kind !== 'dishes') return
+  game.minutes += 60
+  game.coins += 3
+  note('events.dishes')
   modal.value = null
 }
 
@@ -304,6 +330,8 @@ function reset() {
   mapView.value = 'town'
   tradeFeedback.value = null
   townMenu.value = null
+  cloudVisible.value = true
+  tavernReply.value = null
   modal.value = null
 }
 </script>
@@ -334,20 +362,21 @@ function reset() {
           <div v-if="mapView === 'town'" class="map-scale"><span class="dot" :class="game.stage === 'intro' ? 'hollow' : 'green'"></span> {{ t(game.stage === 'intro' ? 'map.locked' : tutorialStage && !placeUnlocked('market') ? 'map.tutorialOpen' : 'map.open') }} <span class="dot hollow"></span> {{ t('map.future') }}</div>
         </div>
 
-        <div class="map-frame">
+        <div class="map-frame" :class="{ 'map-frame--playing': !editingMap }">
           <div v-if="mapView === 'town' && !editingMap" class="map-edit-toggle"><button type="button" @click="editingMap = !editingMap">{{ t(editingMap ? 'mapEditor.close' : 'mapEditor.open') }}</button></div>
           <MapEditor v-if="editingMap && mapView === 'town'" @close="editingMap = false" />
           <template v-else>
           <MapHud :health="game.health" :stamina="stamina" :sleep-need="sleepNeed" :coins="game.coins" :completed-quests="game.completedQuests" :traveling="!!game.travel" @modal="modal = $event" />
           <div class="map-canvas">
-            <TownMap v-if="mapView === 'town'" :current-location="game.location" :pawn-position="pawnPosition" :travel="game.travel" :selected-id="game.selected" :tutorial-stage="tutorialStage" :completed-quests="game.completedQuests" @menu="townMenu = $event" @select="selectPlace" @action="handleAction" @job="handleJob" />
-            <ForgeMap v-else :completed-quests="game.completedQuests" :forge-coal="game.forgeCoal" :coal-stock="game.coalStock" :coal-capacity="FORGE_COAL_CAPACITY" @add-coal="addCoal" @town="mapView = 'town'" @modal="modal = $event" />
-            <TutorialCloud :quest="tutorialQuest" :marker-open="townMenu === 'smithy'" @accept="acceptFatherErrand" />
+            <TownMap v-if="mapView === 'town'" :current-location="game.location" :pawn-position="pawnPosition" :travel="game.travel" :building-tiers="game.buildingTiers" :dialogue-blocked="!!tutorialQuest && !cloudReady" :selected-id="game.selected" :tutorial-stage="tutorialStage" :completed-quests="game.completedQuests" @menu="townMenu = $event" @select="selectPlace" @action="handleAction" @job="handleJob" />
+            <ForgeMap v-else :dialogue-blocked="!!tutorialQuest && !cloudReady" :completed-quests="game.completedQuests" :forge-coal="game.forgeCoal" :coal-stock="game.coalStock" :coal-capacity="FORGE_COAL_CAPACITY" @add-coal="addCoal" @town="mapView = 'town'" @modal="modal = $event" />
+            <button v-if="tutorialQuest" class="cloud-toggle" type="button" :aria-label="t(cloudVisible ? 'map.hideCloud' : 'map.showCloud')" :title="t(cloudVisible ? 'map.hideCloud' : 'map.showCloud')" @click="cloudVisible = !cloudVisible">{{ cloudVisible ? '−' : '+' }}</button>
+            <TutorialCloud :hidden="!cloudVisible" :quest="tutorialQuest" :marker-open="townMenu === 'smithy'" @ready="cloudReady = $event" @accept="acceptFatherErrand" />
             <GameModal :modal="modal" :game="game" :selected-place="selectedPlace" :trip-minutes="tripMinutes"
               :stamina="stamina" :sleep-need="sleepNeed" :asking-price="askingPrice" :offered-price="offeredPrice"
-              v-model:offer-percent="offerPercent" :mood-key="moodKey" :trade-feedback="tradeFeedback"
+              v-model:offer-percent="offerPercent" :mood-key="moodKey" :trade-feedback="tradeFeedback" :tavern-reply="tavernReply"
               @close="closeModal" @modal="modal = $event" @reset="reset" @bargain="bargain" @tip="tip"
-              @work="work" @forge="forge" @sleep="sleep" />
+              @work="work" @wood-finished="finishWoodcutting" @tavern-answer="answerInnkeeper" @forge="forge" @sleep="sleep" />
           </div>
           </template>
           <div class="map-footer">
@@ -363,7 +392,7 @@ function reset() {
         </div>
       </section>
 
-      <DetailsSidebar :tutorial-locked="!!selectedTutorialLocked" :selected-place="selectedPlace" :current-location="game.travel ? '' : game.location" :trip-minutes="tripMinutes" :event="game.event" :journal="game.journal" />
+      <DetailsSidebar :building-tiers="game.buildingTiers" :tutorial-locked="!!selectedTutorialLocked" :selected-place="selectedPlace" :current-location="game.travel ? '' : game.location" :trip-minutes="tripMinutes" :event="game.event" :journal="game.journal" />
     </main>
 
     <footer class="footer"><span>{{ t('map.footerTitle') }}</span><span>{{ t('map.footerDescription') }}</span></footer>

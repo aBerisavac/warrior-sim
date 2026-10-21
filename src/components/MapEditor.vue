@@ -31,7 +31,7 @@ const terrainTools = [
 ]
 const buildingTools = ['smithy', 'market', 'square', 'tavern', 'chapel', 'barracks', 'house']
 const gateTools = ['northGate', 'eastGate', 'gate', 'westGate']
-const decorTools = ['well', 'crates', 'flowers']
+const decorTools = ['well', 'crates', 'flowers', 'bush', 'tree', 'rock', 'barrel', 'cart']
 const isTileTool = computed(() => terrainTools.some(([code]) => code === tool.value))
 const isBuildingTool = computed(() => buildingTools.includes(tool.value))
 const isGateTool = computed(() => gateTools.includes(tool.value))
@@ -40,6 +40,7 @@ const imageSource = computed({
   get() {
     if (isTileTool.value) return map.value.tileImages?.[tool.value] || ''
     if (isBuildingTool.value && tool.value !== 'house') return map.value.buildings.find((item) => item.id === tool.value)?.imageSrc || ''
+    if (isGateTool.value) return map.value.gates.find((item) => item.id === tool.value)?.imageSrc || ''
     return imageForPlacement.value
   },
   set(value) {
@@ -48,6 +49,9 @@ const imageSource = computed({
       const building = map.value.buildings.find((item) => item.id === tool.value)
       if (building) building.imageSrc = value || null
       imageForPlacement.value = value
+    } else if (isGateTool.value) {
+      const gate = map.value.gates.find((item) => item.id === tool.value)
+      if (gate) gate.imageSrc = value || null
     } else imageForPlacement.value = value
   },
 })
@@ -227,7 +231,7 @@ async function saveJson() {
         </select>
       </label>
       <label v-if="isBuildingTool">{{ t('mapEditor.shape') }} <select v-model="shape"><option value="rectangle">{{ t('mapEditor.rectangle') }}</option><option value="L">{{ t('mapEditor.lShape') }}</option></select></label>
-      <label v-if="isTileTool || isBuildingTool || tool === 'cellImage'">{{ t('mapEditor.imageSource') }} <input v-model="imageSource" type="text" :placeholder="t('mapEditor.imagePlaceholder')" /></label>
+      <label v-if="isTileTool || isBuildingTool || isGateTool || tool === 'cellImage'">{{ t('mapEditor.imageSource') }} <input v-model="imageSource" type="text" :placeholder="t('mapEditor.imagePlaceholder')" /></label>
     </div>
     <p class="map-editor-help">{{ isBuildingTool ? t('mapEditor.buildingHelp') : isGateTool ? t('mapEditor.gateHelp') : t('mapEditor.paintHelp') }}</p>
     <div class="map-editor-canvas">

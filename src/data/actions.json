@@ -19,6 +19,14 @@
     "trade": {
       "icon": "◈",
       "labelKey": "actions.trade"
+    },
+    "upgrade": {
+      "icon": "♜",
+      "labelKey": "actions.upgrade"
+    },
+    "talk": {
+      "icon": "❞",
+      "labelKey": "actions.talk"
     }
   },
   "jobs": {

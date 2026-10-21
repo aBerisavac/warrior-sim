@@ -11,6 +11,7 @@ const props = defineProps({
   forgeCoal: { type: Number, required: true },
   coalStock: { type: Number, required: true },
   coalCapacity: { type: Number, required: true },
+  dialogueBlocked: { type: Boolean, default: false },
 })
 const emit = defineEmits(['town', 'modal', 'add-coal'])
 const { t } = useI18n()
@@ -29,7 +30,7 @@ const stationMessage = computed(() => {
 })
 
 function activate(station) {
-  if (!isUnlocked(props.completedQuests, 'forgeStations', station.id)) return
+  if (props.dialogueBlocked || !isUnlocked(props.completedQuests, 'forgeStations', station.id)) return
   selected.value = station.id
   if (station.action === 'addCoal') {
     if (loading.value || props.forgeCoal >= props.coalCapacity || props.coalStock <= 0) return
@@ -50,7 +51,8 @@ onBeforeUnmount(() => clearTimeout(coalTimer))
 
 <template>
   <BlacksmithHouseArt />
-  <button class="interior-back" type="button" @click="emit('town')">← {{ t('map.backTown') }}</button>
+  <div class="pawn-walker pawn-forge" :aria-label="t('map.pawnHere')" role="img">♟</div>
+  <button class="interior-back" type="button" :disabled="dialogueBlocked" @click="emit('town')">← {{ t('map.backTown') }}</button>
 
   <CircleIcon
     v-for="station in stations"
@@ -63,7 +65,7 @@ onBeforeUnmount(() => clearTimeout(coalTimer))
     :aria-label="t('forgeHouse.actions.' + station.id)"
     :title="t('forgeHouse.actions.' + station.id)"
     :aria-busy="station.id === 'furnace' && loading"
-    :disabled="!isUnlocked(completedQuests, 'forgeStations', station.id)"
+    :disabled="dialogueBlocked || !isUnlocked(completedQuests, 'forgeStations', station.id)"
     @click="activate(station)"
   />
 

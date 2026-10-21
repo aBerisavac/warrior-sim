@@ -6,6 +6,7 @@ export const QUEST = Object.freeze({
   FATHER_MET: 'father_met',
   IRON_ERRAND_ACCEPTED: 'iron_errand_accepted',
   BANDIT_AMBUSH_SURVIVED: 'bandit_ambush_survived',
+  TAVERN_WORK_OFFERED: 'tavern_work_offered',
   IRON_STOCK_BOUGHT: 'iron_stock_bought',
   DAGGER_FORGED: 'dagger_forged',
   DRAFTED: 'drafted',

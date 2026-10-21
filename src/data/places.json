@@ -30,12 +30,9 @@
     "icon": "✧",
     "actions": [
       "info",
-      "walk",
-      "work"
+      "walk"
     ],
-    "jobs": [
-      "wood"
-    ]
+    "jobs": []
   },
   {
     "id": "tavern",
@@ -44,9 +41,11 @@
     "actions": [
       "info",
       "walk",
-      "work"
+      "work",
+      "talk"
     ],
     "jobs": [
+      "wood",
       "dishes"
     ]
   },

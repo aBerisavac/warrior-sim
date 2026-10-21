@@ -41,9 +41,6 @@
     "square.walk": [
       "bandit_ambush_survived"
     ],
-    "square.work": [
-      "bandit_ambush_survived"
-    ],
     "tavern.info": [
       "bandit_ambush_survived"
     ],
@@ -51,6 +48,9 @@
       "bandit_ambush_survived"
     ],
     "tavern.work": [
+      "tavern_work_offered"
+    ],
+    "tavern.talk": [
       "bandit_ambush_survived"
     ]
   },
@@ -58,11 +58,11 @@
     "smithy.forge": [
       "iron_stock_bought"
     ],
-    "square.wood": [
-      "bandit_ambush_survived"
-    ],
     "tavern.dishes": [
-      "bandit_ambush_survived"
+      "tavern_work_offered"
+    ],
+    "tavern.wood": [
+      "tavern_work_offered"
     ]
   },
   "forgeStations": {

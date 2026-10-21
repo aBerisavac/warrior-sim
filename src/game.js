@@ -7,8 +7,10 @@ export const places = placesData.map((place) => ({ ...place, ...placeMarkerPoint
 export const FORGE_COAL_CAPACITY = 6
 
 export const initialState = () => ({
-  version: 7,
+  version: 8,
   mapRevision: mapGrid.revision,
+  mapId: 'town',
+  buildingTiers: {},
   location: 'smithy',
   selected: 'smithy',
   travel: null,
@@ -57,15 +59,15 @@ export function dayNumber(minutes) {
 export function readSave() {
   try {
     const saved = JSON.parse(localStorage.getItem(SAVE_KEY))
-    if ([1, 2, 3, 4, 5, 6, 7].includes(saved?.version) && places.some((place) => place.id === saved.location)) {
+    if ([1, 2, 3, 4, 5, 6, 7, 8].includes(saved?.version) && places.some((place) => place.id === saved.location)) {
       const pristineOpening = saved.version < 3 && saved.stage === 'errand' && saved.location === 'smithy' && saved.minutes === 480 && saved.health === 100 && saved.coins === 12 && !saved.materials && !saved.dagger && (!saved.forgeCoal || saved.forgeCoal === 0)
       if (pristineOpening) return initialState()
       const completedQuests = migrateCompletedQuests(saved)
-      const state = { ...initialState(), ...saved, version: 7, completedQuests }
+      const state = { ...initialState(), ...saved, version: 8, completedQuests }
       delete state.gameplayUnlocked
       delete state.marketUnlocked
       const journey = state.travel
-      if (saved.version < 7 || saved.mapRevision !== mapGrid.revision || !journey?.destinationId || !places.some((place) => place.id === journey.destinationId && place.available)
+      if (saved.version < 8 || saved.mapRevision !== mapGrid.revision || !journey?.destinationId || !places.some((place) => place.id === journey.destinationId && place.available)
         || !isUnlocked(completedQuests, 'places', journey.destinationId)
         || !Array.isArray(journey.route) || journey.route.length < 2
         || !journey.route.every((point) => Number.isFinite(point.x) && Number.isFinite(point.y))
@@ -74,6 +76,10 @@ export function readSave() {
         || !Number.isFinite(journey.elapsedMinutes) || journey.elapsedMinutes < 0 || journey.elapsedMinutes >= journey.totalMinutes
         || !Number.isFinite(journey.secondsElapsed)) state.travel = null
       state.mapRevision = mapGrid.revision
+      state.mapId = 'town'
+      const structureIds = new Set([...mapGrid.buildings, ...mapGrid.gates].map((item) => item.id))
+      state.buildingTiers = Object.fromEntries(Object.entries(saved.buildingTiers || {})
+        .filter(([id, tier]) => structureIds.has(id) && ['straw', 'mud', 'wood', 'stone'].includes(tier)))
       state.stage = stageFromQuests(completedQuests)
       state.materials = hasQuest(completedQuests, QUEST.IRON_STOCK_BOUGHT)
       state.dagger = hasQuest(completedQuests, QUEST.DAGGER_FORGED)

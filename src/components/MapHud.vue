@@ -1,7 +1,6 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import StatusRing from '../StatusRing.vue'
-import CircleIcon from './CircleIcon.vue'
 import { isUnlocked } from '../progression'
 defineProps({
   health: { type: Number, required: true },
@@ -18,7 +17,7 @@ const { t } = useI18n()
 <template>
   <div class="map-hud">
     <button class="hud-pawn" :disabled="!isUnlocked(completedQuests, 'hud', 'pawn')" @click="emit('modal', 'pawn')" :aria-label="t('hud.openPawn')">
-      <CircleIcon as="span" size="avatar" class="hud-avatar" icon="♟" />
+      <span class="hud-avatar"><img src="/images/profile/blacksmith.png" alt="" /></span>
       <span class="hud-pawn-copy"><b>{{ t('app.chapterName') }}</b><small>◈ {{ t('app.coins', { count: coins }) }}</small></span>
     </button>
     <div class="hud-vitals">
