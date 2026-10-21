@@ -1,0 +1,113 @@
+[
+  {
+    "id": "smithy",
+    "available": true,
+    "icon": "⚒",
+    "actions": [
+      "info",
+      "walk",
+      "work",
+      "enter"
+    ],
+    "jobs": [
+      "forge"
+    ]
+  },
+  {
+    "id": "market",
+    "available": true,
+    "icon": "◈",
+    "actions": [
+      "info",
+      "walk",
+      "trade"
+    ],
+    "jobs": []
+  },
+  {
+    "id": "square",
+    "available": true,
+    "icon": "✧",
+    "actions": [
+      "info",
+      "walk",
+      "work"
+    ],
+    "jobs": [
+      "wood"
+    ]
+  },
+  {
+    "id": "tavern",
+    "available": true,
+    "icon": "✦",
+    "actions": [
+      "info",
+      "walk",
+      "work"
+    ],
+    "jobs": [
+      "dishes"
+    ]
+  },
+  {
+    "id": "barracks",
+    "available": false,
+    "icon": "◇",
+    "actions": [
+      "info",
+      "walk"
+    ],
+    "jobs": []
+  },
+  {
+    "id": "chapel",
+    "available": false,
+    "icon": "◇",
+    "actions": [
+      "info",
+      "walk"
+    ],
+    "jobs": []
+  },
+  {
+    "id": "gate",
+    "available": false,
+    "icon": "◇",
+    "actions": [
+      "info",
+      "walk"
+    ],
+    "jobs": []
+  },
+  {
+    "id": "northGate",
+    "available": false,
+    "icon": "◇",
+    "actions": [
+      "info",
+      "walk"
+    ],
+    "jobs": []
+  },
+  {
+    "id": "eastGate",
+    "available": false,
+    "icon": "◇",
+    "actions": [
+      "info",
+      "walk"
+    ],
+    "jobs": []
+  },
+  {
+    "id": "westGate",
+    "available": false,
+    "icon": "◇",
+    "actions": [
+      "info",
+      "walk"
+    ],
+    "jobs": []
+  }
+]

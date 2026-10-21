@@ -1,0 +1,111 @@
+{
+  "places": {
+    "smithy": [
+      "father_called"
+    ],
+    "market": [
+      "iron_errand_accepted"
+    ],
+    "square": [
+      "bandit_ambush_survived"
+    ],
+    "tavern": [
+      "bandit_ambush_survived"
+    ]
+  },
+  "actions": {
+    "smithy.enter": [
+      "father_called"
+    ],
+    "smithy.info": [
+      "bandit_ambush_survived"
+    ],
+    "smithy.walk": [
+      "bandit_ambush_survived"
+    ],
+    "smithy.work": [
+      "iron_stock_bought"
+    ],
+    "market.info": [
+      "iron_errand_accepted"
+    ],
+    "market.walk": [
+      "iron_errand_accepted"
+    ],
+    "market.trade": [
+      "iron_errand_accepted"
+    ],
+    "square.info": [
+      "bandit_ambush_survived"
+    ],
+    "square.walk": [
+      "bandit_ambush_survived"
+    ],
+    "square.work": [
+      "bandit_ambush_survived"
+    ],
+    "tavern.info": [
+      "bandit_ambush_survived"
+    ],
+    "tavern.walk": [
+      "bandit_ambush_survived"
+    ],
+    "tavern.work": [
+      "bandit_ambush_survived"
+    ]
+  },
+  "jobs": {
+    "smithy.forge": [
+      "iron_stock_bought"
+    ],
+    "square.wood": [
+      "bandit_ambush_survived"
+    ],
+    "tavern.dishes": [
+      "bandit_ambush_survived"
+    ]
+  },
+  "forgeStations": {
+    "furnace": [
+      "bandit_ambush_survived"
+    ],
+    "anvil": [
+      "iron_stock_bought"
+    ],
+    "water": [
+      "bandit_ambush_survived"
+    ],
+    "oil": [
+      "oil_quenching_unlocked"
+    ],
+    "workbench": [
+      "bandit_ambush_survived"
+    ],
+    "warehouse": [
+      "bandit_ambush_survived"
+    ],
+    "fatherBed": [
+      "bandit_ambush_survived"
+    ],
+    "sonBed": [
+      "bandit_ambush_survived"
+    ],
+    "door": [
+      "father_called"
+    ]
+  },
+  "hud": {
+    "pawn": [
+      "father_called"
+    ],
+    "objective": [
+      "father_called"
+    ],
+    "journal": [
+      "father_called"
+    ],
+    "sleep": [
+      "bandit_ambush_survived"
+    ]
+  }
+}

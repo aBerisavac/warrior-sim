@@ -1,0 +1,9 @@
+{
+  "scriptedBandits": {
+    "destinationId": "market",
+    "questRequired": "iron_errand_accepted",
+    "questCompleted": "bandit_ambush_survived",
+    "triggerSecond": 2
+  },
+  "roadTravelerChance": 0.04
+}

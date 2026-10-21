@@ -1,0 +1,38 @@
+{
+  "actions": {
+    "info": {
+      "icon": "ⓘ",
+      "labelKey": "actions.info"
+    },
+    "walk": {
+      "icon": "➜",
+      "labelKey": "actions.walk"
+    },
+    "work": {
+      "icon": "⚒",
+      "labelKey": "actions.work"
+    },
+    "enter": {
+      "icon": "⌂",
+      "labelKey": "actions.enter"
+    },
+    "trade": {
+      "icon": "◈",
+      "labelKey": "actions.trade"
+    }
+  },
+  "jobs": {
+    "forge": {
+      "icon": "♨",
+      "labelKey": "actions.forge"
+    },
+    "wood": {
+      "icon": "▥",
+      "labelKey": "actions.wood"
+    },
+    "dishes": {
+      "icon": "◉",
+      "labelKey": "actions.dishes"
+    }
+  }
+}

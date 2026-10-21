@@ -1,37 +1,34 @@
-export const SAVE_KEY = 'briarwick-demo-v1'
+import placesData from './data/places.json'
+import { hasQuest, isUnlocked, migrateCompletedQuests, QUEST, stageFromQuests } from './progression'
+import { placePoint, placeMarkerPoint, routeBetween, mapGrid } from './routes'
 
-export const places = [
-  { id: 'smithy', name: 'Blacksmith', sub: 'Your father’s forge', x: 552, y: 328, available: true, icon: '⚒', description: 'The forge is warm even before dawn. Your father works here, a few steps from the market.' },
-  { id: 'market', name: 'Market', sub: 'Stalls & merchants', x: 428, y: 306, available: true, icon: '◈', description: 'Traders fill the little market lane. Prices depend on patience and the seller’s opinion of you.' },
-  { id: 'square', name: 'Town Square', sub: 'Work & notices', x: 382, y: 418, available: true, icon: '✧', description: 'Briarwick’s meeting place. Notices, odd jobs, and the woodpile gather here.' },
-  { id: 'tavern', name: 'Tavern', sub: 'The Copper Cup', x: 260, y: 351, available: true, icon: '✦', description: 'The Copper Cup always has dishes to wash. The work is reliable, even if the pay is poor.' },
-  { id: 'barracks', name: 'Barracks', sub: 'Coming later', x: 648, y: 188, available: false, icon: '◇', description: 'A modest watch post that will matter when war reaches Briarwick.' },
-  { id: 'chapel', name: 'Chapel', sub: 'Coming later', x: 183, y: 206, available: false, icon: '◇', description: 'A quiet place on the northern rise.' },
-  { id: 'gate', name: 'South Gate', sub: 'Coming later', x: 538, y: 527, available: false, icon: '◇', description: 'The road beyond town leads into a much larger world.' },
-]
+export const SAVE_KEY = 'briarwick-demo-v1'
+export const places = placesData.map((place) => ({ ...place, ...placeMarkerPoint(place.id) }))
+export const FORGE_COAL_CAPACITY = 6
 
 export const initialState = () => ({
-  version: 1,
+  version: 7,
+  mapRevision: mapGrid.revision,
   location: 'smithy',
   selected: 'smithy',
+  travel: null,
   minutes: 8 * 60,
   awakeSince: 8 * 60,
   health: 100,
   coins: 12,
+  forgeCoal: 0,
+  coalStock: 12,
   reputation: 0,
   materials: false,
   dagger: false,
-  stage: 'errand',
-  event: 'Father needs iron stock from the market. It is a short walk from the forge.',
-  journal: ['Father sent you to the market for iron stock.'],
+  stage: 'intro',
+  completedQuests: [],
+  event: { key: 'events.intro' },
+  journal: [],
 })
 
 export function travelMinutes(fromId, toId) {
-  if (fromId === toId) return 0
-  const from = places.find((place) => place.id === fromId)
-  const to = places.find((place) => place.id === toId)
-  if (!from || !to) return 0
-  return Math.max(5, Math.ceil(Math.hypot(from.x - to.x, from.y - to.y) / 70) * 3)
+  return routeBetween(fromId, toId).minutes
 }
 
 export function fatigueFactor(state) {
@@ -60,8 +57,39 @@ export function dayNumber(minutes) {
 export function readSave() {
   try {
     const saved = JSON.parse(localStorage.getItem(SAVE_KEY))
-    if (saved?.version === 1 && places.some((place) => place.id === saved.location)) {
-      return { ...initialState(), ...saved }
+    if ([1, 2, 3, 4, 5, 6, 7].includes(saved?.version) && places.some((place) => place.id === saved.location)) {
+      const pristineOpening = saved.version < 3 && saved.stage === 'errand' && saved.location === 'smithy' && saved.minutes === 480 && saved.health === 100 && saved.coins === 12 && !saved.materials && !saved.dagger && (!saved.forgeCoal || saved.forgeCoal === 0)
+      if (pristineOpening) return initialState()
+      const completedQuests = migrateCompletedQuests(saved)
+      const state = { ...initialState(), ...saved, version: 7, completedQuests }
+      delete state.gameplayUnlocked
+      delete state.marketUnlocked
+      const journey = state.travel
+      if (saved.version < 7 || saved.mapRevision !== mapGrid.revision || !journey?.destinationId || !places.some((place) => place.id === journey.destinationId && place.available)
+        || !isUnlocked(completedQuests, 'places', journey.destinationId)
+        || !Array.isArray(journey.route) || journey.route.length < 2
+        || !journey.route.every((point) => Number.isFinite(point.x) && Number.isFinite(point.y))
+        || !Number.isFinite(journey.position?.x) || !Number.isFinite(journey.position?.y)
+        || !Number.isFinite(journey.totalMinutes) || journey.totalMinutes <= 0
+        || !Number.isFinite(journey.elapsedMinutes) || journey.elapsedMinutes < 0 || journey.elapsedMinutes >= journey.totalMinutes
+        || !Number.isFinite(journey.secondsElapsed)) state.travel = null
+      state.mapRevision = mapGrid.revision
+      state.stage = stageFromQuests(completedQuests)
+      state.materials = hasQuest(completedQuests, QUEST.IRON_STOCK_BOUGHT)
+      state.dagger = hasQuest(completedQuests, QUEST.DAGGER_FORGED)
+      if (saved.version === 1 || typeof state.event === 'string') {
+        const eventKey = {
+          errand: 'events.start',
+          robbed: 'events.migratedRobbed',
+          materials: 'events.migratedMaterials',
+          sleep: 'events.forged',
+          drafted: 'events.draft',
+        }[state.stage] || 'events.start'
+        state.event = { key: eventKey }
+        state.journal = [state.event]
+      }
+      if (!Array.isArray(state.journal)) state.journal = [state.event]
+      return state
     }
   } catch { /* Ignore broken local saves. */ }
   return initialState()

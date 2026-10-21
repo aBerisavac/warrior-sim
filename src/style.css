@@ -1,3 +1,217 @@
-:root{font-family:'DM Sans',Arial,sans-serif;color:#eee9da;background:#171e1b;font-synthesis:none}*{box-sizing:border-box}body{margin:0;min-width:320px}button,input{font:inherit}button{cursor:pointer}button:disabled{opacity:.42;cursor:not-allowed}.app-shell{min-height:100vh;background:radial-gradient(circle at 50% -20%,#2e3b31 0,#1a231e 45%,#151b19 100%)}.topbar{height:92px;padding:0 38px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #52614c70;background:#131b18aa}.brand{display:flex;align-items:center;gap:17px}.brand-seal{width:50px;height:50px;border:1px solid #bca66e;border-radius:50%;display:grid;place-items:center;color:#d4bd83;font:31px Georgia,serif;box-shadow:inset 0 0 0 5px #1d271e}.eyebrow,.panel-kicker,.chapter,.map-scale,.growth-tag,.footer{font-size:10px;letter-spacing:2px;font-weight:700}.eyebrow{color:#c4ae7c}.brand h1{font:27px/1.05 'IM Fell English',Georgia,serif;margin:5px 0 0;font-weight:400}.top-meta{display:flex;align-items:center;gap:40px}.chapter{color:#d8cba6}.chapter i{display:inline-block;width:5px;height:5px;border-radius:50%;background:#a6966e;margin:0 8px 2px}.save-indicator{font-size:11px;color:#aeb9aa;white-space:nowrap}.save-indicator span{display:inline-block;background:#a6ba8b;width:6px;height:6px;border-radius:50%;vertical-align:middle;margin-right:7px}.layout{display:grid;grid-template-columns:274px minmax(500px,1fr) 286px;gap:22px;max-width:1600px;margin:0 auto;padding:28px 28px 24px}.left-panel,.right-panel{display:flex;flex-direction:column;gap:16px}.panel{border:1px solid #66735c60;background:linear-gradient(145deg,#27332a,#202b25);border-radius:3px;box-shadow:0 8px 24px #0e151025}.panel-kicker{display:flex;justify-content:space-between;color:#b8c5ae}.panel-kicker span{color:#d0b879}.profile{padding:21px}.profile-main{display:flex;align-items:center;gap:13px;margin:21px 0 28px}.portrait{width:67px;height:67px;border:2px solid #a99a6e;border-radius:50%;overflow:hidden;background:#b2a583;flex:none}.portrait svg{width:100%;height:100%}.profile-name{font:20px 'IM Fell English',Georgia,serif}.profile-role{color:#aab7a9;font-size:11px;margin-top:3px}.profile-coins{margin-top:11px;color:#d4bd7d;font-size:12px}.profile-coins strong{font-size:17px;margin-left:4px}.stat+.stat{margin-top:19px}.stat-top{display:flex;justify-content:space-between;align-items:center;font-size:12px}.stat-top span{font-weight:700}.stat-top small{display:block;font-size:10px;color:#96a694;margin-top:2px;font-weight:400}.stat-top strong{font-size:12px}.meter{height:7px;border-radius:99px;background:#111b16;margin-top:10px;overflow:hidden}.meter-fill{height:100%;border-radius:99px;transition:width .3s}.health-fill{background:#ae685b}.stamina-fill{background:#b7a76d}.modifier-row{display:flex;justify-content:space-between;gap:5px;border-top:1px solid #64725c55;margin-top:23px;padding-top:13px;color:#a8b5a4;font-size:10px}.modifier-row b{color:#e0d3ac}.clock-panel,.objective-panel{padding:20px}.clock-row{display:flex;justify-content:space-between;align-items:center;margin-top:15px}.clock-row strong{display:block;font:25px 'IM Fell English',Georgia,serif}.clock-row span{color:#c0c9b9;font-size:11px}.sun-icon{color:#dac488!important;font:33px Georgia,serif!important}.clock-panel p,.objective-panel p,.action-panel p,.place-panel p{font-size:11.5px;line-height:1.65;color:#b9c3b4;margin:13px 0 0}.objective-panel{min-height:178px;position:relative;overflow:hidden}.objective-icon{font-size:28px;color:#ceb777;margin-top:13px}.objective-panel h2{font:19px/1.2 'IM Fell English',Georgia,serif;max-width:205px;margin:4px 0}.map-column{min-width:0}.map-heading{height:96px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px}.map-heading h2{font:38px/1 'IM Fell English',Georgia,serif;margin:6px 0 4px;font-weight:400}.map-heading p{font:italic 13px Georgia,serif;color:#b8c4ae;margin:0}.map-scale{display:flex;align-items:center;gap:8px;color:#acb8a5;margin-top:48px;white-space:nowrap}.dot{width:8px;height:8px;display:inline-block;border-radius:50%;margin-left:8px}.dot.green{background:#96b088}.dot.hollow{border:1px solid #aabaad}.map-frame{border:8px solid #725b3f;border-radius:4px;box-shadow:0 3px 0 #a88659,0 15px 35px #080f0da8;overflow:hidden;background:#d9cfaa}.map-canvas{position:relative;aspect-ratio:820 / 600;overflow:hidden}.map-canvas:after{content:'';position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 65px #5f4e2873}.town-art{width:100%;height:100%;display:block}.map-pin{position:absolute;transform:translate(-50%,-50%);min-width:38px;min-height:38px;padding:0;border:0;background:none;color:#212b23;z-index:2;display:flex;flex-direction:column;align-items:center;gap:4px;filter:drop-shadow(0 2px 1px #f4e6c6)}.pin-icon{display:grid;place-items:center;width:38px;height:38px;border:2px solid #ead8a5;border-radius:50%;background:#334638;color:#e2cb8d;font:21px Georgia,serif;box-shadow:0 2px 0 #2d352a,0 0 0 3px #63593e6e;transition:transform .2s,background .2s}.map-pin:hover .pin-icon,.map-pin:focus-visible .pin-icon{transform:scale(1.14)}.map-pin.active .pin-icon{background:#af7750;box-shadow:0 2px 0 #75462e,0 0 0 5px #e9d9a8}.map-pin.current .pin-icon:after{content:'';position:absolute;width:5px;height:5px;border-radius:50%;background:#eddb9f;transform:translate(16px,-16px)}.map-pin.locked .pin-icon{background:#727b69;color:#ece1c3;opacity:.72}.pin-label{background:#f0e5c4;border:1px solid #8d835f;padding:4px 8px;border-radius:2px;white-space:nowrap;text-transform:uppercase;font-size:9px;font-weight:700;letter-spacing:.8px;box-shadow:0 2px 3px #4d442c55}.map-pin.locked .pin-label{background:#dad6bd;color:#66705e;opacity:.78}.map-stamp{position:absolute;bottom:18px;right:17px;border:2px solid #776c4c99;color:#6c664c;padding:7px 13px;font:17px 'IM Fell English',Georgia,serif;letter-spacing:2px;transform:rotate(-6deg);z-index:1}.map-stamp span{display:block;text-align:center;font:8px 'DM Sans',Arial,sans-serif;letter-spacing:2px;margin-top:1px}.map-footer{height:46px;background:#2d382d;color:#c8d1bd;display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-size:11px}.map-footer strong{color:#e9dcaf}.map-footer>span:last-child{color:#97a58f}.location-dot{display:inline-block;width:7px;height:7px;background:#c3aa72;border-radius:50%;margin-right:8px}.growth-banner{display:flex;align-items:center;gap:14px;padding:17px 18px;margin-top:18px;border:1px solid #586b5466;background:#1f2b23;border-radius:3px}.growth-icon{width:39px;height:39px;display:grid;place-items:center;border:1px solid #ac9c70;color:#cab481;font:23px Georgia,serif;flex:none}.growth-banner strong,.growth-banner span{display:block}.growth-banner strong{font:17px 'IM Fell English',Georgia,serif}.growth-banner div>span{font-size:10px;color:#a9b7a4;margin-top:5px}.growth-tag{margin-left:auto;color:#c4aa76!important;white-space:nowrap}.place-panel{padding:19px}.place-art{height:105px;margin:18px 0 18px;position:relative;overflow:hidden;background:linear-gradient(#b5b99c,#b4aa83);display:grid;place-items:center;color:#344437;font:65px Georgia,serif}.place-art>span{position:relative;z-index:2;filter:drop-shadow(0 4px 1px #82745c77)}.place-hill{position:absolute;width:125%;height:100px;background:#909d7e;border-radius:50%;bottom:-65px}.hill-one{left:-40%;}.hill-two{right:-40%;bottom:-80px;background:#7f946f}.place-panel h2{font:27px/1 'IM Fell English',Georgia,serif;margin:0}.place-sub{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#d0b67c;margin-top:7px;font-weight:700}.place-panel p{min-height:56px}.primary-button,.action-panel button{width:100%;border:1px solid #a9966b;background:#c7ad75;color:#20271e;padding:11px 12px;margin-top:15px;font-size:11px;font-weight:700;text-align:left;display:flex;align-items:center;justify-content:space-between;border-radius:2px;transition:background .2s,transform .2s}.primary-button:hover,.action-panel button:hover:not(:disabled){background:#e0c78c;transform:translateY(-1px)}.here-note,.closed-note{border:1px solid #83957666;background:#344135;color:#cddbbd;margin-top:16px;padding:10px;text-align:center;font-size:11px}.closed-note{color:#b7c1ae}.action-panel{padding:17px 19px}.action-panel h3{font:19px 'IM Fell English',Georgia,serif;margin:13px 0 0}.action-panel p{margin-top:6px}.action-panel button{margin-top:12px}.action-panel .quiet-button{background:transparent;color:#e0d4b3;border-color:#77816b}.action-panel .quiet-button:hover:not(:disabled){background:#3b4737}.sleep-button{margin-top:10px!important}.price-line{display:flex;justify-content:space-between;margin-top:15px;font-size:12px}.price-line strong{color:#d6bf86}.offer-label{display:flex;justify-content:space-between;font-size:11px;margin-top:19px}.offer-label strong{color:#d6bf86}.action-panel input[type=range]{width:100%;accent-color:#c4ab73;margin:13px 0 0}.range-ends{display:flex;justify-content:space-between;font-size:9px;color:#9eab9a}.action-buttons{display:flex;gap:7px}.action-buttons button{white-space:nowrap;justify-content:center}.journal-panel{padding:17px 19px}.journal-panel .panel-kicker button{border:0;background:none;color:#d0ba86;font-size:10px;letter-spacing:0;padding:0}.latest-event{font:italic 12px/1.55 Georgia,serif;color:#d7d6bd;border-left:2px solid #b5a16f;padding-left:11px;margin:14px 0}.journal-panel details{font-size:10px;color:#aebdaa}.journal-panel summary{cursor:pointer}.journal-panel ul{padding-left:15px;line-height:1.5}.journal-panel li+li{margin-top:7px}.footer{display:flex;justify-content:space-between;gap:20px;max-width:1600px;margin:auto;padding:0 28px 27px;color:#81927f;font-size:9px;letter-spacing:1px}@media(max-width:1250px){.layout{grid-template-columns:235px minmax(440px,1fr);gap:18px}.right-panel{grid-column:1 / -1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}.map-heading{height:95px}.growth-tag{display:none!important}}@media(max-width:850px){.topbar{padding:0 18px;height:76px}.brand h1{font-size:21px}.brand-seal{height:43px;width:43px}.top-meta{display:none}.layout{grid-template-columns:1fr;padding:18px;gap:18px}.left-panel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.profile{grid-row:span 2}.map-heading{height:auto;min-height:98px}.right-panel{grid-column:auto}.footer{padding:0 18px 20px}.map-pin .pin-label{font-size:8px}}@media(max-width:570px){.left-panel,.right-panel{display:flex}.profile{grid-row:auto}.map-heading h2{font-size:32px}.map-heading p{font-size:11px}.map-scale{font-size:8px;letter-spacing:0;margin-top:32px}.map-frame{border-width:5px}.map-canvas{aspect-ratio:820/680}.town-art{height:100%;object-fit:cover}.pin-icon{width:30px;height:30px;font-size:16px}.pin-label{font-size:7px!important;padding:3px 5px}.map-stamp{display:none}.map-footer{font-size:9px;padding:0 9px}.map-footer>span:last-child{display:none}.growth-banner{margin-top:12px}.footer{display:block;line-height:1.6}.footer span{display:block}}
+:root{font-family:'DM Sans',Arial,sans-serif;color:#eee9da;background:#171e1b;font-synthesis:none}*{box-sizing:border-box}body{margin:0;min-width:320px}button,input{font:inherit}button{cursor:pointer}button:disabled{opacity:.42;cursor:not-allowed}.app-shell{min-height:100vh;background:radial-gradient(circle at 50% -20%,#2e3b31 0,#1a231e 45%,#151b19 100%)}.topbar{height:92px;padding:0 38px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #52614c70;background:#131b18aa}.brand{display:flex;align-items:center;gap:17px}.brand-seal{width:50px;height:50px;border:1px solid #bca66e;border-radius:50%;display:grid;place-items:center;color:#d4bd83;font:31px Georgia,serif;box-shadow:inset 0 0 0 5px #1d271e}.eyebrow,.panel-kicker,.chapter,.map-scale,.growth-tag,.footer{font-size:10px;letter-spacing:2px;font-weight:700}.eyebrow{color:#c4ae7c}.brand h1{font:27px/1.05 'IM Fell English',Georgia,serif;margin:5px 0 0;font-weight:400}.top-meta{display:flex;align-items:center;gap:40px}.chapter{color:#d8cba6}.chapter i{display:inline-block;width:5px;height:5px;border-radius:50%;background:#a6966e;margin:0 8px 2px}.save-indicator{font-size:11px;color:#aeb9aa;white-space:nowrap}.save-indicator span{display:inline-block;background:#a6ba8b;width:6px;height:6px;border-radius:50%;vertical-align:middle;margin-right:7px}.layout{display:grid;grid-template-columns:274px minmax(500px,1fr) 286px;gap:22px;max-width:1600px;margin:0 auto;padding:28px 28px 24px}.left-panel,.right-panel{display:flex;flex-direction:column;gap:16px}.panel{border:1px solid #66735c60;background:linear-gradient(145deg,#27332a,#202b25);border-radius:3px;box-shadow:0 8px 24px #0e151025}.panel-kicker{display:flex;justify-content:space-between;color:#b8c5ae}.panel-kicker span{color:#d0b879}.profile{padding:21px}.profile-main{display:flex;align-items:center;gap:13px;margin:21px 0 28px}.portrait{width:67px;height:67px;border:2px solid #a99a6e;border-radius:50%;overflow:hidden;background:#b2a583;flex:none}.portrait svg{width:100%;height:100%}.profile-name{font:20px 'IM Fell English',Georgia,serif}.profile-role{color:#aab7a9;font-size:11px;margin-top:3px}.profile-coins{margin-top:11px;color:#d4bd7d;font-size:12px}.profile-coins strong{font-size:17px;margin-left:4px}.stat+.stat{margin-top:19px}.stat-top{display:flex;justify-content:space-between;align-items:center;font-size:12px}.stat-top span{font-weight:700}.stat-top small{display:block;font-size:10px;color:#96a694;margin-top:2px;font-weight:400}.stat-top strong{font-size:12px}.meter{height:7px;border-radius:99px;background:#111b16;margin-top:10px;overflow:hidden}.meter-fill{height:100%;border-radius:99px;transition:width .3s}.health-fill{background:#ae685b}.stamina-fill{background:#b7a76d}.modifier-row{display:flex;justify-content:space-between;gap:5px;border-top:1px solid #64725c55;margin-top:23px;padding-top:13px;color:#a8b5a4;font-size:10px}.modifier-row b{color:#e0d3ac}.clock-panel,.objective-panel{padding:20px}.clock-row{display:flex;justify-content:space-between;align-items:center;margin-top:15px}.clock-row strong{display:block;font:25px 'IM Fell English',Georgia,serif}.clock-row span{color:#c0c9b9;font-size:11px}.sun-icon{color:#dac488!important;font:33px Georgia,serif!important}.clock-panel p,.objective-panel p,.action-panel p,.place-panel p{font-size:11.5px;line-height:1.65;color:#b9c3b4;margin:13px 0 0}.objective-panel{min-height:178px;position:relative;overflow:hidden}.objective-icon{font-size:28px;color:#ceb777;margin-top:13px}.objective-panel h2{font:19px/1.2 'IM Fell English',Georgia,serif;max-width:205px;margin:4px 0}.map-column{min-width:0}.map-heading{height:96px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px}.map-heading h2{font:38px/1 'IM Fell English',Georgia,serif;margin:6px 0 4px;font-weight:400}.map-heading p{font:italic 13px Georgia,serif;color:#b8c4ae;margin:0}.map-scale{display:flex;align-items:center;gap:8px;color:#acb8a5;margin-top:48px;white-space:nowrap}.dot{width:8px;height:8px;display:inline-block;border-radius:50%;margin-left:8px}.dot.green{background:#96b088}.dot.hollow{border:1px solid #aabaad}.map-frame{border:8px solid #725b3f;border-radius:4px;box-shadow:0 3px 0 #a88659,0 15px 35px #080f0da8;overflow:hidden;background:#d9cfaa}.map-canvas{position:relative;aspect-ratio:820 / 600;overflow:hidden}.map-canvas:after{content:'';position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 65px #5f4e2873}.town-art{width:100%;height:100%;display:block}.map-pin{position:absolute;transform:translate(-50%,-50%);min-width:38px;min-height:38px;padding:0;border:0;background:none;color:#212b23;z-index:2;display:flex;flex-direction:column;align-items:center;gap:4px;filter:drop-shadow(0 2px 1px #f4e6c6)}.map-pin:hover .pin-icon,.map-pin:focus-visible .pin-icon{transform:scale(1.14)}.map-pin.active .pin-icon{background:#af7750;box-shadow:0 2px 0 #75462e,0 0 0 5px #e9d9a8}.map-pin.current .pin-icon:after{content:'';position:absolute;width:5px;height:5px;border-radius:50%;background:#eddb9f;transform:translate(16px,-16px)}.map-pin.locked .pin-icon{background:#727b69;color:#ece1c3;opacity:.72}.pin-label{background:#f0e5c4;border:1px solid #8d835f;padding:4px 8px;border-radius:2px;white-space:nowrap;text-transform:uppercase;font-size:9px;font-weight:700;letter-spacing:.8px;box-shadow:0 2px 3px #4d442c55}.map-pin.locked .pin-label{background:#dad6bd;color:#66705e;opacity:.78}.map-stamp{position:absolute;bottom:18px;right:17px;border:2px solid #776c4c99;color:#6c664c;padding:7px 13px;font:17px 'IM Fell English',Georgia,serif;letter-spacing:2px;transform:rotate(-6deg);z-index:1}.map-stamp span{display:block;text-align:center;font:8px 'DM Sans',Arial,sans-serif;letter-spacing:2px;margin-top:1px}.map-footer{height:46px;background:#2d382d;color:#c8d1bd;display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-size:11px}.map-footer strong{color:#e9dcaf}.map-footer>span:last-child{color:#97a58f}.location-dot{display:inline-block;width:7px;height:7px;background:#c3aa72;border-radius:50%;margin-right:8px}.growth-banner{display:flex;align-items:center;gap:14px;padding:17px 18px;margin-top:18px;border:1px solid #586b5466;background:#1f2b23;border-radius:3px}.growth-icon{width:39px;height:39px;display:grid;place-items:center;border:1px solid #ac9c70;color:#cab481;font:23px Georgia,serif;flex:none}.growth-banner strong,.growth-banner span{display:block}.growth-banner strong{font:17px 'IM Fell English',Georgia,serif}.growth-banner div>span{font-size:10px;color:#a9b7a4;margin-top:5px}.growth-tag{margin-left:auto;color:#c4aa76!important;white-space:nowrap}.place-panel{padding:19px}.place-art{height:105px;margin:18px 0 18px;position:relative;overflow:hidden;background:linear-gradient(#b5b99c,#b4aa83);display:grid;place-items:center;color:#344437;font:65px Georgia,serif}.place-art>span{position:relative;z-index:2;filter:drop-shadow(0 4px 1px #82745c77)}.place-hill{position:absolute;width:125%;height:100px;background:#909d7e;border-radius:50%;bottom:-65px}.hill-one{left:-40%;}.hill-two{right:-40%;bottom:-80px;background:#7f946f}.place-panel h2{font:27px/1 'IM Fell English',Georgia,serif;margin:0}.place-sub{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#d0b67c;margin-top:7px;font-weight:700}.place-panel p{min-height:56px}.primary-button,.action-panel button{width:100%;border:1px solid #a9966b;background:#c7ad75;color:#20271e;padding:11px 12px;margin-top:15px;font-size:11px;font-weight:700;text-align:left;display:flex;align-items:center;justify-content:space-between;border-radius:2px;transition:background .2s,transform .2s}.primary-button:hover,.action-panel button:hover:not(:disabled){background:#e0c78c;transform:translateY(-1px)}.here-note,.closed-note{border:1px solid #83957666;background:#344135;color:#cddbbd;margin-top:16px;padding:10px;text-align:center;font-size:11px}.closed-note{color:#b7c1ae}.action-panel{padding:17px 19px}.action-panel h3{font:19px 'IM Fell English',Georgia,serif;margin:13px 0 0}.action-panel p{margin-top:6px}.action-panel button{margin-top:12px}.action-panel .quiet-button{background:transparent;color:#e0d4b3;border-color:#77816b}.action-panel .quiet-button:hover:not(:disabled){background:#3b4737}.sleep-button{margin-top:10px!important}.price-line{display:flex;justify-content:space-between;margin-top:15px;font-size:12px}.price-line strong{color:#d6bf86}.offer-label{display:flex;justify-content:space-between;font-size:11px;margin-top:19px}.offer-label strong{color:#d6bf86}.action-panel input[type=range]{width:100%;accent-color:#c4ab73;margin:13px 0 0}.range-ends{display:flex;justify-content:space-between;font-size:9px;color:#9eab9a}.action-buttons{display:flex;gap:7px}.action-buttons button{white-space:nowrap;justify-content:center}.journal-panel{padding:17px 19px}.journal-panel .panel-kicker button{border:0;background:none;color:#d0ba86;font-size:10px;letter-spacing:0;padding:0}.latest-event{font:italic 12px/1.55 Georgia,serif;color:#d7d6bd;border-left:2px solid #b5a16f;padding-left:11px;margin:14px 0}.journal-panel details{font-size:10px;color:#aebdaa}.journal-panel summary{cursor:pointer}.journal-panel ul{padding-left:15px;line-height:1.5}.journal-panel li+li{margin-top:7px}.footer{display:flex;justify-content:space-between;gap:20px;max-width:1600px;margin:auto;padding:0 28px 27px;color:#81927f;font-size:9px;letter-spacing:1px}@media(max-width:1250px){.layout{grid-template-columns:235px minmax(440px,1fr);gap:18px}.right-panel{grid-column:1 / -1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}.map-heading{height:95px}.growth-tag{display:none!important}}@media(max-width:850px){.topbar{padding:0 18px;height:76px}.brand h1{font-size:21px}.brand-seal{height:43px;width:43px}.top-meta{display:none}.layout{grid-template-columns:1fr;padding:18px;gap:18px}.left-panel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.profile{grid-row:span 2}.map-heading{height:auto;min-height:98px}.right-panel{grid-column:auto}.footer{padding:0 18px 20px}.map-pin .pin-label{font-size:8px}}@media(max-width:570px){.left-panel,.right-panel{display:flex}.profile{grid-row:auto}.map-heading h2{font-size:32px}.map-heading p{font-size:11px}.map-scale{font-size:8px;letter-spacing:0;margin-top:32px}.map-frame{border-width:5px}.map-canvas{aspect-ratio:820/680}.town-art{height:100%;object-fit:cover}.pin-label{font-size:7px!important;padding:3px 5px}.map-stamp{display:none}.map-footer{font-size:9px;padding:0 9px}.map-footer>span:last-child{display:none}.growth-banner{margin-top:12px}.footer{display:block;line-height:1.6}.footer span{display:block}}
 .rules-panel,.skills-panel{padding:18px 20px}.rules-panel p{font-size:10.5px;line-height:1.55;color:#b7c4b2;margin:13px 0 0}.rules-panel b{color:#dbc58d}.skill-node{display:flex;align-items:center;gap:9px;padding:10px 0;border-bottom:1px solid #65725d55;color:#d1c091;font:15px Georgia,serif}.skill-node:first-of-type{margin-top:9px}.skill-node:last-child{border-bottom:0;padding-bottom:0}.skill-node span{font:11px DM Sans,Arial,sans-serif;color:#d0d9ca}.skill-node i{font:8px DM Sans,Arial,sans-serif;letter-spacing:1px;color:#90a08d;margin-left:auto;font-style:normal}
 @media(max-width:850px){.map-column{order:-1}}
+
+/* Controls embedded in the main game window */
+.map-frame{position:relative}
+.map-hud{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:89px;padding:9px 14px;background:linear-gradient(135deg,#18251e,#334231);border-bottom:2px solid #9a8055;color:#f0e7c9}
+.hud-pawn{display:flex;align-items:center;gap:8px;min-width:130px;background:none;border:0;color:inherit;text-align:left;padding:3px}
+.hud-avatar{display:grid;place-items:center;width:42px;height:42px;border:2px solid #bea678;border-radius:50%;background:#52664e;color:#f4e5ba;font:25px Georgia,serif}
+.hud-pawn-copy b,.hud-pawn-copy small{display:block}.hud-pawn-copy b{font-size:9px;letter-spacing:1px}.hud-pawn-copy small{font-size:11px;color:#dec487;margin-top:5px}
+.hud-vitals{display:flex;align-items:center;justify-content:center;gap:8px;flex:1}.hud-ring{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;width:65px;min-width:65px;padding:0;border:0;background:none;color:#e9e4ce;text-align:center}.hud-ring svg{width:46px;height:46px}.ring-track{fill:none;stroke:#70806d;stroke-width:4;opacity:.7}.ring-progress{fill:none;stroke-width:4.8;stroke-linecap:round}.health-ring{stroke:#ce8270}.stamina-ring{stroke:#d4be7a}.sleep-ring{stroke:#9eb9ca}.ring-glyph{position:absolute;top:0;left:50%;right:auto;transform:translateX(-50%);color:#eee4ca}.ring-label{font-size:9px;font-weight:700;line-height:1.1}.hud-ring strong{font-size:9px;color:#d8cda8;line-height:1.3}.ring-button{cursor:pointer}.ring-button:hover svg{filter:drop-shadow(0 0 5px #cad5dc)}
+.hud-tools{display:flex;gap:5px}.hud-tools button{display:flex;flex-direction:column;align-items:center;justify-content:center;width:58px;min-width:58px;height:58px;background:#374736;border:1px solid #819071;color:#e8debd;border-radius:3px}.hud-tools button:hover,.hud-pawn:hover{background:#53634a}.hud-tools b{font:23px Georgia,serif}.hud-tools span{font-size:8px;letter-spacing:.3px}
+.map-node{position:absolute;z-index:4;width:0;height:0}.map-node.menu-open{z-index:8}.map-node .map-pin{position:absolute;left:0;top:0;transform:translate(-50%,-50%)}.radial-actions{position:absolute;left:0;top:0;z-index:9}.radial-actions button{position:absolute}.radial-actions button:hover:not(:disabled){background:#af7953}.radial-actions button:disabled{opacity:.48;cursor:not-allowed}.radial-info{left:-98px;top:-85px}.radial-walk{left:34px;top:-85px}.radial-enter,.radial-trade,.radial-wood,.radial-dishes{left:-32px;top:54px}
+.forge-art{width:100%;height:100%;display:block}.interior-back{position:absolute;left:16px;top:16px;z-index:3;padding:8px 11px;background:#263b2f;color:#f4e3b4;border:1px solid #d8c08b;font-size:11px;font-weight:700}.interior-back:hover{background:#53694e}
+.map-modal-scrim{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;background:#122019ba;z-index:20}.map-modal{width:min(430px,100%);max-height:calc(100% - 8px);overflow:auto;padding:21px 24px;background:#29372c;border:2px solid #b59b66;box-shadow:0 12px 32px #0d140dcc;color:#efe8d7}.modal-top{display:flex;align-items:center;justify-content:space-between;color:#ceb781;font-size:10px;font-weight:700;letter-spacing:2px}.modal-top button{border:0;background:none;color:#e8d9b5;font:25px Arial,sans-serif;line-height:1;padding:0 2px}.map-modal h3{font:28px/1.1 'IM Fell English',Georgia,serif;margin:14px 0 8px}.map-modal p{font-size:12px;line-height:1.6;color:#c6d0bd}.modal-facts{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;font-size:11px}.modal-facts span{padding:8px;background:#1d2b22}.modal-facts b{float:right;color:#e3cd92}.modal-journal{padding-left:19px;font-size:11px;line-height:1.5;color:#d3d7c5}.modal-journal li+li{margin-top:8px}.map-modal input[type=range]{width:100%;accent-color:#d2b373;margin-top:10px}.modal-actions{display:flex;gap:8px}.modal-primary,.modal-secondary{min-height:38px;padding:9px 12px;border:1px solid #c5a86c;background:#c9ae75;color:#243023;font-size:11px;font-weight:700;cursor:pointer}.modal-primary:hover,.modal-secondary:hover:not(:disabled){background:#e0c78e}.modal-secondary{background:transparent;color:#e4d7b5;border-color:#8e997d}.modal-secondary:disabled{opacity:.45;cursor:not-allowed}.modal-feedback{font-style:italic;border-left:2px solid #a48b5c;padding-left:9px}.map-modal .offer-label{font-size:11px}
+@media(max-width:900px){.map-hud{gap:6px;padding:7px 9px}.hud-pawn{min-width:105px}.hud-avatar{width:34px;height:34px;font-size:21px}.hud-pawn-copy b{font-size:8px}.hud-ring{width:56px;min-width:56px}.hud-tools button{width:48px;min-width:48px}}
+@media(max-width:570px){.map-hud{display:grid;grid-template-columns:1fr auto;gap:4px 6px;padding:7px}.hud-vitals{grid-column:1/-1;grid-row:2;justify-content:space-around}.hud-tools{grid-column:2;grid-row:1}.hud-tools button{width:44px;min-width:44px;height:39px}.hud-tools b{font-size:17px}.hud-tools span{font-size:7px}.hud-pawn{grid-column:1;grid-row:1}.map-canvas{min-height:370px;aspect-ratio:auto}.town-art,.forge-art{width:100%;height:100%}.radial-actions button{width:55px;min-height:52px}.radial-info{left:-80px;top:-75px}.radial-walk{left:24px;top:-75px}.radial-enter,.radial-trade,.radial-wood,.radial-dishes{left:-28px;top:48px}.map-stamp{display:none}.map-modal-scrim{padding:8px}.map-modal{padding:14px 16px}.map-modal h3{font-size:23px}.interior-back{font-size:9px;left:8px;top:8px}}
+
+/* Compact radial controls unfold from each location marker. */
+.map-node.menu-open .pin-label{opacity:0;pointer-events:none}
+.radial-actions button{--dx:0px;--dy:0px;left:0;top:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1)}
+.radial-actions button:hover,.radial-actions button:focus-visible{background:#af7953;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.1)}
+.radial-info{--dx:-56px!important;--dy:0px!important}.radial-walk{--dx:56px!important;--dy:0px!important}.radial-work,.radial-trade{--dx:0px!important;--dy:-58px!important}.radial-enter{--dx:0px!important;--dy:58px!important}
+
+@keyframes radial-unfold{from{opacity:.25;transform:translate(-50%,-50%) scale(.18)}to{opacity:1;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1)}}
+.walk-time{position:absolute;left:30px;top:-22px;display:grid;place-items:center;width:27px;height:27px;border:2px solid #e8d7a4;border-radius:50%;background:#ab7651;color:#fff2d1;font:9px 'DM Sans',Arial,sans-serif;font-style:normal;font-weight:700;opacity:0;transform:scale(.3);transition:opacity 100ms ease,transform 100ms ease;pointer-events:none}
+.radial-walk:hover .walk-time,.radial-walk:focus-visible .walk-time{opacity:1;transform:scale(1)}
+.job-orbit{position:absolute;left:0;top:-58px;z-index:12}
+.job-orbit button{--dx:var(--job-x)!important;--dy:-38px!important;border-color:#f1c891;background:#915c3f}
+.job-orbit button:hover,.job-orbit button:focus-visible{background:#b37a4b}
+@media(max-width:570px){.radial-info{--dx:-46px!important}.radial-walk{--dx:46px!important}.radial-work,.radial-trade{--dy:-49px!important}.radial-enter{--dy:49px!important}.job-orbit{top:-49px}.job-orbit button{--dy:-32px!important}.walk-time{left:24px;top:-20px;width:25px;height:25px}}
+@media(prefers-reduced-motion:reduce){.radial-actions button,.job-orbit button{animation:none}.walk-time{transition:none}}
+
+/* The marker icon and every action share the same center and orbit radius. */
+.map-node .map-pin{display:block;width:38px;height:38px;min-width:38px;min-height:38px}
+.map-node .pin-label{position:absolute;left:50%;top:calc(100% + 5px);transform:translateX(-50%)}
+.radial-info{--dx:-47px!important;--dy:0px!important}
+.radial-walk{--dx:47px!important;--dy:0px!important}
+.radial-work,.radial-trade{--dx:0px!important;--dy:-47px!important}
+.radial-enter{--dx:0px!important;--dy:47px!important}
+.job-orbit{top:-47px}
+@media(max-width:570px){
+  .map-node .map-pin{width:32px;height:32px;min-width:32px;min-height:32px}
+  .radial-info{--dx:-39px!important}
+  .radial-walk{--dx:39px!important}
+  .radial-work,.radial-trade{--dy:-39px!important}
+  .radial-enter{--dy:39px!important}
+  .job-orbit{top:-39px}
+}
+
+/* Keep unfolding circles from stealing the marker click that opened them. */
+@keyframes radial-unfold{
+  from{opacity:.25;transform:translate(-50%,-50%) scale(.18);pointer-events:none}
+  99%{pointer-events:none}
+  to{opacity:1;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1);pointer-events:auto}
+}
+
+/* Slightly slower unfolding and matching fold-back for both action layers. */
+.radial-menu-enter-active > button{
+  animation:radial-unfold 240ms cubic-bezier(.16,.9,.28,1.1) both;
+}
+.radial-menu-enter-active > button:nth-child(2){animation-delay:20ms}
+.radial-menu-enter-active > button:nth-child(3){animation-delay:40ms}
+.radial-menu-enter-active > button:nth-child(4){animation-delay:60ms}
+.radial-menu-leave-active{pointer-events:none}
+.radial-menu-leave-active > button{
+  animation:radial-fold 210ms cubic-bezier(.55,0,.8,.4) both;
+}
+.radial-menu-leave-active > button:nth-child(1){animation-delay:30ms}
+.radial-menu-leave-active > button:nth-child(2){animation-delay:20ms}
+.radial-menu-leave-active > button:nth-child(3){animation-delay:10ms}
+.job-menu-enter-active button{animation:radial-unfold 220ms cubic-bezier(.16,.9,.28,1.1) both}
+.job-menu-leave-active{pointer-events:none}
+.job-menu-leave-active button{animation:radial-fold 200ms cubic-bezier(.55,0,.8,.4) both}
+@keyframes radial-fold{
+  from{opacity:1;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1);pointer-events:none}
+  to{opacity:.15;transform:translate(-50%,-50%) scale(.18);pointer-events:none}
+}
+.map-node .pin-label{transition:opacity 180ms ease}
+@media(prefers-reduced-motion:reduce){
+  .radial-menu-enter-active > button,.radial-menu-leave-active > button,
+  .job-menu-enter-active button,.job-menu-leave-active button{animation:none}
+}
+
+/* A transparent path keeps the nested job hover steady across the small gap. */
+.job-orbit::before{
+  content:"";position:absolute;left:-15px;top:-50px;width:30px;height:52px;
+  background:transparent;pointer-events:auto;
+}
+@media(max-width:570px){
+  .job-orbit button{--dy:-32px!important}
+  .job-orbit::before{left:-13px;top:-43px;width:26px;height:45px}
+}
+
+/* Blacksmith house floor plan and workstation controls. */
+.forge-hotspot{position:absolute;z-index:3;transform:translate(-50%,-50%);transition:background .16s,transform .16s,box-shadow .16s}
+.forge-hotspot:hover,.forge-hotspot:focus-visible{background:#9e6b47;transform:translate(-50%,-50%) scale(1.12);outline:none}
+.forge-hotspot.active{background:#9b6847;box-shadow:0 2px 0 #4b3324,0 0 0 4px #f4d89e}
+.forge-hotspot.loading{animation:forge-pulse 1s ease-in-out infinite}
+.forge-status{
+  position:absolute;z-index:4;left:10px;bottom:10px;width:min(280px,42%);
+  padding:9px 11px;background:#26372fe8;color:#f0e5c7;
+  border:1px solid #d8c28c;box-shadow:0 4px 13px #2e291e55;
+  pointer-events:none;
+}
+.forge-status-top{display:flex;justify-content:space-between;align-items:baseline;gap:7px}
+.forge-status-top strong{font:17px "IM Fell English",Georgia,serif}
+.forge-status-top span{font-size:10px;color:#e2cb91;white-space:nowrap}
+.forge-status p{font-size:10px;line-height:1.35;margin:5px 0;color:#f2ead5}
+.forge-status small{font-size:9px;color:#c3d1b4}
+.forge-load-track{height:4px;margin:6px 0;background:#18261d}
+.forge-load-track span{display:block;width:100%;height:100%;background:#e9b65e;transform-origin:left;animation:forge-loading 3s linear forwards}
+@keyframes forge-loading{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes forge-pulse{50%{box-shadow:0 2px 0 #4b3324,0 0 0 8px #f4d89e88}}
+@media(max-width:570px){
+
+  .forge-status{width:48%;padding:6px 7px}
+  .forge-status-top{display:block}
+  .forge-status-top strong{font-size:13px}
+  .forge-status-top span{display:block;font-size:8px}
+  .forge-status p{font-size:8px;margin:3px 0}
+  .forge-status small{font-size:8px}
+}
+@media(prefers-reduced-motion:reduce){.forge-hotspot.loading{animation:none}}
+
+/* Opening quest appears in the map without blocking the guided marker. */
+.tutorial-card-locked{opacity:.54;filter:saturate(.45);pointer-events:none}
+.map-node .map-pin:disabled{opacity:.52;filter:grayscale(1);pointer-events:none}
+.map-node.tutorial-guide-pin .pin-icon{
+  background:#ab7650;box-shadow:0 2px 0 #684629,0 0 0 5px #f2dda8;
+  animation:tutorial-beacon 1.8s ease-in-out infinite;
+}
+.map-node.tutorial-guide-pin .pin-label{background:#f3e1b5;color:#3e3424}
+.map-node .tutorial-guide-action{position:absolute;background:#ab7650;box-shadow:0 2px 0 #684629,0 0 0 4px #f2dda8}
+.map-node .tutorial-guide-action::after{
+  content:"";position:absolute;inset:-7px;border:2px solid #f2dda8;border-radius:50%;
+  pointer-events:none;animation:tutorial-action-beacon 1.8s ease-in-out infinite;
+}
+@keyframes tutorial-action-beacon{50%{opacity:.35;transform:scale(1.15)}}
+.tutorial-cloud{
+  position:absolute;z-index:11;top:7%;left:28%;width:min(340px,55%);
+  padding:16px 19px 14px;background:#f1e5c3;color:#322d24;
+  border:2px solid #806344;border-radius:17px 17px 17px 3px;
+  box-shadow:0 7px 0 #8468474d,0 13px 24px #473b2e66;
+}
+.tutorial-cloud-kicker{display:block;color:#8b6741;font-size:9px;letter-spacing:1.4px;font-weight:800}
+.tutorial-cloud h3{font:25px/1.05 "IM Fell English",Georgia,serif;margin:5px 0 7px}
+.tutorial-cloud p{font-size:12px;line-height:1.48;margin:0}
+.tutorial-cloud-guide{display:flex;align-items:center;gap:9px;margin-top:12px;padding-top:10px;border-top:1px solid #b7a57b;font-size:10px;font-weight:700}
+.guide-symbol{flex:none}
+.tutorial-cloud-forge{left:22%;top:8%;width:min(390px,62%)}
+.tutorial-cloud button{display:flex;justify-content:space-between;gap:18px;align-items:center;width:100%;margin-top:13px;padding:9px 11px;border:1px solid #725a3c;background:#344739;color:#f4e8ca;font-size:11px;font-weight:700}
+.tutorial-cloud button:hover{background:#536a4d}
+.quest-cloud-enter-active,.quest-cloud-leave-active{transition:opacity .35s,transform .35s}
+.quest-cloud-enter-from,.quest-cloud-leave-to{opacity:0;transform:translateY(9px) scale(.95)}
+@keyframes tutorial-beacon{50%{box-shadow:0 2px 0 #684629,0 0 0 10px #f2dda877}}
+@media(max-width:570px){
+  .tutorial-cloud{left:9%;top:5%;width:82%;padding:10px 12px}
+  .tutorial-cloud h3{font-size:19px}
+  .tutorial-cloud p{font-size:10px}
+  .tutorial-cloud-guide{font-size:9px;gap:6px}
+  .tutorial-cloud-forge{left:8%;width:84%}
+}
+@media(prefers-reduced-motion:reduce){
+  .map-node.tutorial-guide-pin .pin-icon,.map-node .tutorial-guide-action::after{animation:none}
+  .quest-cloud-enter-active,.quest-cloud-leave-active{transition:none}
+}
+
+.radial-walk{--glyph-x:-1px}
+
+.quest-steps{padding-left:16px;margin:11px 0 0;color:#d6c593;font-size:10px;line-height:1.5}
+.quest-more{margin-top:9px;color:#d6c593;font-size:10px}
+.modal-quest{border-top:1px solid #69775c;margin-top:13px;padding-top:12px}
+.modal-quest strong{font:20px 'IM Fell English',Georgia,serif;color:#f0e1b9}
+.modal-quest p{margin:5px 0 0}
+.modal-quest ul{padding-left:18px;color:#d6c593;font-size:11px;line-height:1.5}
+
+.town-route{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+.town-route polyline{fill:none;stroke:#9d6f40;stroke-width:5;stroke-dasharray:7 7;stroke-linecap:round;opacity:.8}
+.pawn-walker{position:absolute;z-index:10;display:grid;place-items:center;width:28px;height:28px;border:2px solid #f4deac;border-radius:50%;background:#334d3a;color:#fff1c9;font:18px Georgia,serif;box-shadow:0 2px 0 #6c5634,0 0 0 4px #d2b47788;transform:translate(-50%,-50%);transition:left 1s linear,top 1s linear;pointer-events:none}
+.travel-banner{position:absolute;z-index:12;left:12px;bottom:12px;display:flex;flex-direction:column;gap:3px;max-width:min(240px,65%);padding:9px 12px;border:1px solid #8b6f48;background:#263a2dea;color:#f2e5c5;box-shadow:0 4px 12px #3c362c77;pointer-events:none}
+.travel-banner strong{font:17px 'IM Fell English',Georgia,serif}
+.travel-banner span{font-size:10px;color:#e0cd9a}
+.travel-banner small{font-size:9px;color:#b9cab3}
+@media(prefers-reduced-motion:reduce){.pawn-walker{transition:none}}
+
+/* The town map uses one square SVG cell for every grid cell. */
+.map-canvas{aspect-ratio:1;min-height:0}
+.town-art{object-fit:fill}
+.town-tile-\.{fill:#d2c7a2}.town-tile-R,.town-tile-G{fill:#bea782}.town-tile-H{fill:#c5b68e}.town-tile-W{fill:#c7b994}.town-tile-F{fill:#8da481}.town-tile-M{fill:#aeb1a2}.town-tile-A{fill:#c2b37e}.town-tile-\~{fill:#739ca1}.town-tile-B{fill:#739ca1}
+.town-building .town-roof{fill:#9b7b59;stroke:#624a39;stroke-width:3;filter:drop-shadow(2px 3px 2px #574c3977)}
+.town-building-smithy .town-roof{fill:#7e6553}.town-building-market .town-roof{fill:#b39565}.town-building-square .town-roof{fill:#d7c394;stroke:#887753}.town-building-tavern .town-roof{fill:#916c50}.town-building-chapel .town-roof{fill:#a8a48a}.town-building-barracks .town-roof{fill:#827b63}
+@media(max-width:570px){.map-canvas{aspect-ratio:1;min-height:0}.town-art{object-fit:fill}}
+
+/* In-game town grid editor. */
+.map-edit-toggle{display:flex;justify-content:flex-end;background:#26352b;padding:5px 9px;border-bottom:1px solid #627053}
+.map-edit-toggle button,.map-editor button,.map-editor select,.map-editor input{font:11px 'DM Sans',Arial,sans-serif}
+.map-edit-toggle button{border:1px solid #9f8b62;background:#394935;color:#eddfb5;padding:6px 11px;cursor:pointer}
+.map-edit-toggle button:hover{background:#506149}
+.map-editor{background:#26352b;color:#e9dfc6}
+.map-editor-bar{display:flex;align-items:center;justify-content:space-between;padding:11px 14px 5px;gap:12px}
+.map-editor-bar strong{font:20px 'IM Fell English',Georgia,serif}.map-editor-bar small{font:10px 'DM Sans',Arial,sans-serif;color:#bcb58f;margin-left:5px}
+.map-editor button{border:1px solid #938361;background:#3c4d3d;color:#f2e5c8;padding:7px 9px;border-radius:2px;cursor:pointer}
+.map-editor button:hover:not(:disabled){background:#596d51}.map-editor button:disabled{opacity:.45;cursor:not-allowed}
+.map-editor-controls{display:flex;flex-wrap:wrap;align-items:flex-end;gap:7px;padding:7px 14px 4px}
+.map-editor-controls label{display:flex;flex-direction:column;gap:4px;color:#c9d2b9;font-size:9px;letter-spacing:.5px;text-transform:uppercase;flex:1 1 110px}
+.map-editor-controls label:last-child{flex:2 1 180px}
+.map-editor select,.map-editor input{height:31px;min-width:0;width:100%;padding:4px 7px;border:1px solid #8d8567;background:#e9dfc6;color:#28342c;border-radius:2px}
+.map-editor-help{font-size:10px;color:#c4c9b0;line-height:1.35;margin:5px 14px 9px}
+.map-editor-canvas{position:relative;aspect-ratio:1;background:#d2c7a2;overflow:hidden;user-select:none}
+.map-editor-hit{position:absolute;inset:0;z-index:2;cursor:crosshair;touch-action:none}
+.map-editor-preview,.map-editor-hover{position:absolute;z-index:3;pointer-events:none;border:2px solid #fff3b3;background:#f7ce6866;box-shadow:inset 0 0 0 1px #59492a}
+.map-editor-hover{width:3.333333%;height:3.333333%}
+.map-editor-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;flex-wrap:wrap}
+.map-editor-feedback{font-size:10px;color:#e5d6a8;flex:1 1 180px;line-height:1.35}
+.map-editor-buttons{display:flex;gap:5px;flex-wrap:wrap}.map-editor .map-editor-save{background:#ae8e56;color:#17231b;font-weight:700}
+@media(max-width:570px){.map-editor-controls{padding:7px 8px}.map-editor-help{margin:5px 8px}.map-editor-bottom{padding:8px}}

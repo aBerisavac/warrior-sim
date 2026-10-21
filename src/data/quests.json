@@ -1,0 +1,143 @@
+[
+  {
+    "id": "father_called",
+    "requires": [],
+    "priority": 0,
+    "stageOnComplete": "fatherCall",
+    "visible": false,
+    "titleKey": "objectives.fatherCall",
+    "descriptionKey": "sidebar.tutorialHint",
+    "objectives": []
+  },
+  {
+    "id": "father_met",
+    "requires": [
+      "father_called"
+    ],
+    "priority": 10,
+    "stageOnComplete": "fatherTalk",
+    "titleKey": "objectives.fatherCall",
+    "descriptionKey": "quests.father_met.description",
+    "objectives": [
+      {
+        "textKey": "quests.father_met.enter",
+        "placeId": "smithy",
+        "actionId": "enter"
+      }
+    ],
+    "cloud": {
+      "mode": "town",
+      "titleKey": "tutorial.callTitle",
+      "messageKey": "tutorial.callMessage",
+      "guideClosedKey": "tutorial.openMarker",
+      "guideOpenKey": "tutorial.chooseEnter"
+    }
+  },
+  {
+    "id": "iron_errand_accepted",
+    "requires": [
+      "father_met"
+    ],
+    "priority": 20,
+    "stageOnComplete": "errand",
+    "titleKey": "objectives.fatherTalk",
+    "descriptionKey": "quests.iron_errand_accepted.description",
+    "objectives": [
+      {
+        "textKey": "quests.iron_errand_accepted.accept",
+        "placeId": "smithy"
+      }
+    ],
+    "cloud": {
+      "mode": "forge",
+      "titleKey": "tutorial.fatherTitle",
+      "messageKey": "tutorial.fatherMessage",
+      "acceptKey": "tutorial.acceptErrand"
+    }
+  },
+  {
+    "id": "bandit_ambush_survived",
+    "requires": [
+      "iron_errand_accepted"
+    ],
+    "priority": 30,
+    "stageOnComplete": "robbed",
+    "titleKey": "objectives.errand",
+    "descriptionKey": "quests.bandit_ambush_survived.description",
+    "objectives": [
+      {
+        "textKey": "quests.bandit_ambush_survived.travel",
+        "placeId": "market",
+        "actionId": "walk"
+      }
+    ]
+  },
+  {
+    "id": "iron_stock_bought",
+    "requires": [
+      "bandit_ambush_survived"
+    ],
+    "priority": 40,
+    "stageOnComplete": "materials",
+    "titleKey": "objectives.robbed",
+    "descriptionKey": "quests.iron_stock_bought.description",
+    "objectives": [
+      {
+        "textKey": "quests.iron_stock_bought.earn",
+        "placeId": "square",
+        "actionId": "work"
+      },
+      {
+        "textKey": "quests.iron_stock_bought.buy",
+        "placeId": "market",
+        "actionId": "trade"
+      }
+    ]
+  },
+  {
+    "id": "dagger_forged",
+    "requires": [
+      "iron_stock_bought"
+    ],
+    "priority": 50,
+    "stageOnComplete": "sleep",
+    "titleKey": "objectives.materials",
+    "descriptionKey": "quests.dagger_forged.description",
+    "objectives": [
+      {
+        "textKey": "quests.dagger_forged.forge",
+        "placeId": "smithy",
+        "actionId": "enter"
+      }
+    ]
+  },
+  {
+    "id": "drafted",
+    "requires": [
+      "dagger_forged"
+    ],
+    "priority": 60,
+    "stageOnComplete": "drafted",
+    "titleKey": "objectives.sleep",
+    "descriptionKey": "quests.drafted.description",
+    "completedDescriptionKey": "sidebar.draftedHint",
+    "objectives": [
+      {
+        "textKey": "quests.drafted.sleep",
+        "placeId": "smithy"
+      }
+    ],
+    "completedTitleKey": "objectives.drafted"
+  },
+  {
+    "id": "oil_quenching_unlocked",
+    "requires": [
+      "drafted"
+    ],
+    "priority": 70,
+    "visible": false,
+    "titleKey": "quests.oil_quenching_unlocked.title",
+    "descriptionKey": "quests.oil_quenching_unlocked.description",
+    "objectives": []
+  }
+]

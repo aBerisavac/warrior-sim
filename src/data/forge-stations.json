@@ -1,0 +1,65 @@
+[
+  {
+    "id": "furnace",
+    "icon": "♨",
+    "x": 19.3,
+    "y": 30.5,
+    "action": "addCoal"
+  },
+  {
+    "id": "anvil",
+    "icon": "⚒",
+    "x": 40.6,
+    "y": 61,
+    "action": "forge"
+  },
+  {
+    "id": "water",
+    "icon": "≈",
+    "x": 54.3,
+    "y": 27.2,
+    "action": "inspect"
+  },
+  {
+    "id": "oil",
+    "icon": "◇",
+    "x": 54.3,
+    "y": 49,
+    "action": "inspect"
+  },
+  {
+    "id": "workbench",
+    "icon": "▤",
+    "x": 18,
+    "y": 60,
+    "action": "workbench"
+  },
+  {
+    "id": "warehouse",
+    "icon": "▥",
+    "x": 78.2,
+    "y": 29,
+    "action": "inspect"
+  },
+  {
+    "id": "fatherBed",
+    "icon": "☾",
+    "x": 85,
+    "y": 53.2,
+    "action": "inspect"
+  },
+  {
+    "id": "sonBed",
+    "icon": "☾",
+    "x": 85,
+    "y": 77.8,
+    "action": "sleep"
+  },
+  {
+    "id": "door",
+    "icon": "➜",
+    "x": 50,
+    "y": 88,
+    "action": "town"
+  }
+]
