@@ -5,6 +5,16 @@ const key = (x, y) => `${x},${y}`
 const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y)
 const samePoint = (a, b) => distance(a, b) < 0.001
 
+export function cellInsideGates(map, x, y) {
+  return map.gates.every(gate => {
+    if (gate.direction === 'north') return y >= gate.y
+    if (gate.direction === 'south') return y < gate.y + (gate.height ?? 1)
+    if (gate.direction === 'west') return x >= gate.x
+    if (gate.direction === 'east') return x < gate.x + (gate.width ?? 1)
+    return true
+  })
+}
+
 export function pathLength(points) {
   return points.slice(1).reduce((sum, point, index) => sum + distance(points[index], point), 0)
 }
@@ -33,17 +43,10 @@ export function createMapRoutes(map) {
   const size = map.cellSize
   const mapSize = { width: map.columns * size, height: map.rows * size }
   const cellPoint = (x, y) => ({ x: (x + 0.5) * size, y: (y + 0.5) * size })
-  const insideGates = (x, y) => map.gates.every(gate => {
-    if (gate.direction === 'north') return y >= gate.y
-    if (gate.direction === 'south') return y < gate.y + (gate.height ?? 1)
-    if (gate.direction === 'west') return x >= gate.x
-    if (gate.direction === 'east') return x < gate.x + (gate.width ?? 1)
-    return true
-  })
   const nodes = new Map()
   const neighbors = new Map()
   for (let y = 0; y < map.rows; y++) for (let x = 0; x < map.columns; x++) {
-    if (!walkable.has(map.terrain[y]?.[x]) || !insideGates(x, y)) continue
+    if (!walkable.has(map.terrain[y]?.[x]) || !cellInsideGates(map, x, y)) continue
     const id = key(x, y)
     nodes.set(id, cellPoint(x, y))
     neighbors.set(id, [])

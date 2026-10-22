@@ -6,10 +6,12 @@ import { ambienceFor, ambienceSeed, vegetationMotion } from '../map-ambience'
 import { buildingOutline } from '../town-grid'
 import { structureImage } from '../map-upgrades'
 import { decorationVariant } from '../map-decorations'
+import { cellInsideGates } from '../map-routing'
 const { t } = useI18n()
 const props = defineProps({ ambienceEnabled: { type: Boolean, default: true }, paused: Boolean, raining: Boolean, map: { type: Object, required: true }, tiers: { type: Object, default: () => ({}) }, markedEntrances: { type: Array, default: () => [] } })
 const emit = defineEmits(['road-cell'])
 const motionUnavailable = ref(false)
+const hoveredRoad = ref(null)
 let media
 function updateMotion() { motionUnavailable.value = document.hidden || !!media?.matches }
 onMounted(() => { media = window.matchMedia?.('(prefers-reduced-motion: reduce)'); updateMotion(); media?.addEventListener('change', updateMotion); document.addEventListener('visibilitychange', updateMotion) })
@@ -20,19 +22,29 @@ const tileMotionStyle = (x, y) => ({ '--water-delay': -ambienceSeed(props.map, x
 const artFor = (structure) => structureImage(structure, props.tiers)
 const mapSize = computed(() => ({ width: props.map.columns * props.map.cellSize, height: props.map.rows * props.map.cellSize }))
 const wallNeighbor = (x, y) => props.map.terrain[y]?.[x] === 'W' || props.map.gates?.some(gate => x >= gate.x && x < gate.x + (gate.width ?? 1) && y >= gate.y && y < gate.y + (gate.height ?? 1))
-function chooseRoad(event) {
+function roadFromEvent(event) {
   const svg = event.currentTarget
   const point = svg.createSVGPoint()
   point.x = event.clientX; point.y = event.clientY
   const local = point.matrixTransform(svg.getScreenCTM().inverse())
   const x = Math.floor(local.x / props.map.cellSize), y = Math.floor(local.y / props.map.cellSize)
-  if (['R', 'G', 'B', 'D'].includes(props.map.terrain[y]?.[x])) emit('road-cell', { x, y })
+  return ['R', 'G', 'B', 'D'].includes(props.map.terrain[y]?.[x]) && cellInsideGates(props.map, x, y) ? { x, y } : null
+}
+function trackRoad(event) {
+  if (event.pointerType === 'touch') return
+  const next = roadFromEvent(event)
+  if (next?.x !== hoveredRoad.value?.x || next?.y !== hoveredRoad.value?.y) hoveredRoad.value = next
+}
+function chooseRoad(event) {
+  const road = roadFromEvent(event)
+  if (road) emit('road-cell', road)
 }
 </script>
 
 <template>
-<svg class="town-art" :class="{ 'town-art--paused': paused || motionUnavailable, 'town-art--animated': !!config }" :viewBox="'0 0 ' + mapSize.width + ' ' + mapSize.height" preserveAspectRatio="none" role="img" :aria-label="t('map.townAria')" @click="chooseRoad">
+<svg class="town-art" :class="{ 'town-art--paused': paused || motionUnavailable, 'town-art--animated': !!config, 'town-art--road-hover': !!hoveredRoad }" :viewBox="'0 0 ' + mapSize.width + ' ' + mapSize.height" preserveAspectRatio="none" role="img" :aria-label="t('map.townAria')" @click="chooseRoad" @pointermove="trackRoad" @pointerleave="hoveredRoad = null">
     <defs>
+      <linearGradient id="town-road-border" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f9db83"/><stop offset=".55" stop-color="#df9c3f"/><stop offset="1" stop-color="#f4c966"/></linearGradient>
       <pattern id="town-grid" :width="map.cellSize" :height="map.cellSize" patternUnits="userSpaceOnUse"><path :d="'M ' + map.cellSize + ' 0 H 0 V ' + map.cellSize" fill="none" stroke="#675d44" stroke-width="1" opacity=".22" /></pattern>
       <pattern id="bridge-planks" width="8" height="40" patternUnits="userSpaceOnUse"><path d="M0 0V40" stroke="#5f472d" stroke-width="1.5" opacity=".65" /></pattern>
       <clipPath v-for="building in map.buildings" :id="'town-building-clip-' + building.id" :key="building.id" clipPathUnits="userSpaceOnUse"><path :d="buildingOutline(building, map.cellSize)" /></clipPath>
@@ -84,9 +96,11 @@ function chooseRoad(event) {
       </g>
     </g>
     <MapAmbience v-if="config" :map="map" :paused="paused || motionUnavailable" :raining="raining" />
+    <rect v-if="hoveredRoad" class="town-road-highlight" :x="hoveredRoad.x * map.cellSize + 2" :y="hoveredRoad.y * map.cellSize + 2" :width="map.cellSize - 4" :height="map.cellSize - 4" rx="2" />
   </svg>
 </template>
 
 <style>
 .town-art .town-vegetation{transform-origin:0px 12px;animation:town-plant-sway var(--sway-time,8s) ease-in-out var(--sway-delay,0s) infinite alternate}.town-water-ripple{animation:town-water-breathe 5.7s ease-in-out var(--water-delay,0s) infinite alternate}.town-art--paused *{animation-play-state:paused!important}@keyframes town-plant-sway{0%{transform:rotate(calc(var(--sway-angle,1deg) * -.65))}65%{transform:rotate(var(--sway-angle,1deg))}100%{transform:rotate(calc(var(--sway-angle,1deg) * .25))}}@keyframes town-water-breathe{from{opacity:.45;transform:translateX(-1px)}to{opacity:.85;transform:translateX(1px)}}@media(prefers-reduced-motion:reduce){.town-art .town-vegetation,.town-water-ripple{animation:none!important}}
+.town-art--road-hover{cursor:pointer}.town-road-highlight{fill:#e7ad3b18;stroke:url(#town-road-border);stroke-width:2.5;filter:drop-shadow(0 0 3px #e8b34b);pointer-events:none}
 </style>

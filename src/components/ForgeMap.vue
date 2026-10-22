@@ -73,6 +73,8 @@ function stationOptions(station) {
   if (['water', 'oil'].includes(station.id)) options.push({ id: 'quench', icon: '↓', key: 'quench', disabled: !b.value || !bladeQuenchable(b.value) })
   return [...options, ...actions.value.filter(a => a.station === station.id && (props.workshop.working || ['reference','design','maintenance'].includes(a.id)))]
 }
+const hasMenu = station => !['door', 'sonBed'].includes(station.id) && stationOptions(station).length > 1
+const directOption = station => stationOptions(station).length === 1 ? stationOptions(station)[0] : null
 function openMenu(id) { clearTimeout(menuCloseTimer); openStation.value = id }
 function cancelMenuClose() { clearTimeout(menuCloseTimer) }
 function scheduleClose() { clearTimeout(menuCloseTimer); menuCloseTimer = setTimeout(() => { openStation.value = null }, 520) }
@@ -98,6 +100,7 @@ function activate(s) {
   if (!unlocked(s.id)) return
   if (s.id === 'door') emit('town')
   else if (s.id === 'sonBed') emit('modal', 'sleep')
+  else if (directOption(s)) chooseOption(directOption(s), s)
   else openMenu(s.id)
 }
 function action(a) { if (a.id === 'maintenance') emit('station', 'workbench'); else if (['reference','design','maintenance'].includes(a.id)) emit('station', a.id); else cmd(a.id, a.id === 'coal' ? { from: itemQuantity(props.inventory, 'coal') ? 'bag' : 'storehouse' } : {}) }
@@ -132,9 +135,9 @@ onBeforeUnmount(() => { endQuench(); clearInterval(timer); clearTimeout(menuClos
     <img class="workshop-interior" src="/images/interior/Medieval Blacksmith’s Forge and Shop.png" alt=""/>
     <div v-for="(actor, id) in { player, father }" :key="id" class="forge-person" :class="{ 'forge-person--walking': actor.route.length && (id === 'player' || !guiding && !occupied) }" :style="{ left: actor.x + '%', top: actor.y + '%' }" :title="t(characters[id].nameKey)"><img :src="id === 'player' ? avatarSrc : characters[id].portraitSrc" :alt="t(characters[id].nameKey)"/></div>
     <span v-if="player.route.length" class="forge-walking" role="status">{{ t('workshop.walkingToStation') }}</span>
-    <div v-for="s in visibleStations" :key="s.id" class="forge-station-node" :class="{ 'forge-station-node--open': openStation === s.id }" :style="{ left: s.x + '%', top: s.y + '%' }" @pointerenter="!['door','sonBed'].includes(s.id) && unlocked(s.id) && $event.pointerType !== 'touch' && openMenu(s.id)" @pointerleave="$event.pointerType !== 'touch' && scheduleClose()" @focusin="!['door','sonBed'].includes(s.id) && unlocked(s.id) && openMenu(s.id)" @keydown.esc.stop="openStation = null">
-      <CircleIcon size="forge" :icon="s.icon" class="forge-hotspot" :aria-label="t('forgeHouse.actions.' + s.id)" :title="t('forgeHouse.actions.' + s.id)" :aria-expanded="openStation === s.id" :disabled="!!workshop.loading || !unlocked(s.id) || !!workshop.pour && s.id !== 'crucible'" @click="activate(s)"/>
-      <Transition name="forge-radial"><div v-if="openStation === s.id && !['door','sonBed'].includes(s.id)" class="forge-station-actions" @pointerenter="cancelMenuClose">
+    <div v-for="s in visibleStations" :key="s.id" class="forge-station-node" :class="{ 'forge-station-node--open': hasMenu(s) && openStation === s.id, 'forge-station-node--direct': !!directOption(s) }" :style="{ left: s.x + '%', top: s.y + '%' }" @pointerenter="hasMenu(s) && unlocked(s.id) && $event.pointerType !== 'touch' && openMenu(s.id)" @pointerleave="$event.pointerType !== 'touch' && scheduleClose()" @focusin="hasMenu(s) && unlocked(s.id) && openMenu(s.id)" @keydown.esc.stop="openStation = null">
+      <CircleIcon size="forge" :icon="s.icon" class="forge-hotspot" :aria-label="directOption(s) ? optionLabel(directOption(s), s) : t('forgeHouse.actions.' + s.id)" :title="directOption(s) ? optionLabel(directOption(s), s) : t('forgeHouse.actions.' + s.id)" :aria-expanded="hasMenu(s) ? openStation === s.id : undefined" :disabled="!!workshop.loading || !unlocked(s.id) || !!workshop.pour && s.id !== 'crucible' || !!directOption(s)?.disabled" @click="activate(s)"/>
+      <Transition name="forge-radial"><div v-if="hasMenu(s) && openStation === s.id" class="forge-station-actions" @pointerenter="cancelMenuClose">
         <CircleIcon v-for="(option, index) in stationOptions(s)" :key="option.id" size="job" :icon="option.icon" class="forge-station-option" :class="{ 'forge-map-action--loading': option.id === workshop.loading?.action }" :style="{ '--dx': `${(index - (stationOptions(s).length - 1) / 2) * 28}px`, '--dy': `${-37 - (stationOptions(s).length - 1 - Math.abs(index - (stationOptions(s).length - 1) / 2) * 2) * 3}px` }" :title="optionLabel(option, s)" :aria-label="optionLabel(option, s)" :disabled="!!workshop.loading || !!workshop.pour && s.id !== 'crucible' || option.disabled" @click="option.id !== 'quench' && chooseOption(option, s)" @pointerdown="option.id === 'quench' && beginQuench($event, s.id)" @pointerup="option.id === 'quench' && endQuench()" @pointercancel="option.id === 'quench' && endQuench()" @lostpointercapture="option.id === 'quench' && endQuench()" @keydown.space.prevent="option.id === 'quench' && !$event.repeat && beginQuench($event, s.id)" @keyup.space.prevent="option.id === 'quench' && endQuench()"><ButtonProgressRing v-if="option.id === workshop.loading?.action" :duration="workshop.loading.duration" :remaining="workshop.loading.remaining" /></CircleIcon>
       </div></Transition>
     </div>
@@ -169,6 +172,7 @@ onBeforeUnmount(() => { endQuench(); clearInterval(timer); clearTimeout(menuClos
 .forge-station-node--open{z-index:18}
 .forge-station-node .forge-hotspot{left:0;top:0}
 .forge-station-node .forge-hotspot:hover:not(:disabled){background:#334638;transform:translate(-50%,-50%)}
+.forge-station-node--direct .forge-hotspot:hover:not(:disabled),.forge-station-node--direct .forge-hotspot:focus-visible{background:#8d2630;color:#fff0d2;border-color:#ebc79d}
 .forge-station-node--open .forge-hotspot,.forge-station-node--open .forge-hotspot:hover:not(:disabled){background:#8d2630;color:#fff0d2;border-color:#ebc79d;transform:translate(-50%,-50%);box-shadow:0 0 9px 4px #18251ba8}
 .forge-station-actions{position:absolute;left:0;top:0;z-index:2}
 .forge-station-option{position:absolute;left:0;top:0;--circle-size:21px;--glyph-size:13px;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy)));background:#334638;border-color:#bca774;box-shadow:0 0 8px 5px #101d15a8,0 0 18px 11px #101d1559;transition:transform .18s ease,background .18s ease}
