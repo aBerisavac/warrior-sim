@@ -696,4 +696,23 @@ q{quotes:"“" "”" "‘" "’"}
 @media(max-width:570px){.game-shell{padding:0}.game-window.map-frame{width:min(100vw,calc(100dvh - 170px));height:auto;border-width:2px}.game-window .map-hud{padding:4px;gap:3px;max-width:none;flex-wrap:nowrap}.game-window .hud-avatar{width:28px;height:28px}.game-window .hud-pawn-copy{max-width:70px}.game-window .hud-ring{width:38px;min-width:38px}.game-window .hud-ring svg{width:34px;height:34px}.game-window .hud-ring .circle-icon{--circle-size:34px;--glyph-size:17px}.game-window .hud-vitals{gap:1px;display:flex;grid-column:auto;grid-row:auto}.game-window .inventory-map-button{width:64px;height:50px;right:8px;bottom:24px}.game-window .map-legend{top:9px}.game-window .tutorial-cloud{top:12px}.game-window .cloud-toggle{top:10px}.game-window .interior-back{top:10px}.game-window .map-editor{padding-top:0}.game-window .map-modal--minigame{padding:8px}}
 @media(max-width:570px){.game-window.map-frame.map-frame--expanded,.game-window.map-frame:fullscreen{width:100%;height:100dvh;border:0}}
 
+/* On phones the map stays square, while activity screens use the full viewport. */
+@media(max-width:570px){
+  .game-window .map-canvas:has(.map-modal--minigame,.map-modal--trade,.pouring-scrim,.workshop-dialog--minigame,.workshop-dialog--designer){z-index:30}
+  .game-window .map-modal-scrim:has(.map-modal--minigame,.map-modal--trade),
+  .game-window .pouring-scrim{position:fixed;inset:0;width:100vw;height:100dvh;padding:0;z-index:60;box-sizing:border-box}
+  .game-window .map-modal--trade{width:100%;height:100%;max-width:none;max-height:none;padding:calc(env(safe-area-inset-top) + 7px) 7px calc(env(safe-area-inset-bottom) + 7px)}
+  .game-window .map-modal--trade>.dialogue-bubble{max-height:45px}
+  .game-window .map-modal--trade .trade-columns{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin:4px 0}
+  .game-window .map-modal--trade .trade-inventory-column{grid-template-rows:24px minmax(75px,32%) 20px minmax(90px,1fr);padding:5px}
+  .game-window .map-modal--trade .trade-pending-zone{min-height:0}
+  .game-window .map-modal--trade .trade-pending-list,
+  .game-window .map-modal--trade .trade-inventory-list{overscroll-behavior:contain}
+  .game-window .map-modal--trade .trade-checkout{padding:7px}
+  .game-window .map-modal--trade .trade-checkout-actions button{min-height:34px}
+  .game-window .map-modal--minigame{padding:calc(env(safe-area-inset-top) + 8px) 8px calc(env(safe-area-inset-bottom) + 8px)}
+  .game-window .pouring-game{padding:calc(env(safe-area-inset-top) + 8px) 8px calc(env(safe-area-inset-bottom) + 8px);box-sizing:border-box}
+  .game-window .pouring-arena{flex:1;min-height:0;height:auto}
+}
+
 .game-window .ring-label{font-size:8px}.game-window .map-hud .hud-ring>.ring-glyph{width:38px;height:38px}@media(max-width:570px){.game-window .map-hud .hud-ring>.ring-glyph{width:34px;height:34px}}

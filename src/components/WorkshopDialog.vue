@@ -129,3 +129,10 @@ onBeforeUnmount(() => { cancel(); clearInterval(timer); window.removeEventListen
 </style>
 
 <style scoped>.workshop-overlay .workshop-dialog.workshop-dialog--minigame,.workshop-overlay .workshop-dialog.workshop-dialog--designer{background:#25362b}</style>
+<style scoped>
+@media(max-width:570px){
+  .workshop-overlay--embedded:has(.workshop-dialog--minigame,.workshop-dialog--designer){position:fixed;inset:0;width:100vw;height:100dvh;z-index:60;pointer-events:auto}
+  .workshop-overlay--embedded .workshop-dialog.workshop-dialog--minigame,
+  .workshop-overlay--embedded .workshop-dialog.workshop-dialog--designer{position:absolute;inset:0;width:100%;height:100%;max-height:none;padding:calc(env(safe-area-inset-top) + 8px) 8px calc(env(safe-area-inset-bottom) + 8px)}
+}
+</style>

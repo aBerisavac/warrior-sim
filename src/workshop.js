@@ -308,8 +308,10 @@ export function workshopAction(game, action, p = {}) {
     if (!w.mould && !w.blade && !w.rack.some(i => i.design)) w.activeDesign = null
   } else if (action === 'discardCasting') {
     if (!w.mould?.ruined) return fail('notReady')
+    const fatherHelps = w.mould.itemId === 'iron_ingot' && game.completedQuests.includes('iron_stock_bought') && !game.completedQuests.includes('dagger_forged')
     w.mould = null
     if (c.stage === 'empty') w.activeDesign = null
+    if (fatherHelps) add(game.inventory, 'iron_ore', 4, 'father-practice-ore-' + (++w.serial))
   } else if (action === 'collect') {
     if (!w.mould || w.mould.ruined || w.mould.remaining > 0) return fail('notReady')
     w.rack.push({ id: 'ingot-' + (++w.serial), itemId: w.mould.itemId, temperature: 200, heatDamage: w.mould.heatDamage, castingQuality: w.mould.castingQuality, units: w.mould.units || 1, mass: w.mould.mass || 1, design: w.mould.design }); w.mould = null

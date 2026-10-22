@@ -86,8 +86,9 @@ try {
   engine.configure(settings); await flush()
   engine.hold('grind'); await flush(); assert.equal(ctx.active().length, 3)
   engine.release('grind'); await flush(); assert.equal(ctx.active().length, 2)
-  hidden = true; engine.visibilityChanged(); await flush(); assert.equal(ctx.active().length, 0)
-  engine.play('coins'); await flush(); assert.equal(ctx.active().length, 0)
+  hidden = true; engine.visibilityChanged(); await flush(); assert.equal(ctx.active().length, 2, 'Ambient loops keep playing in a background tab')
+  engine.play('coins'); await flush(); assert.equal(ctx.active().length, 3, 'One-shot cues can play in a background tab')
+  ctx.active().find(source => !source.loop).stop(); await flush()
   hidden = false; engine.visibilityChanged(); await flush(); assert.equal(ctx.active().length, 2)
   engine.setScene(['villageMusic', 'birds', 'footstep']); await flush()
   const walkingSource = ctx.active().find(source => source.buffer && source.loop && source !== ctx.active()[0] && source !== ctx.active()[1])
@@ -104,6 +105,16 @@ try {
   engine.setScene(['innMusic', 'fire']); await flush(); assert.equal(ctx.active().length, 2, 'Scene changes replace previous loops')
   await engine.preview('hammer'); await flush(); assert(ctx.active().some(s => s.startArguments[2] === 2), 'Previews are limited to two seconds')
   await engine.dispose(); await flush(); assert.equal(ctx.active().length, 0); assert.equal(ctx.state, 'closed')
+  const allowedContext = new FakeContext(); allowedContext.state = 'running'
+  const allowed = createAudioEngine({ settings, makeContext: () => allowedContext, fetchAudio: async () => ({ ok: true, arrayBuffer: async () => new ArrayBuffer(4) }) })
+  allowed.setScene(['birds']); allowed.tryAutoplay(); await flush(); assert.equal(allowedContext.active().length, 1, 'Allowed autoplay starts the scene on load')
+  await allowed.dispose()
+  const blockedContext = new FakeContext(); blockedContext.resume = () => new Promise(() => {})
+  const blocked = createAudioEngine({ settings, makeContext: () => blockedContext, fetchAudio: async () => ({ ok: true, arrayBuffer: async () => new ArrayBuffer(4) }) })
+  blocked.setScene(['birds']); blocked.tryAutoplay(); await flush(); assert.equal(blockedContext.active().length, 0, 'Blocked autoplay stays silent')
+  blockedContext.resume = FakeContext.prototype.resume
+  await blocked.unlock(); await flush(); assert.equal(blockedContext.active().length, 1, 'A gesture unlocks audio even after a pending autoplay attempt')
+  await blocked.dispose()
   const { encounterCue } = await server.ssrLoadModule('/src/audio.js')
   assert.equal(encounterCue('unknown'), 'encounterNeutral')
   const encounterContext = new FakeContext()
@@ -184,5 +195,5 @@ try {
     assert.equal(accepted, 1, 'The supply errand is accepted only after the dagger conversation finishes')
     app.unmount(); assert.equal(intervals.size, 0)
   } finally { useGameAudio(null); globalThis.setInterval = realInterval; globalThis.clearInterval = realClear; globalThis.setTimeout = realTimeout; globalThis.clearTimeout = realClearTimeout; globalThis.window = oldWindow }
-  console.log(`Audio: ${files.size} complete licensed recordings, saved settings, master/per-cue gains, gesture unlock, scene transitions, held effects, visibility, previews, cleanup and settings rendering passed`)
+  console.log(`Audio: ${files.size} complete licensed recordings, saved settings, master/per-cue gains, autoplay fallback, scene transitions, held effects, background playback, previews, cleanup and settings rendering passed`)
 } finally { await server.close() }

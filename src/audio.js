@@ -43,13 +43,13 @@ export function seamlessLoop(context, buffer, overlapSeconds) {
   return result
 }
 
-// One shared mixer. Nothing plays before a real user gesture unlocks the context.
+// One shared mixer. Browsers may require a user gesture before audible playback.
 export function createAudioEngine({ settings, makeContext, fetchAudio, isHidden } = {}) {
   let config = normalizeAudioSettings(settings), context, desired = [], disposed = false, unlockPromise
   const buffers = new Map(), loops = new Map(), voices = new Set(), lastPlay = new Map(), lastSample = new Map(), holds = new Map()
   const status = reactive({ unlocked: false, unavailable: false, failed: [] })
   const hidden = () => isHidden ? isHidden() : typeof document !== 'undefined' && document.hidden
-  function target(id, scale = 1) { return hidden() ? 0 : soundVolume(config, id) * scale }
+  function target(id, scale = 1) { return soundVolume(config, id) * scale }
   function gainTo(voice, value, seconds = .12) {
     if (!context) return
     const now = context.currentTime
@@ -83,6 +83,12 @@ export function createAudioEngine({ settings, makeContext, fetchAudio, isHidden 
             seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0
             const noise = seed / 2147483648 - 1
             smooth = smooth * .85 + noise * .15
+            if (cue.synthesis === 'squirrelScratch') {
+              const t = i / rate, stroke = Math.max(0, Math.sin(t * Math.PI * 2 * 4.5)) ** 4
+              const fade = Math.sin(Math.PI * i / length) ** 1.5
+              samples[i] = (noise * .24 + smooth * .16) * stroke * fade
+              continue
+            }
             if (cue.synthesis === 'cart') {
               const t = i / rate, pass = Math.sin(Math.PI * i / length) ** 2
               const knock = Math.exp(-((t * 9) % 1) * 24)
@@ -120,9 +126,9 @@ export function createAudioEngine({ settings, makeContext, fetchAudio, isHidden 
     voice.driftTimer = setTimeout(() => drift(voice), seconds * 1000)
   }
   async function start(id, loop, scale = 1, rate = 1, duration) {
-    if (!status.unlocked || disposed || !catalog[id] || hidden() || target(id, scale) <= 0) return null
+    if (!status.unlocked || disposed || !catalog[id] || target(id, scale) <= 0) return null
     const buffer = await bufferFor(id)
-    if (!buffer || disposed || !status.unlocked || hidden() || target(id, scale) <= 0) return null
+    if (!buffer || disposed || !status.unlocked || target(id, scale) <= 0) return null
     const source = context.createBufferSource(), gain = context.createGain()
     source.buffer = buffer; source.loop = loop; source.playbackRate.value = rate
     source.connect(gain); gain.connect(context.destination)
@@ -139,9 +145,9 @@ export function createAudioEngine({ settings, makeContext, fetchAudio, isHidden 
   async function syncLoops() {
     if (!status.unlocked || disposed) return
     const wanted = new Set([...desired, ...holds.keys()])
-    for (const [id, slot] of loops) if (!wanted.has(id) || target(id) <= 0 || hidden()) { if (slot.voice) stopVoice(slot.voice, target(id) <= 0 || hidden() ? .03 : catalog[id].fadeOut ?? .6); loops.delete(id) }
+    for (const [id, slot] of loops) if (!wanted.has(id) || target(id) <= 0) { if (slot.voice) stopVoice(slot.voice, target(id) <= 0 ? .03 : catalog[id].fadeOut ?? .6); loops.delete(id) }
     for (const id of wanted) {
-      if (!catalog[id]?.loop || target(id) <= 0 || hidden()) continue
+      if (!catalog[id]?.loop || target(id) <= 0) continue
       if (loops.has(id)) continue
       const slot = { voice: null }; loops.set(id, slot)
       slot.voice = await start(id, true)
@@ -149,17 +155,36 @@ export function createAudioEngine({ settings, makeContext, fetchAudio, isHidden 
       else if (!slot.voice) loops.delete(id)
     }
   }
+  function ensureContext() {
+    if (context) return context
+    const Context = typeof window !== 'undefined' && (window.AudioContext || window.webkitAudioContext)
+    context = makeContext ? makeContext() : Context ? new Context() : null
+    if (!context) { status.unavailable = true; return null }
+    context.onstatechange = () => {
+      if (disposed) return
+      status.unlocked = context.state === 'running'
+      if (status.unlocked) void syncLoops()
+    }
+    return context
+  }
+  function tryAutoplay() {
+    if (disposed || status.unavailable) return
+    try {
+      if (!ensureContext()) return
+      if (context.state === 'running') { status.unlocked = true; void syncLoops() }
+      else if (context.state !== 'closed') void context.resume().then(() => {
+        if (disposed) return
+        status.unlocked = context.state === 'running'
+        if (status.unlocked) void syncLoops()
+      }).catch(() => { /* A later user gesture can unlock blocked autoplay. */ })
+    } catch { status.unlocked = false }
+  }
   async function unlock() {
     if (disposed || status.unavailable) return
     if (unlockPromise) return unlockPromise
     unlockPromise = (async () => {
       try {
-        const Context = typeof window !== 'undefined' && (window.AudioContext || window.webkitAudioContext)
-        if (!context) {
-          context = makeContext ? makeContext() : Context ? new Context() : null
-          if (context) context.onstatechange = () => { if (!disposed) status.unlocked = context.state === 'running' }
-        }
-        if (!context) { status.unavailable = true; return }
+        if (!ensureContext()) return
         if (context.state !== 'running' && context.state !== 'closed') await context.resume()
         status.unlocked = context.state === 'running'
         if (status.unlocked) void syncLoops()
@@ -191,8 +216,12 @@ export function createAudioEngine({ settings, makeContext, fetchAudio, isHidden 
   }
   function setScene(next) { desired = [...new Set(next)]; void syncLoops() }
   function visibilityChanged() {
-    if (hidden()) { for (const id of [...holds.keys()]) release(id); for (const voice of voices) stopVoice(voice, .05); loops.clear() }
-    else { if (context && context.state !== 'running') status.unlocked = false; void syncLoops() }
+    if (hidden()) {
+      for (const id of [...holds.keys()]) release(id)
+    } else if (context && context.state !== 'running') {
+      status.unlocked = false
+      void unlock()
+    } else void syncLoops()
   }
   async function dispose() {
     disposed = true
@@ -203,7 +232,7 @@ export function createAudioEngine({ settings, makeContext, fetchAudio, isHidden 
     if (context && context.state !== 'closed') { try { await context.close() } catch { /* Browser may have already closed the device. */ } }
   }
   async function preview(id) { await unlock(); play(id, { duration: 2, rate: 1 }) }
-  return { status, unlock, configure, play, hold, release, setScene, visibilityChanged, dispose, preview }
+  return { status, tryAutoplay, unlock, configure, play, hold, release, setScene, visibilityChanged, dispose, preview }
 }
 
 let activeEngine = null

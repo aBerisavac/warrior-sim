@@ -90,6 +90,9 @@ function setTile(x, y, code) {
 function buildingAt(x, y) {
   return map.value.buildings.find((building) => buildingCells(building).some((cell) => cell.x === x && cell.y === y))
 }
+function gateAt(x, y) {
+  return map.value.gates.find((gate) => gateCells(gate).some((cell) => cell.x === x && cell.y === y))
+}
 function removeBuilding(building) {
   for (const cell of buildingCells(building)) setTile(cell.x, cell.y, '.')
   map.value.buildings = map.value.buildings.filter((item) => item !== building)
@@ -112,7 +115,15 @@ function refreshDoors() {
   }
 }
 function paint(x, y) {
-  if (isTileTool.value) {
+  if (tool.value === 'clearCell') {
+    if (buildingAt(x, y)) { status.value = t('mapEditor.clearBuilding'); return }
+    if (gateAt(x, y)) { status.value = t('mapEditor.clearGate'); return }
+    setTile(x, y, '.')
+    map.value.decor = map.value.decor.filter((item) => item.x !== x || item.y !== y)
+    map.value.cellImages = map.value.cellImages.filter((item) => item.x !== x || item.y !== y)
+    refreshDoors()
+    status.value = t('mapEditor.cellCleared')
+  } else if (isTileTool.value) {
     const old = buildingAt(x, y)
     if (old) removeBuilding(old)
     setTile(x, y, tool.value)
@@ -241,13 +252,13 @@ async function saveJson() {
           <optgroup :label="t('mapEditor.terrain')"><option v-for="[code, label] in terrainTools" :key="code" :value="code">{{ t('mapEditor.' + label) }}</option></optgroup>
           <optgroup :label="t('mapEditor.buildings')"><option v-for="id in buildingTools" :key="id" :value="id">{{ id === 'house' ? t('mapEditor.house') : t('places.' + id + '.name') }}</option></optgroup>
           <optgroup :label="t('mapEditor.gates')"><option v-for="id in gateTools" :key="id" :value="id">{{ t('places.' + id + '.name') }}</option></optgroup>
-          <optgroup :label="t('mapEditor.details')"><option value="door">{{ t('mapEditor.door') }}</option><option value="cellImage">{{ t('mapEditor.cellImage') }}</option><option v-for="id in decorTools" :key="id" :value="id">{{ t('mapEditor.' + id.split(':')[0]) }} {{ id.split(':')[1] }}</option></optgroup>
+          <optgroup :label="t('mapEditor.details')"><option value="clearCell">{{ t('mapEditor.clearCell') }}</option><option value="door">{{ t('mapEditor.door') }}</option><option value="cellImage">{{ t('mapEditor.cellImage') }}</option><option v-for="id in decorTools" :key="id" :value="id">{{ t('mapEditor.' + id.split(':')[0]) }} {{ id.split(':')[1] }}</option></optgroup>
         </select>
       </label>
       <label v-if="isBuildingTool">{{ t('mapEditor.shape') }} <select v-model="shape"><option value="rectangle">{{ t('mapEditor.rectangle') }}</option><option value="L">{{ t('mapEditor.lShape') }}</option></select></label>
       <label v-if="isTileTool || isBuildingTool || isGateTool || tool === 'cellImage'">{{ t('mapEditor.imageSource') }} <input v-model="imageSource" type="text" :placeholder="t('mapEditor.imagePlaceholder')" /></label>
     </div>
-    <p class="map-editor-help">{{ isBuildingTool ? t('mapEditor.buildingHelp') : isGateTool ? t('mapEditor.gateHelp') : t('mapEditor.paintHelp') }}</p>
+    <p class="map-editor-help">{{ isBuildingTool ? t('mapEditor.buildingHelp') : isGateTool ? t('mapEditor.gateHelp') : tool === 'cellImage' ? t('mapEditor.cellImageHelp') : tool === 'clearCell' ? t('mapEditor.clearCellHelp') : t('mapEditor.paintHelp') }}</p>
     <div class="map-editor-canvas">
       <TownArt :map="map" :ambience-enabled="false" />
       <div class="map-editor-hit" @pointerdown="pointerDown" @pointermove="pointerMove" @pointerup="pointerUp" @pointercancel="pointerUp" @pointerleave="hoverCell = null"></div>

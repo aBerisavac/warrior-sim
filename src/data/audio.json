@@ -26,12 +26,18 @@
     "loop": true,
     "credit": "isaiah658"
   },
+  "squirrelScratch": {
+    "synthesis": "squirrelScratch",
+    "group": "ambience",
+    "gain": 0.18,
+    "credit": "Original procedural sound"
+  },
   "fire": {
-    "file": "fire.ogg",
+    "file": "fireplace-pagdev.wav",
     "group": "ambience",
     "gain": 0.32,
     "loop": true,
-    "credit": "AntumDeluge"
+    "credit": "PagDev"
   },
   "axeSwing": {
     "files": [

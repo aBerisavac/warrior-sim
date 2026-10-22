@@ -152,3 +152,10 @@ onBeforeUnmount(() => { endQuench(); clearInterval(timer); window.removeEventLis
 <style scoped>.forge-loading{position:absolute;left:55%;top:80%;z-index:20;padding:5px 8px;background:#25362bf5;border:1px solid #ad945e;border-radius:5px;color:#ead5a0;font-size:10px;pointer-events:none}.forge-loading progress{display:block;width:100%;height:7px;accent-color:#c5a566;margin-top:3px}</style>
 
 <style scoped>.crucible-temperatures{position:absolute;left:60%;top:31%;z-index:8;pointer-events:none;background:#25362be8;padding:3px 5px;border:1px solid #9f8955;border-radius:4px;color:#efd19a;font-size:9px}</style>
+<style scoped>
+/* Readings sit over the three upper rooms, leaving the working floor clear. */
+.forge-temperature,.crucible-temperatures,.blade-heat-indicator{top:4%;width:26%;box-sizing:border-box;text-align:center;z-index:10;pointer-events:none}
+.forge-temperature{left:5%}
+.crucible-temperatures{left:36%}
+.blade-heat-indicator{left:67%}
+</style>

@@ -3,6 +3,7 @@ import { itemQuantity } from './inventory'
 
 const exchange = (id, speakers) => ({ id, lines: speakers.map((speaker, index) => ({ speaker: speaker === 'thought' ? 'player' : speaker, thought: speaker === 'thought', key: `forgeLesson.${id}.${index}` })) })
 export const workshopLessons = Object.fromEntries([
+  exchange('welcomeBack', ['father', 'player', 'thought']),
   exchange('ore', ['father', 'player', 'thought']),
   exchange('reducer', ['father', 'player']),
   exchange('fuel', ['father', 'thought']),
@@ -33,6 +34,10 @@ export function nextWorkshopLesson(game) {
   const offer = id => seen.includes(id) ? null : workshopLessons[id]
   if (w.lessonFinishPending) return offer('finished')
   if (!w.working || game.completedQuests.includes('dagger_forged') || !game.completedQuests.includes('iron_stock_bought') || w.pour || b?.quenching) return null
+  if (game.leftHomeForErrand) {
+    const welcome = offer('welcomeBack')
+    if (welcome) return welcome
+  }
   if (w.mould?.ruined) return offer('ruined')
   if (c.stage === 'residue') return offer('residue')
   if (w.mould) return w.mould.remaining === 0 ? offer('collect') : null

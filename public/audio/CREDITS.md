@@ -41,12 +41,19 @@ https://opengameart.org/content/ambient-bird-sounds
 Original: birds-isaiah658_0.ogg. Local: birds.ogg.
 Bird ambience outdoors and during woodcutting; unchanged recording.
 
-## AntumDeluge — Fire Crackling
+## PagDev — Fireplace Sound loop
+
+https://opengameart.org/content/fireplace-sound-loop
+
+Original: fire.wav. Local: fireplace-pagdev.wav.
+Wood-burning fireplace ambience for the inn and a fueled forge; unchanged recording. CC0 1.0, source and licence verified on 22 October 2026.
+
+## AntumDeluge — Fire Crackling (unused)
 
 https://opengameart.org/content/fire-crackling/
 
 Original: fire-1_0.ogg. Local: fire.ogg.
-Fire ambience for the inn and a fueled forge; unchanged recording.
+Previous fire ambience recording, kept for provenance but no longer used in the game.
 
 ## rubberduck — 40 CC0 water / splash / slime SFX
 

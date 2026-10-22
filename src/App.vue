@@ -3,9 +3,10 @@ import { advanceTravelClock } from './travel-clock'
 import { canSleep, sleepNeedPercent, updateHunger, eatItem, nextMorningMinutes } from './needs'
 import { DISHES_PAY, MERCHANT_TIP } from './currency'
 import { canStartDailyJob, canResumeDailyJob, startDailyJob, endDailyJob } from './daily-jobs'
-import { computed, onBeforeUnmount, onMounted, reactive, ref, watch, watchEffect } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, toRaw, watch, watchEffect } from 'vue'
 import { useI18n } from 'vue-i18n'
 import GameToolbar from './components/GameToolbar.vue'
+import MapLoadingScreen from './components/MapLoadingScreen.vue'
 import MapHud from './components/MapHud.vue'
 import TownMap from './components/TownMap.vue'
 import MapEditor from './components/MapEditor.vue'
@@ -27,9 +28,11 @@ import { placePoint, pointAtDistance, routeFromPoint, travelMinutesFromPoint, ma
 import { hasRequiredItems, items } from './inventory'
 import { merchantAt, quoteTrade, offerFingerprint, merchantMinimum, executeTrade, refreshMerchantStock } from './merchants'
 import { eventForTravelTick } from './travel-events'
+import { preloadMapAssets } from './map-loading'
 
 const { t } = useI18n()
 const game = reactive(readSave())
+const returningPlayer = (() => { try { const saved = JSON.parse(localStorage.getItem(SAVE_KEY)); return saved?.version >= 1 && saved?.version <= 12 && places.some(place => place.id === saved.location) } catch { return false } })()
 const audioSettings = reactive(readAudioSettings(localStorage))
 const audio = createAudioEngine({ settings: audioSettings })
 useGameAudio(audio)
@@ -40,18 +43,38 @@ watch(audioSettings, settings => {
 }, { deep: true })
 function unlockAudio(event) { if (event.isTrusted && (event.type === 'pointerdown' || !event.ctrlKey && !event.altKey && !event.metaKey)) void audio.unlock() }
 function interfaceSound(event) { if (event.target.closest?.('button:not(:disabled)') && !event.target.closest('[data-audio-ui="off"]')) audio.play('click') }
-function audioVisibility() { audio.visibilityChanged() }
+function audioVisibility() { refreshAudioScene(); audio.visibilityChanged() }
 const tradeAgreement = ref(null)
 const activeMerchant = computed(() => merchantAt(game.location))
 const mapView = ref('town')
+const loadingMap = ref('town')
+const loadingFirstVisit = ref(true)
+const loadingProgress = reactive({ completed: 0, total: 0 })
+let loadingSequence = 0
+async function showMapLoading(id, firstVisit = false) {
+  const sequence = ++loadingSequence
+  loadingMap.value = id
+  loadingFirstVisit.value = firstVisit
+  loadingProgress.completed = 0; loadingProgress.total = 0
+  const minimumTime = new Promise(resolve => setTimeout(resolve, firstVisit ? 650 : 350))
+  await Promise.all([preloadMapAssets(id, game.buildingTiers, (completed, total) => {
+    if (sequence === loadingSequence) { loadingProgress.completed = completed; loadingProgress.total = total }
+  }), minimumTime])
+  if (sequence === loadingSequence) { loadingMap.value = null; if (firstVisit) scheduleIntro() }
+}
+watch(mapView, id => { void showMapLoading(id) }, { flush: 'sync' })
 const editingMap = ref(false)
 const gameFrame = ref(null)
+const townMap = ref(null)
 const gameHeader = ref(null)
 const gameFooter = ref(null)
 const expandedGame = ref(false)
 const fullscreenGame = ref(false)
+const mobileGame = ref(false)
 const displayError = ref('')
 let gameSizeObserver
+let mobileQuery
+function syncMobileGame() { mobileGame.value = mobileQuery.matches }
 function fitGameSquare() {
   const frame = gameFrame.value
   if (!frame) return
@@ -60,10 +83,11 @@ function fitGameSquare() {
 }
 function syncFullscreen() { fullscreenGame.value = document.fullscreenElement === gameFrame.value }
 function handleDisplayKey(event) {
-  if (event.key === 'Escape' && !document.fullscreenElement) expandedGame.value = false
+  if (event.key === 'Escape' && !document.fullscreenElement && !mobileGame.value) expandedGame.value = false
   if (event.key.toLowerCase() === 'r' && !event.repeat && mapView.value === 'forge' && (!modal.value || modal.value === 'workshop') && game.workshop.working && ['melting', 'molten', 'pouring'].includes(game.workshop.crucible.stage) && !['INPUT', 'SELECT', 'TEXTAREA'].includes(event.target.tagName)) { event.preventDefault(); workshopCommand('pour') }
 }
 async function toggleGameFullscreen() {
+  if (mobileGame.value) return
   displayError.value = ''
   try {
     if (document.fullscreenElement === gameFrame.value) await document.exitFullscreen()
@@ -71,9 +95,10 @@ async function toggleGameFullscreen() {
   } catch { displayError.value = t('map.fullscreenUnavailable') }
 }
 const modal = ref(null)
-watch([mapView, () => game.location, () => !!game.travel, () => game.workshop.fuel > 0, modal, settingsOpen], () => {
-  audio.setScene(sceneSounds({ mapView: mapView.value, location: game.location, traveling: !!game.travel, walking: mapView.value === 'town' && !!game.travel && !modal.value && !settingsOpen.value, woodcutting: modal.value === 'wood', fuel: game.workshop.fuel }))
-}, { immediate: true })
+function refreshAudioScene() {
+  audio.setScene(sceneSounds({ mapView: mapView.value, location: game.location, traveling: !!game.travel, walking: mapView.value === 'town' && !!game.travel && (typeof document === 'undefined' || !document.hidden) && !modal.value && !settingsOpen.value, woodcutting: modal.value === 'wood', fuel: game.workshop.fuel }))
+}
+watch([mapView, () => game.location, () => !!game.travel, () => game.workshop.fuel > 0, modal, settingsOpen], refreshAudioScene, { immediate: true })
 watch(modal, (value, old) => {
   if (value === 'trade' && old !== 'trade') { tradeAgreement.value = null; tradeFeedback.value = null }
   if (value === 'inventory') audio.play('inventory'); else if (['journal', 'objective'].includes(value)) audio.play('page')
@@ -177,6 +202,7 @@ watch(() => game.completedQuests, () => {
 }, { deep: true })
 let introTimer
 let travelTimer
+let lastTravelTick
 let marketPassing = 18 + Math.random() * 15, marketCallout = 55 + Math.random() * 40
 let workshopTimer
 let lastWorkshopTick
@@ -184,7 +210,7 @@ let workshopMinutes = 0
 const selectedPlace = computed(() => places.find((place) => place.id === game.selected) || places[0])
 const currentPlace = computed(() => places.find((place) => place.id === game.location) || places[0])
 const pawnPosition = computed(() => game.travel?.position || placePoint(game.location))
-const tripMinutes = computed(() => selectedPlace.value.available ? travelMinutesFromPoint(pawnPosition.value, game.selected) : 0)
+const tripMinutes = computed(() => selectedPlace.value.available ? travelMinutesFromPoint(game.travel ? toRaw(game.travel).position : pawnPosition.value, game.selected) : 0)
 const stamina = computed(() => staminaCap(game))
 const day = computed(() => dayNumber(game.minutes))
 const clock = computed(() => formatTime(game.minutes))
@@ -205,26 +231,31 @@ function scheduleIntro() {
   }, 3000)
 }
 onMounted(() => {
+  mobileQuery = window.matchMedia('(max-width: 570px)')
+  syncMobileGame()
+  mobileQuery.addEventListener('change', syncMobileGame)
   document.addEventListener('pointerdown', unlockAudio, true)
   document.addEventListener('keydown', unlockAudio, true)
   document.addEventListener('click', interfaceSound)
   document.addEventListener('visibilitychange', audioVisibility)
+  audio.tryAutoplay()
   gameSizeObserver = new ResizeObserver(fitGameSquare)
   gameSizeObserver.observe(gameFrame.value)
   gameSizeObserver.observe(gameHeader.value)
   gameSizeObserver.observe(gameFooter.value)
   document.addEventListener('fullscreenchange', syncFullscreen)
   document.addEventListener('keydown', handleDisplayKey)
-  scheduleIntro()
+  void showMapLoading(mapView.value, true)
   if (game.travel?.pausedForEvent) modal.value = 'event'
   else if (!game.travel && needsMarketNotice(game.location)) modal.value = 'marketNotice'
   else if (!game.travel && game.location === 'tavern' && hasQuest(game.completedQuests, QUEST.BANDIT_AMBUSH_SURVIVED) && !hasQuest(game.completedQuests, QUEST.TAVERN_WORK_OFFERED)) modal.value = 'tavern'
-  travelTimer = setInterval(tickTravel, 50)
+  lastTravelTick = performance.now()
+  travelTimer = requestAnimationFrame(animateTravel)
   lastWorkshopTick = performance.now()
   workshopTimer = setInterval(() => {
     const now = performance.now(), dt = Math.min(.25, (now - lastWorkshopTick) / 1000)
     lastWorkshopTick = now
-    if (mapView.value === 'town' && game.location === 'market' && !game.travel && !document.hidden && !settingsOpen.value) {
+    if (mapView.value === 'town' && game.location === 'market' && !game.travel && !settingsOpen.value) {
       marketPassing -= dt; marketCallout -= dt
       if (marketPassing <= 0) { audio.play('marketHorse'); audio.play('marketCart'); marketPassing = 30 + Math.random() * 35 }
       if (marketCallout <= 0) { audio.play('marketCallout', { rate: 1 }); marketCallout = 60 + Math.random() * 45 }
@@ -237,6 +268,7 @@ onMounted(() => {
   }, 200)
 })
 onBeforeUnmount(() => {
+  mobileQuery?.removeEventListener('change', syncMobileGame)
   document.removeEventListener('pointerdown', unlockAudio, true)
   document.removeEventListener('keydown', unlockAudio, true)
   document.removeEventListener('click', interfaceSound)
@@ -247,7 +279,7 @@ onBeforeUnmount(() => {
   document.removeEventListener('fullscreenchange', syncFullscreen)
   document.removeEventListener('keydown', handleDisplayKey)
   clearTimeout(introTimer)
-  clearInterval(travelTimer)
+  cancelAnimationFrame(travelTimer)
   clearInterval(workshopTimer)
 })
 
@@ -273,6 +305,11 @@ function performAction(actionId, placeId) {
     if (game.stage === 'fatherCall') {
       completeQuest(QUEST.FATHER_MET)
       note('events.fatherTalk')
+    } else if (game.leftHomeForErrand && hasQuest(game.completedQuests, QUEST.IRON_STOCK_BOUGHT)
+      && !hasQuest(game.completedQuests, QUEST.DAGGER_FORGED) && !game.workshop.working
+      && !game.workshop.lessonSeen.includes('welcomeBack')
+      && hasRequiredItems(game.inventory, questById(QUEST.IRON_STOCK_BOUGHT).requiredItems)) {
+      workshopCommand('start')
     }
   } else if (actionId === 'talk') {
     tavernReply.value = null
@@ -296,7 +333,7 @@ function performJob(jobId, placeId) {
 function startTravel(destinationId, pending = null) {
   if (!placeUnlocked(destinationId)) return
   if (game.travel?.destinationId === destinationId && !pending) return
-  const route = routeFromPoint(pawnPosition.value, destinationId)
+  const route = routeFromPoint(game.travel ? toRaw(game.travel).position : pawnPosition.value, destinationId)
   if (!route.points.length) return
   if (route.minutes === 0) {
     game.travel = null
@@ -344,10 +381,19 @@ function handleJob(jobId, placeId) {
   else performJob(jobId, placeId)
 }
 
+function animateTravel() {
+  tickTravel()
+  travelTimer = requestAnimationFrame(animateTravel)
+}
 function tickTravel() {
-  const journey = game.travel
+  const now = performance.now()
+  const seconds = Math.min(.15, (now - lastTravelTick) / 1000)
+  lastTravelTick = now
+  const journey = game.travel && toRaw(game.travel)
   if (!journey || modal.value || settingsOpen.value || document.hidden) return
-  if (!advanceTravelClock(journey, .05, mapGrid)) return
+  const crossedCell = advanceTravelClock(journey, seconds, mapGrid)
+  townMap.value?.setPawnPosition(journey.position)
+  if (!crossedCell) return
   game.minutes += 1
   journey.position = pointAtDistance(journey.route, journey.elapsedMinutes * mapGrid.cellSize / (mapGrid.minutesPerCell || 1))
 
@@ -536,16 +582,17 @@ function reset() {
 
 <template>
   <main class="game-shell">
-    <section ref="gameFrame" class="map-frame game-window" :class="{ 'map-frame--expanded': expandedGame, 'map-frame--fullscreen': fullscreenGame }" :aria-label="t('app.title')">
+    <MapLoadingScreen v-if="loadingMap" :map-id="loadingMap" :returning="returningPlayer" :first-visit="loadingFirstVisit" :completed="loadingProgress.completed" :total="loadingProgress.total" />
+    <section ref="gameFrame" class="map-frame game-window" :class="{ 'map-frame--expanded': expandedGame || mobileGame, 'map-frame--fullscreen': fullscreenGame }" :aria-label="t('app.title')">
       <div id="game-animation-layer" class="game-animation-layer" aria-hidden="true"></div>
       <div ref="gameHeader" class="game-header">
-        <GameToolbar :map-name="t(mapView === 'town' ? 'map.townName' : 'map.forgeName')" :day="day" :clock="clock" :expanded="expandedGame" :fullscreen="fullscreenGame" :muted="audioSettings.muted" :busy="!!forgeLesson || !!modal || settingsOpen || editingMap" :completed-quests="game.completedQuests" :can-edit="mapView === 'town'" :editing="editingMap" @modal="openHomeModal" @expand="expandedGame = !expandedGame" @fullscreen="toggleGameFullscreen" @mute="audioSettings.muted = !audioSettings.muted" @settings="settingsOpen = !settingsOpen" @editor="editingMap = !editingMap" />
+        <GameToolbar :map-name="t(mapView === 'town' ? 'map.townName' : 'map.forgeName')" :day="day" :clock="clock" :expanded="expandedGame || mobileGame" :fullscreen="fullscreenGame" :mobile="mobileGame" :muted="audioSettings.muted" :busy="!!forgeLesson || !!modal || settingsOpen || editingMap" :completed-quests="game.completedQuests" :can-edit="mapView === 'town'" :editing="editingMap" @modal="openHomeModal" @expand="expandedGame = !expandedGame" @fullscreen="toggleGameFullscreen" @mute="audioSettings.muted = !audioSettings.muted" @settings="settingsOpen = !settingsOpen" @editor="editingMap = !editingMap" />
       </div>
       <div class="map-canvas">
         <span v-if="displayError" class="game-display-error" role="status">{{ displayError }}</span>
         <MapEditor v-if="editingMap && mapView === 'town'" @close="editingMap = false" />
         <template v-else>
-            <TownMap :ambience-paused="settingsOpen" :smithy-entry-locked="!canEnterSmithy(game)" v-if="mapView === 'town'" :current-location="game.location" :pawn-position="pawnPosition" :travel="game.travel" :building-tiers="game.buildingTiers" :dialogue-blocked="!!tutorialQuest && !cloudReady" :selected-id="game.selected" :tutorial-stage="tutorialStage" :completed-quests="game.completedQuests" @menu="townMenu = $event" @select="selectPlace" @action="handleAction" @job="handleJob" />
+            <TownMap v-if="mapView === 'town'" ref="townMap" :ambience-paused="settingsOpen" :smithy-entry-locked="!canEnterSmithy(game)" :current-location="game.location" :pawn-position="pawnPosition" :travel="game.travel" :building-tiers="game.buildingTiers" :dialogue-blocked="!!tutorialQuest && !cloudReady" :selected-id="game.selected" :tutorial-stage="tutorialStage" :completed-quests="game.completedQuests" @menu="townMenu = $event" @select="selectPlace" @action="handleAction" @job="handleJob" />
             <ForgeMap v-else ref="forgeMap" :guiding="!!forgeLesson || !!tutorialQuest" :occupied="!!modal" :paused="settingsOpen" :dialogue-blocked="!!forgeLesson || !!tutorialQuest && !cloudReady" :completed-quests="game.completedQuests" :workshop="game.workshop" :storehouse="game.storehouse" :inventory="game.inventory" :feedback="workshopFeedback" @command="workshopCommand" @station="openWorkshop" @town="leaveForge()" @modal="openHomeModal" />
             <button v-if="tutorialQuest" class="cloud-toggle" type="button" :aria-label="t(cloudVisible ? 'map.hideCloud' : 'map.showCloud')" :title="t(cloudVisible ? 'map.hideCloud' : 'map.showCloud')" @click="cloudVisible = !cloudVisible">{{ cloudVisible ? '−' : '+' }}</button>
             <TutorialCloud :hidden="!cloudVisible" :quest="tutorialQuest" :marker-open="townMenu === 'smithy'" @ready="cloudReady = $event" @accept="acceptFatherErrand" />

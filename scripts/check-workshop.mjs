@@ -193,6 +193,9 @@ try {
   assert.equal(legacyFittings.parts, 3); assert.deepEqual(legacyFittings.assembly, [80, 100, 90], 'Finished legacy daggers keep their assembly quality')
   const lessonGame = initialState(); lessonGame.completedQuests.push('iron_stock_bought'); lessonGame.workshop.working = true
   assert.equal(nextWorkshopLesson(lessonGame).id, 'ore')
+  const returningApprentice = initialState(); returningApprentice.completedQuests.push('iron_stock_bought'); returningApprentice.leftHomeForErrand = true; returningApprentice.workshop.working = true
+  assert.equal(nextWorkshopLesson(returningApprentice).id, 'welcomeBack')
+  returningApprentice.workshop.lessonSeen.push('welcomeBack'); assert.equal(nextWorkshopLesson(returningApprentice).id, 'ore')
   lessonGame.workshop.lessonSeen.push('ore'); assert.equal(nextWorkshopLesson(lessonGame), null)
   Object.assign(lessonGame.workshop.crucible, { count: 4, stage: 'loaded' }); assert.equal(nextWorkshopLesson(lessonGame).id, 'reducer')
   lessonGame.workshop.crucible.carbon = 1; assert.equal(nextWorkshopLesson(lessonGame).id, 'fuel')
@@ -320,6 +323,12 @@ try {
   assert(!action(frozen, 'dumpResidue').error); assert.equal(frozen.workshop.crucible.stage, 'empty')
   const underfilled = pourGame(); pourFor(underfilled, .65, 3); action(underfilled, 'finishPour')
   assert(underfilled.workshop.mould.fill < .95 && underfilled.workshop.mould.ruined)
+  underfilled.completedQuests.push('iron_stock_bought')
+  const practiceOre = itemQuantity(underfilled.inventory, 'iron_ore')
+  assert(!action(underfilled, 'discardCasting').error)
+  assert.equal(itemQuantity(underfilled.inventory, 'iron_ore'), practiceOre + 4, 'Father replaces four iron ore after a failed tutorial ingot')
+  assert.equal(action(underfilled, 'discardCasting').error, 'notReady')
+  assert.equal(itemQuantity(underfilled.inventory, 'iron_ore'), practiceOre + 4, 'The same casting cannot grant ore twice')
   const marginal = pourGame(); pourFor(marginal, .65, 5.25); action(marginal, 'finishPour')
   assert(marginal.workshop.mould.fill >= .95); assert(!marginal.workshop.mould.ruined); assert(marginal.workshop.mould.castingQuality < 85)
   const spilled = pourGame(); pourFor(spilled, .76, 6)

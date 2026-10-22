@@ -20,44 +20,44 @@
     "K": "rocky ground"
   },
   "terrain": [
-    "SSSSSSSSMMMMMMMMMMMMRMMMMMMMMMMM........",
-    "SSSSSSSSMMMMMMMMMMMMRMMMMMMMMMMM........",
-    "SSSSSSSSMMMMMMMMMMMMRMMMMMMMMMMM........",
-    "SSSSSSSSMMMMMMMMMMMMRMMMKMKKKKKK........",
+    "SSSKKMMMMMMMMMMMMMMMRMMMMMMMMMMMKKKKKK..",
+    "SSSSKMMMMMMMMMMMMMMMRMMMMMMMMMMMMKKK....",
+    "SSSSKKKMMMMMMMMMMMMMRMMMMMMMMMMMKKKK....",
+    "SSSSSSKKMMMMMMMMMMMMRMMMKMKKKKKKKK......",
     "SSSSSSSSMMMMMMMMMMMMRMMMMKKKKKKK........",
-    "FFFFFF.............MRMRMMM..............",
-    "FFFFFFWWWWWWWWWWWWWWRRR.M...............",
-    "FFFFFFW............GGG..................",
-    "FFFFFFW.HHH........GGGWWWWWWWWWWW...PPP.",
+    "SSSSFF.............MRMRMMM..............",
+    "SFFFFFWWWWWWWWWWWWWWRRR.M...............",
+    "SFFFFFW............GGG..................",
+    "SFFFFFW.HHH........GGGWWWWWWWWWWW...PPP.",
     "FFFFFFW.HHHHHHR...HHRRRHHHHR....W..PPPPP",
     "FFFFFFW...RHHHR...HH..RHHHHR..HHW..PPPPP",
-    "FFFFFFWHH.RHHHR.......RRRRRRRRHHW..PPPPP",
-    "FFFFFFWHHRRRRRRRRRRRRRR....R....W..PPPPP",
+    "FFFFFFWHH.RHHHR.......RHHHHRRRHHW..PPPPP",
+    "FFFFFFWHHRRRRRRRRRRRRRRRRRRR....W..PPPPP",
     "FFFFFFW...R...R.HH.R..R.HH.R....W..PPPPP",
     "FFFFFFW...R...R.HH.HHHR.HH.R....W.~~PPP.",
     "FFFFFFW...RHH.R..R.HHHR.HHRRRRR.W.~~~...",
-    "FFFFFFWW..RHHRRRRRRR..R....R..R.W.~~~...",
-    "FFFFFF.WW.R...R..HHR..R....R..R.W.~~~...",
-    "FFFFFF..W.R.HHHH.HHR..R....HH.RWW~~~~...",
-    "FFFFFFFGG.R.HHHH...R..R....HH.RGG~~~~~..",
+    "FFFSFFWW..RHHRRRRRRR..R....R..R.W.~~~...",
+    "FFFSFF.WW.R...R..HHR..R....R..R.W.~~~...",
+    "FFFSFF..W.R.HHHH.HHR..R....HH.RWW~~~~...",
+    "FFFFSSSGG.R.HHHH...R..R....HH.RGG~~~~~..",
     "RRRRRRRGGRRRHHHH.RRRRRRRRR....RGGDDDDDRR",
-    "FFFFFF.GG..RHHHH...R..........RGG~~~~~..",
-    "FFFFFF..W..RRRRR...RHHH.......RWW~~~....",
-    "FFFFFF.WW..R.HHRHH.RHHH.HHRRRRR.W~~~....",
-    "FFFFFFWW..RR.HHRHH.RHHH.HHR.....W~~~....",
-    "FFFFFFW....R.H.....RRRRRHHR.....W~~~S...",
+    "FFFSSS.GG..RHHHH...R..........RGG~~~~~..",
+    "FFSSFS..W..RRRRR...RHHH.......RWW~~~....",
+    "FFSFFF.WW..R.HHRHH.RHHH.HHRRRRR.W~~~....",
+    "FFSFFFWW..RR.HHRHH.RHHH.HHR.....W~~~....",
+    "SSSFFFW....R.H.....RRRRRHHR.....W~~~S...",
     "FFFFFFW....R.R..HHRR...RH.R...HHW~~~S...",
-    "FFFFFFW....R.R..HH.R...R..RRRRHHW~~~S...",
-    "FFFFFFW.HH.RRRRRRRRRRRRRRRR.....W~~~.S..",
-    "FFFFFFW.HH.RHHHH....R...R.......W~~~.S..",
-    "FFFFFFW.R..RHHHH....R...HH......W~~~.S..",
-    "FFFFFFW.RRRRHHH...WGGG..HH......W~~~.S..",
-    "FFFFFFW...........WGGGWWWWWWWWWWW~~~..S.",
+    "FFFSSSW....R.R..HH.R...R..RRRRHHW~~~S...",
+    "FFFFFSW.HH.RRRRRRRRRRRRRRRR.....W~~~.S..",
+    "FFFFFSW.HH.RHHHH....R...R.......W~~~.S..",
+    "FFSFFSW.R..RHHHH....R...HH......W~~~.S..",
+    "FFSSSSW.RRRRHHH...WGGG..HH......W~~~.S..",
+    "FFSSSSW...........WGGGWWWWWWWWWWW~~~..S.",
     "FFFFFFWWWWWWWWWWWWW.R...........~~~~..S.",
-    "SSSSSS..............RAA.......~~~.~~..S.",
-    "SSSSSAAAAAAAAAAAAAAARAAAAAAAAA~~~~......",
-    "SSSSSAAAAAAAAAAAAAAARAAAAAAAAA~~~~......",
-    "SSSSSAAAAAAAAAAAAAAARAAAAAAAAA~~~~......",
+    "SSSSSS..............RAA......A~~~~~~..S.",
+    "SSSSSSSAAAAAAAAAAAAARAAAAAAAAA~~~~~.....",
+    "SSSSSSAAAAAAAAAAAAAARAAAAAAAAA~~~~......",
+    "SSSSSSAAAAAAAAAAAAAARAAAAAAAAA~~~~......",
     "SSSSSAAAAAAAAAAAAAAARAAAAAAAAA~~~~......",
     "SSSSSAAAAAAAAAAAAAAARAAAAAAAAA~~~~......"
   ],
@@ -317,20 +317,6 @@
       ]
     },
     {
-      "id": "chapel",
-      "kind": "chapel",
-      "x": 23,
-      "y": 9,
-      "width": 4,
-      "height": 2,
-      "door": {
-        "x": 22,
-        "y": 9,
-        "side": "west"
-      },
-      "imageSrc": "/images/straw/Chapel.png"
-    },
-    {
       "id": "square",
       "kind": "square",
       "x": 12,
@@ -385,6 +371,20 @@
         "side": "south"
       },
       "imageSrc": null
+    },
+    {
+      "id": "chapel",
+      "kind": "chapel",
+      "x": 23,
+      "y": 9,
+      "width": 4,
+      "height": 3,
+      "door": {
+        "x": 22,
+        "y": 9,
+        "side": "west"
+      },
+      "imageSrc": "/images/straw/Chapel.png"
     }
   ],
   "gates": [
@@ -729,12 +729,6 @@
       "x": 12,
       "y": 26,
       "variant": 2
-    },
-    {
-      "type": "tree",
-      "x": 16,
-      "y": 20,
-      "variant": 3
     },
     {
       "type": "tree",
@@ -1883,10 +1877,316 @@
       "y": 17
     },
     {
-      "type": "crates",
+      "type": "bush",
+      "variant": 3,
+      "x": 10,
+      "y": 30
+    },
+    {
+      "type": "bush",
+      "variant": 3,
+      "x": 22,
+      "y": 31
+    },
+    {
+      "type": "bush",
+      "variant": 3,
+      "x": 31,
+      "y": 29
+    },
+    {
+      "type": "bush",
+      "variant": 3,
+      "x": 17,
+      "y": 10
+    },
+    {
+      "type": "bush",
+      "variant": 1,
+      "x": 8,
+      "y": 27
+    },
+    {
+      "type": "bush",
+      "variant": 1,
+      "x": 26,
+      "y": 14
+    },
+    {
+      "type": "bush",
+      "variant": 2,
+      "x": 9,
+      "y": 32
+    },
+    {
+      "type": "bush",
+      "variant": 2,
+      "x": 28,
+      "y": 30
+    },
+    {
+      "type": "bush",
+      "variant": 2,
+      "x": 7,
+      "y": 25
+    },
+    {
+      "type": "bush",
+      "variant": 2,
+      "x": 9,
+      "y": 21
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 10,
+      "y": 23
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 16,
+      "y": 31
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 17,
+      "y": 29
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 24,
+      "y": 34
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 27,
+      "y": 34
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 27,
+      "y": 33
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 14,
+      "y": 34
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 7,
+      "y": 34
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 37,
+      "y": 36
+    },
+    {
+      "type": "flowers",
       "variant": 2,
       "x": 38,
+      "y": 36
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 37,
+      "y": 22
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 38,
+      "y": 22
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 38,
+      "y": 17
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 34,
+      "y": 9
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 36,
+      "y": 4
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 37,
+      "y": 5
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 37,
+      "y": 6
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 34,
+      "y": 8
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 28,
+      "y": 6
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 39,
+      "y": 30
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 39,
+      "y": 25
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 38,
+      "y": 21
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 38,
       "y": 18
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 37,
+      "y": 17
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 39,
+      "y": 16
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 25,
+      "y": 19
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 25,
+      "y": 18
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 26,
+      "y": 17
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 23,
+      "y": 16
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 21,
+      "y": 17
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 16,
+      "y": 21
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 16,
+      "y": 19
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 9,
+      "y": 13
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 7,
+      "y": 10
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 21,
+      "y": 30
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 28,
+      "y": 29
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 30,
+      "y": 31
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 9,
+      "y": 28
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 9,
+      "y": 25
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 8,
+      "y": 25
+    },
+    {
+      "type": "well",
+      "variant": 3,
+      "x": 12,
+      "y": 13
+    },
+    {
+      "type": "well",
+      "variant": 1,
+      "x": 29,
+      "y": 29
     }
   ],
   "tileImages": {
@@ -1906,12 +2206,30 @@
     "K": null
   },
   "cellImages": [],
-  "revision": 9,
+  "revision": 11,
   "secondsPerCell": 1,
   "id": "briarwick-town",
   "ambience": {
     "enabled": true,
     "mapId": "briarwick-town",
+    "wildlife": {
+      "squirrel": {
+        "chancePerSecond": 0.04,
+        "maxActive": 3
+      },
+      "eagle": {
+        "chancePerSecond": 0.015,
+        "maxActive": 1
+      },
+      "mole": {
+        "chancePerSecond": 0.03,
+        "maxActive": 2
+      },
+      "fish": {
+        "chancePerSecond": 0.1,
+        "maxActive": 20
+      }
+    },
     "vegetation": {
       "tree": {
         "seconds": 7,
@@ -1941,11 +2259,6 @@
         "type": "flowers",
         "x": 20,
         "y": 18
-      },
-      {
-        "type": "grass",
-        "x": 9,
-        "y": 21
       },
       {
         "type": "grass",

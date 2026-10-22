@@ -26,6 +26,16 @@ const { t } = useI18n()
 const activeMenu = ref(null)
 const workMenu = ref(null)
 const pinnedMenu = ref(null)
+const pawnWalker = ref(null)
+let livePawnPosition = null
+watch(() => props.travel, journey => { if (!journey) livePawnPosition = null })
+function setPawnPosition(point) {
+  if (!pawnWalker.value || !point) return
+  livePawnPosition = point
+  pawnWalker.value.style.left = point.x / mapSize.width * 100 + '%'
+  pawnWalker.value.style.top = point.y / mapSize.height * 100 + '%'
+}
+defineExpose({ setPawnPosition })
 let closeTimer = null
 watch(activeMenu, (id) => emit('menu', id))
 
@@ -109,7 +119,7 @@ function actionLabel(action, place) {
   if (action.id === 'walk') {
     if (!place.available) return t('actions.unavailable')
     if (!props.travel && props.currentLocation === place.id) return t('actions.here')
-    return t('actions.walk', { minutes: travelMinutesFromPoint(props.pawnPosition, place.id) })
+    return t('actions.walk', { minutes: travelMinutesFromPoint(livePawnPosition || props.pawnPosition, place.id) })
   }
   return t(action.labelKey)
 }
@@ -138,7 +148,7 @@ onBeforeUnmount(cancelMenuClose)
   <svg v-if="travel" class="town-route" :viewBox="'0 0 ' + mapSize.width + ' ' + mapSize.height" preserveAspectRatio="none" aria-hidden="true">
     <polyline :points="travel.route.map((point) => point.x + ',' + point.y).join(' ')" />
   </svg>
-  <div class="pawn-walker" :style="{ left: pawnPosition.x / mapSize.width * 100 + '%', top: pawnPosition.y / mapSize.height * 100 + '%' }" aria-hidden="true"><img src="/images/profile/blacksmith.png" alt="" /></div>
+  <div ref="pawnWalker" class="pawn-walker" :style="{ left: pawnPosition.x / mapSize.width * 100 + '%', top: pawnPosition.y / mapSize.height * 100 + '%' }" aria-hidden="true"><img src="/images/profile/blacksmith.png" alt="" /></div>
   <div v-if="travel" class="travel-banner" role="status" aria-live="polite">
     <strong>{{ t('map.walkingTo', { place: t('places.' + travel.destinationId + '.name') }) }}</strong>
     <span>{{ t('map.walkingTimeLeft', { seconds: Math.ceil((travel.totalMinutes - travel.elapsedMinutes) * (mapGrid.secondsPerCell || 2) - (travel.cellSeconds || 0)), minutes: travel.totalMinutes - travel.elapsedMinutes }) }}</span>
@@ -164,7 +174,7 @@ onBeforeUnmount(cancelMenuClose)
           :title="actionLabel(action, place)" :aria-label="action.id === 'walk' ? t('actions.walkTo', { place: t('places.' + place.id + '.name') }) : actionLabel(action, place)"
           @pointerenter="action.id === 'work' && hoverWork(place.id, $event)"
           :disabled="dialogueBlocked || action.disabled" @click="handleAction(action, place)">
-          <em v-if="action.id === 'walk'" class="walk-time">{{ place.available ? t('actions.travelBadge', { minutes: travelMinutesFromPoint(pawnPosition, place.id) }) : '—' }}</em>
+          <em v-if="action.id === 'walk'" class="walk-time">{{ place.available ? t('actions.travelBadge', { minutes: travelMinutesFromPoint(livePawnPosition || pawnPosition, place.id) }) : '—' }}</em>
         </CircleIcon>
         <Transition name="job-menu" :duration="{ enter: 270, leave: 230 }">
           <div v-if="workMenu === place.id" class="job-orbit" @pointerenter="cancelMenuClose">

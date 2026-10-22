@@ -2,7 +2,7 @@
 import { useI18n } from 'vue-i18n'
 import { isUnlocked } from '../progression'
 import CircleIcon from './CircleIcon.vue'
-defineProps({ mapName: String, day: Number, clock: String, expanded: Boolean, fullscreen: Boolean, muted: Boolean, busy: Boolean, canEdit: Boolean, editing: Boolean, completedQuests: { type: Array, required: true } })
+defineProps({ mapName: String, day: Number, clock: String, expanded: Boolean, fullscreen: Boolean, mobile: Boolean, muted: Boolean, busy: Boolean, canEdit: Boolean, editing: Boolean, completedQuests: { type: Array, required: true } })
 const emit = defineEmits(['modal', 'expand', 'fullscreen', 'mute', 'settings', 'editor'])
 const { t } = useI18n()
 </script>
@@ -16,8 +16,8 @@ const { t } = useI18n()
       <CircleIcon v-if="canEdit" icon="✎" size="job" :disabled="busy && !editing" :aria-label="t(editing ? 'mapEditor.close' : 'mapEditor.open')" :title="t(editing ? 'mapEditor.close' : 'mapEditor.open')" @click="emit('editor')" />
       <CircleIcon size="job" :icon="muted ? 'muted' : 'sound'" :aria-pressed="muted" :aria-label="t(muted ? 'audio.unmute' : 'audio.mute')" :title="t(muted ? 'audio.unmute' : 'audio.mute')" data-audio-ui="off" @click="emit('mute')" />
       <CircleIcon icon="⚙" size="job" :aria-label="t('audio.settings')" :title="t('audio.settings')" @click="emit('settings')" />
-      <CircleIcon :icon="expanded ? '↙' : '↗'" size="job" :disabled="fullscreen" :aria-pressed="expanded" :aria-label="t(expanded ? 'map.restoreWindow' : 'map.expandWindow')" :title="t(expanded ? 'map.restoreWindow' : 'map.expandWindow')" @click="emit('expand')" />
-      <CircleIcon :icon="fullscreen ? '⊡' : '⛶'" size="job" :aria-pressed="fullscreen" :aria-label="t(fullscreen ? 'map.exitFullscreen' : 'map.enterFullscreen')" :title="t(fullscreen ? 'map.exitFullscreen' : 'map.enterFullscreen')" @click="emit('fullscreen')" />
+      <CircleIcon v-if="!mobile" :icon="expanded ? '↙' : '↗'" size="job" :disabled="fullscreen" :aria-pressed="expanded" :aria-label="t(expanded ? 'map.restoreWindow' : 'map.expandWindow')" :title="t(expanded ? 'map.restoreWindow' : 'map.expandWindow')" @click="emit('expand')" />
+      <CircleIcon v-if="!mobile" :icon="fullscreen ? '⊡' : '⛶'" size="job" :aria-pressed="fullscreen" :aria-label="t(fullscreen ? 'map.exitFullscreen' : 'map.enterFullscreen')" :title="t(fullscreen ? 'map.exitFullscreen' : 'map.enterFullscreen')" @click="emit('fullscreen')" />
     </nav>
   </header>
 </template>

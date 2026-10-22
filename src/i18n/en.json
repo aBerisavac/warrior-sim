@@ -11,6 +11,14 @@
     "coinCount": "◈ {count} coins",
     "coinUnit": "copper"
   },
+  "loading": {
+    "town": "Welcome to Briarwick",
+    "townReturn": "Welcome back to Briarwick",
+    "townArrival": "Returning to Briarwick",
+    "forge": "Entering Father's forge",
+    "preparing": "Preparing the map…",
+    "progress": "{completed} of {total} assets ready"
+  },
   "places": {
     "smithy": {
       "name": "Blacksmith",
@@ -472,6 +480,11 @@
     "house": "House",
     "door": "Set entrance",
     "cellImage": "Cell image",
+    "cellImageHelp": "Enter an image path, then click a cell to place that image over just that cell. It is visual only: terrain, roads, entrances and movement stay the same. A new path replaces the previous cell image; an empty path removes it. The image is cropped to fill the cell.",
+    "clearCell": "Clear cell",
+    "clearCellHelp": "Click or drag to return cells to open ground and remove their decorations and cell images. Building and gate cells are protected.",
+    "cellCleared": "Cell cleared to open ground.",
+    "clearGate": "Gate cells cannot be cleared individually.",
     "well": "Well",
     "crates": "Crates",
     "flowers": "Flowers",
@@ -1093,6 +1106,7 @@
       "villageMusic": "Village music",
       "innMusic": "Inn and workshop music",
       "birds": "Birds outdoors",
+      "squirrelScratch": "Squirrel climbing a tree",
       "fire": "Crackling fire",
       "axeSwing": "Axe swing",
       "axeHit": "Axe impact",
@@ -1129,6 +1143,11 @@
     "continue": "Continue",
     "reveal": "Show the rest",
     "timePaused": "Workshop time pauses during guidance.",
+    "welcomeBack": [
+      "There you are, son. You found everything. Set the supplies down and come to the forge. Today you'll make your first dagger; I'll stay beside you.",
+      "I thought you might make me wait another year, Dad. I'm ready.",
+      "I've watched his hands at this forge for years. Now it is my turn to try."
+    ],
     "ore": [
       "Your first proper blade, then. Start with four pieces of the same ore in the crucible. Choose them from your bag or the storehouse; keep the metals separate.",
       "I do know which end of the crucible is open, Dad. I’ve been watching you since I could see over the bench.",
@@ -1158,7 +1177,7 @@
       "I’ve seen you do this without spilling a drop. You could have made it look a little harder, for my sake."
     ],
     "ruined": [
-      "This casting won’t do. Click the mould to discard it. Don’t try to hide a cold join beneath more metal. We’ll clear the crucible, prepare another charge, and do it properly.",
+      "This casting won’t do. Clear the mould and the crucible. Here, take four more pieces of iron ore and try again. That’s how you learn.",
       "He hasn’t raised his voice. Somehow that makes me want to get the next one right even more."
     ],
     "residue": [

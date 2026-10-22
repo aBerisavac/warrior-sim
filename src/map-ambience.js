@@ -1,4 +1,5 @@
 import { buildingCells, gateCells } from './town-grid.js'
+import { WILDLIFE_DEFAULTS } from './wildlife.js'
 
 export function ambienceFor(map) {
   return map?.id && map.ambience?.enabled && map.ambience.mapId === map.id ? map.ambience : null
@@ -74,6 +75,9 @@ export function validateMapAmbience(map) {
   if (!config) return []
   const errors = []
   if (!/^[a-z0-9-]+$/.test(map.id || '') || config.mapId !== map.id) errors.push('Ambience must name its owning map')
+  for (const [kind, rule] of Object.entries(config.wildlife || {})) {
+    if (!WILDLIFE_DEFAULTS[kind] || !Number.isFinite(rule?.chancePerSecond) || rule.chancePerSecond < 0 || rule.chancePerSecond > 1 || !Number.isInteger(rule.maxActive) || rule.maxActive < 1 || kind === 'squirrel' && rule.maxActive > 3) errors.push(`Invalid wildlife settings: ${kind}`)
+  }
   const point = p => Number.isFinite(p?.x) && Number.isFinite(p?.y)
   const ids = new Set()
   for (const bird of config.birds || []) {

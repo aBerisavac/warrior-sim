@@ -5,8 +5,35 @@ import { createSSRApp, createRenderer, h, markRaw, nextTick, ref, ssrContextKey 
 import { renderToString } from '@vue/server-renderer'
 import { createI18n } from 'vue-i18n'
 import { ambienceFor, birdPose, dustPatches, groundAccents, roofPerch, vegetationMotion, validateMapAmbience } from '../src/map-ambience.js'
+import { createWildlifeEvent, spawnWildlife, squirrelPath, wildlifePose } from '../src/wildlife.js'
 
 const map = JSON.parse(readFileSync(new URL('../src/data/town-map.json', import.meta.url)))
+const forest = { x: 0, y: 20 }
+const forestCell = map.terrain.flatMap((row, y) => [...row].map((tile, x) => tile === 'F' ? { x, y } : null)).find(cell => cell && squirrelPath(map, cell, () => .2).length > 1)
+assert(forestCell)
+const route = squirrelPath(map, forestCell, () => .2)
+assert(route.length >= 2 && route.length <= 6)
+assert(route.every(cell => map.terrain[cell.y][cell.x] === 'F'))
+assert(route.slice(1).every((cell, index) => Math.abs(cell.x - route[index].x) + Math.abs(cell.y - route[index].y) === 1))
+assert.deepEqual(squirrelPath(map, forest, () => .2), [], 'Squirrels start only on forest tiles')
+const squirrel = createWildlifeEvent(map, 'squirrel', () => .2)
+assert(squirrel && squirrel.duration <= 20 && squirrel.path.length <= 6)
+assert.equal(wildlifePose(squirrel, squirrel.timeline.find(part => part.phase === 'nibble').start + .1).phase, 'nibble')
+assert.equal(wildlifePose(squirrel, squirrel.duration), null)
+for (const [kind, tile] of [['eagle', 'M'], ['mole', 'A'], ['fish', '~']]) {
+  const event = createWildlifeEvent(map, kind, () => .2)
+  assert(event && map.terrain[event.origin.y][event.origin.x] === tile)
+  assert(wildlifePose(event, event.duration / 2))
+  if (kind === 'eagle') assert(map.terrain[event.destination.y][event.destination.x] === 'M')
+  else assert.equal(event.destination, undefined, `${kind} remains in its starting cell`)
+}
+const atCap = Array.from({ length: 3 }, (_, id) => ({ id, kind: 'squirrel' }))
+assert(spawnWildlife(map, atCap, () => 0).every(event => event.kind !== 'squirrel'), 'At most three squirrels coexist')
+const fishRush = spawnWildlife(map, [], () => 0).filter(event => event.kind === 'fish')
+assert.equal(fishRush.length, 20, 'Fish roll per river tile and respect the active limit')
+assert.equal(new Set(fishRush.map(event => `${event.origin.x},${event.origin.y}`)).size, 20, 'One fish occupies each river tile')
+assert(spawnWildlife(map, fishRush, () => 0).every(event => event.kind !== 'fish'), 'The fish limit prevents additional spawns')
+assert.equal(spawnWildlife(map, [], () => .5).length, 0, 'Wildlife remains rare')
 assert.deepEqual(validateMapAmbience(map), [])
 assert.equal(ambienceFor({ ...map, id: 'another-town' }), null)
 assert.equal(ambienceFor({ ...map, ambience: undefined }), null)
