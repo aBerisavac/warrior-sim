@@ -96,7 +96,7 @@ function chooseRoad(event) {
       </g>
     </g>
     <MapAmbience v-if="config" :map="map" :paused="paused || motionUnavailable" :raining="raining" />
-    <Transition name="town-road-glow"><rect v-if="hoveredRoad" class="town-road-highlight" :x="hoveredRoad.x * map.cellSize + 2" :y="hoveredRoad.y * map.cellSize + 2" :width="map.cellSize - 4" :height="map.cellSize - 4" rx="2" /></Transition>
+    <TransitionGroup name="town-road-glow" tag="g"><rect v-if="hoveredRoad" :key="`${hoveredRoad.x},${hoveredRoad.y}`" class="town-road-highlight" :x="hoveredRoad.x * map.cellSize + 2" :y="hoveredRoad.y * map.cellSize + 2" :width="map.cellSize - 4" :height="map.cellSize - 4" rx="2" /></TransitionGroup>
   </svg>
 </template>
 

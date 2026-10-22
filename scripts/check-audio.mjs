@@ -108,6 +108,17 @@ try {
   engine.setScene(['innMusic', 'fire']); await flush(); assert.equal(ctx.active().length, 2, 'Scene changes replace previous loops')
   await engine.preview('hammer'); await flush(); assert(ctx.active().some(s => s.startArguments[2] === 2), 'Previews are limited to two seconds')
   await engine.dispose(); await flush(); assert.equal(ctx.active().length, 0); assert.equal(ctx.state, 'closed')
+  const rainContext = new FakeContext()
+  const rainEngine = createAudioEngine({ settings, makeContext: () => rainContext, fetchAudio: async () => ({ ok: true, arrayBuffer: async () => new ArrayBuffer(4) }) })
+  await rainEngine.unlock()
+  rainEngine.setScene(['rainOutdoor']); await flush()
+  const rainSource = rainContext.active()[0]
+  rainEngine.setScene([]); await flush()
+  assert(!rainSource.stopped, 'Rain remains alive while fading out')
+  rainEngine.setScene(['rainOutdoor']); await flush()
+  assert.equal(rainContext.active()[0], rainSource, 'A quick new shower reverses the existing fade instead of restarting the loop')
+  assert.equal(rainContext.sources.length, 1)
+  await rainEngine.dispose()
   const allowedContext = new FakeContext(); allowedContext.state = 'running'
   const allowed = createAudioEngine({ settings, makeContext: () => allowedContext, fetchAudio: async () => ({ ok: true, arrayBuffer: async () => new ArrayBuffer(4) }) })
   allowed.setScene(['birds']); allowed.tryAutoplay(); await flush(); assert.equal(allowedContext.active().length, 1, 'Allowed autoplay starts the scene on load')

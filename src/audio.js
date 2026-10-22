@@ -122,7 +122,15 @@ export function createAudioEngine({ settings, makeContext, fetchAudio, isHidden 
   function stopVoice(voice, fade = .2) {
     if (!voice || voice.stopping) return
     voice.stopping = true; clearTimeout(voice.driftTimer); gainTo(voice, 0, fade)
-    try { voice.source.stop(context.currentTime + fade + .02) } catch { /* Already ended. */ }
+    if (voice.id.startsWith('rain') && fade > .03) {
+      // Keep the loop alive during its fade so a returning shower can reverse it.
+      voice.stopTimer = setTimeout(() => {
+        voice.stopTimer = null
+        try { voice.source.stop() } catch { /* Already ended. */ }
+      }, (fade + .02) * 1000)
+    } else {
+      try { voice.source.stop(context.currentTime + fade + .02) } catch { /* Already ended. */ }
+    }
   }
   function drift(voice) {
     if (voice.stopping || disposed) return
@@ -147,7 +155,7 @@ export function createAudioEngine({ settings, makeContext, fetchAudio, isHidden 
     gain.gain.value = loop ? 0 : target(id, scale)
     if (loop) gainTo(voice, target(id, scale), catalog[id].fadeIn ?? .8)
     if (loop && catalog[id].smoothVariation) voice.driftTimer = setTimeout(() => drift(voice), (catalog[id].fadeIn ?? .8) * 1000)
-    source.onended = () => { clearTimeout(voice.driftTimer); voices.delete(voice); source.disconnect(); gain.disconnect() }
+    source.onended = () => { clearTimeout(voice.driftTimer); clearTimeout(voice.stopTimer); voices.delete(voice); source.disconnect(); gain.disconnect() }
     if (duration) source.start(0, 0, Math.min(duration, buffer.duration))
     else source.start()
     return voice
@@ -160,7 +168,14 @@ export function createAudioEngine({ settings, makeContext, fetchAudio, isHidden 
       if (!catalog[id]?.loop || target(id) <= 0) continue
       if (loops.has(id)) continue
       const slot = { voice: null }; loops.set(id, slot)
-      slot.voice = await start(id, true)
+      const fadingRain = id.startsWith('rain') && [...voices].find(voice => voice.id === id && voice.stopping && voice.stopTimer)
+      if (fadingRain) {
+        clearTimeout(fadingRain.stopTimer)
+        fadingRain.stopTimer = null
+        fadingRain.stopping = false
+        gainTo(fadingRain, target(id, fadingRain.scale), catalog[id].fadeIn ?? .8)
+        slot.voice = fadingRain
+      } else slot.voice = await start(id, true)
       if (loops.get(id) !== slot || disposed) stopVoice(slot.voice)
       else if (!slot.voice) loops.delete(id)
     }
@@ -234,7 +249,7 @@ export function createAudioEngine({ settings, makeContext, fetchAudio, isHidden 
     disposed = true
     for (const timer of holds.values()) clearTimeout(timer)
     holds.clear(); desired = []; loops.clear()
-    for (const voice of voices) { clearTimeout(voice.driftTimer); try { voice.source.stop() } catch { /* Already ended. */ } }
+    for (const voice of voices) { clearTimeout(voice.driftTimer); clearTimeout(voice.stopTimer); try { voice.source.stop() } catch { /* Already ended. */ } }
     voices.clear()
     if (context && context.state !== 'closed') { try { await context.close() } catch { /* Browser may have already closed the device. */ } }
   }
