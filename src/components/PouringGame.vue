@@ -62,3 +62,7 @@ onBeforeUnmount(() => { lower(); window.removeEventListener('blur', lower) })
 </style>
 
 <style scoped>.pouring-game{height:calc(100% - 8px);max-height:620px;display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box}.pouring-game header{position:sticky;top:0;z-index:10;background:#25382c;flex:none}.pouring-arena{flex:1;min-height:85px;height:auto}.pouring-game footer,.pouring-stats,.pouring-game>p{flex:none}.pouring-game button:hover:not(:disabled){background:#dec18a;color:#203428}</style>
+
+<style scoped>
+.pouring-scrim{padding:0;z-index:40;box-sizing:border-box}.pouring-game{width:100%;height:100%;max-width:none;max-height:none;border-radius:0;padding:12px}.pouring-arena{min-height:65px}.pouring-game header{flex:none}@media(max-width:570px){.pouring-game{padding:8px}.pouring-game>p{font-size:10px;margin:5px 0}.pouring-stats{font-size:10px}}
+</style>

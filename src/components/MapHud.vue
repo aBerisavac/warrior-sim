@@ -30,10 +30,5 @@ const { t } = useI18n()
       <StatusRing :percent="sleepNeed" :label="t('hud.sleep')" glyph="☾" tone="sleep-ring" :clickable="!busy && !traveling && atHome && isUnlocked(completedQuests, 'hud', 'sleep')" @click="!busy && !traveling && atHome && isUnlocked(completedQuests, 'hud', 'sleep') && emit('modal', 'sleep')" />
       <StatusRing :percent="hunger" :label="t('needs.hunger')" glyph="♨" tone="hunger-ring" :clickable="!busy" @click="!busy && emit('modal', 'inventory')" />
     </div>
-    <div class="hud-tools">
-      <button :disabled="busy || !isUnlocked(completedQuests, 'hud', 'objective')" @click="emit('modal', 'objective')" :aria-label="t('hud.openObjective')" :title="t('sidebar.currentObjective')"><b>✧</b><span>{{ t('hud.objective') }}</span></button>
-      <button :disabled="busy || !isUnlocked(completedQuests, 'hud', 'journal')" @click="emit('modal', 'journal')" :aria-label="t('hud.openJournal')" :title="t('sidebar.fieldNotes')"><b>☷</b><span>{{ t('hud.journal') }}</span></button>
-    </div>
   </div>
 </template>
-

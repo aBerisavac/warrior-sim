@@ -1,6 +1,6 @@
 {
-  "columns": 30,
-  "rows": 30,
+  "columns": 40,
+  "rows": 40,
   "cellSize": 40,
   "minutesPerCell": 1,
   "legend": {
@@ -13,51 +13,65 @@
     "F": "forest",
     "M": "mountain",
     "A": "farmland",
-    "~": "river"
+    "~": "river",
+    "D": "drawbridge",
+    "P": "pond",
+    "S": "wild meadow",
+    "K": "rocky ground"
   },
   "terrain": [
-    "..............MMMRMMM.........",
-    ".WWWWWWWWWWWWWWRRR.M..........",
-    ".W............GGG.............",
-    ".W.HHH........GGGWWWWWWWWWWW..",
-    ".W.HHHHHHR...HHRRRHHHHR....W..",
-    ".W...RHHHR...HH..RHHHHR..HHW..",
-    ".WHH.RHHHR.......RRRRRRRRHHW..",
-    ".WHHRRRRRRRRRRRRRR....R....W..",
-    ".W...R...R.HH.R..R.HH.R....W..",
-    ".W...R...R.HH.HHHR.HH.R....W..",
-    ".W...RHH.R..R.HHHR.HHRRRRR.W..",
-    ".WW..RHHRRRRRRR..R....R..R.W..",
-    "..WW.R...R..HHR..R....R..R.W..",
-    "F..W.R.HHHH.HHR..R....HH.RWW~~",
-    "FFGG.R.HHHH...R..R....HH.RGG~.",
-    "RRGGRRRHHHH.RRRRRRRRR....RGGBR",
-    "F.GG..RHHHH...R..........RGG~.",
-    "F..W..RRRRR...RHHH.......RWW~.",
-    "..WW..R.HHRHH.RHHH.HHRRRRR.W~.",
-    ".WW..RR.HHRHH.RHHH.HHR.....W~.",
-    ".W....R.H.....RRRRRHHR.....W~.",
-    ".W....R.R..HHRR...RH.R...HHW~.",
-    ".W....R.R..HH.R...R..RRRRHHW~.",
-    ".W.HH.RRRRRRRRRRRRRRRR.....W~.",
-    ".W.HH.RHHHH....R...R.......W~.",
-    ".W.R..RHHHH....R...HH......W~.",
-    ".W.RRRRHHH...WGGG..HH......W~.",
-    ".W...........WGGGWWWWWWWWWWW~.",
-    ".WWWWWWWWWWWWW.R...........~~.",
-    "...............RAA.......~~~.."
+    "SSSSSSSSMMMMMMMMMMMMRMMMMMMMMMMM........",
+    "SSSSSSSSMMMMMMMMMMMMRMMMMMMMMMMM........",
+    "SSSSSSSSMMMMMMMMMMMMRMMMMMMMMMMM........",
+    "SSSSSSSSMMMMMMMMMMMMRMMMKMKKKKKK........",
+    "SSSSSSSSMMMMMMMMMMMMRMMMMKKKKKKK........",
+    "FFFFFF.............MRMRMMM..............",
+    "FFFFFFWWWWWWWWWWWWWWRRR.M...............",
+    "FFFFFFW............GGG..................",
+    "FFFFFFW.HHH........GGGWWWWWWWWWWW...PPP.",
+    "FFFFFFW.HHHHHHR...HHRRRHHHHR....W..PPPPP",
+    "FFFFFFW...RHHHR...HH..RHHHHR..HHW..PPPPP",
+    "FFFFFFWHH.RHHHR.......RRRRRRRRHHW..PPPPP",
+    "FFFFFFWHHRRRRRRRRRRRRRR....R....W..PPPPP",
+    "FFFFFFW...R...R.HH.R..R.HH.R....W..PPPPP",
+    "FFFFFFW...R...R.HH.HHHR.HH.R....W.~~PPP.",
+    "FFFFFFW...RHH.R..R.HHHR.HHRRRRR.W.~~~...",
+    "FFFFFFWW..RHHRRRRRRR..R....R..R.W.~~~...",
+    "FFFFFF.WW.R...R..HHR..R....R..R.W.~~~...",
+    "FFFFFF..W.R.HHHH.HHR..R....HH.RWW~~~~...",
+    "FFFFFFFGG.R.HHHH...R..R....HH.RGG~~~~~..",
+    "RRRRRRRGGRRRHHHH.RRRRRRRRR....RGGDDDDDRR",
+    "FFFFFF.GG..RHHHH...R..........RGG~~~~~..",
+    "FFFFFF..W..RRRRR...RHHH.......RWW~~~....",
+    "FFFFFF.WW..R.HHRHH.RHHH.HHRRRRR.W~~~....",
+    "FFFFFFWW..RR.HHRHH.RHHH.HHR.....W~~~....",
+    "FFFFFFW....R.H.....RRRRRHHR.....W~~~S...",
+    "FFFFFFW....R.R..HHRR...RH.R...HHW~~~S...",
+    "FFFFFFW....R.R..HH.R...R..RRRRHHW~~~S...",
+    "FFFFFFW.HH.RRRRRRRRRRRRRRRR.....W~~~.S..",
+    "FFFFFFW.HH.RHHHH....R...R.......W~~~.S..",
+    "FFFFFFW.R..RHHHH....R...HH......W~~~.S..",
+    "FFFFFFW.RRRRHHH...WGGG..HH......W~~~.S..",
+    "FFFFFFW...........WGGGWWWWWWWWWWW~~~..S.",
+    "FFFFFFWWWWWWWWWWWWW.R...........~~~~..S.",
+    "SSSSSS..............RAA.......~~~.~~..S.",
+    "SSSSSAAAAAAAAAAAAAAARAAAAAAAAA~~~~......",
+    "SSSSSAAAAAAAAAAAAAAARAAAAAAAAA~~~~......",
+    "SSSSSAAAAAAAAAAAAAAARAAAAAAAAA~~~~......",
+    "SSSSSAAAAAAAAAAAAAAARAAAAAAAAA~~~~......",
+    "SSSSSAAAAAAAAAAAAAAARAAAAAAAAA~~~~......"
   ],
   "buildings": [
     {
       "id": "smithy",
       "kind": "smithy",
-      "x": 3,
-      "y": 23,
+      "x": 8,
+      "y": 28,
       "width": 2,
       "height": 2,
       "door": {
-        "x": 3,
-        "y": 25,
+        "x": 8,
+        "y": 30,
         "side": "south"
       },
       "imageSrc": null
@@ -65,13 +79,13 @@
     {
       "id": "barracks",
       "kind": "barracks",
-      "x": 6,
-      "y": 4,
+      "x": 11,
+      "y": 9,
       "width": 3,
       "height": 3,
       "door": {
-        "x": 9,
-        "y": 4,
+        "x": 14,
+        "y": 9,
         "side": "east"
       },
       "imageSrc": "/images/straw/Barracks.png"
@@ -79,13 +93,13 @@
     {
       "id": "house1792491297604",
       "kind": "house",
-      "x": 19,
-      "y": 25,
+      "x": 24,
+      "y": 30,
       "width": 2,
       "height": 2,
       "door": {
-        "x": 19,
-        "y": 24,
+        "x": 24,
+        "y": 29,
         "side": "north"
       },
       "imageSrc": null
@@ -93,13 +107,13 @@
     {
       "id": "house1792491299924",
       "kind": "house",
-      "x": 25,
-      "y": 21,
+      "x": 30,
+      "y": 26,
       "width": 2,
       "height": 2,
       "door": {
-        "x": 24,
-        "y": 22,
+        "x": 29,
+        "y": 27,
         "side": "west"
       },
       "imageSrc": null
@@ -107,13 +121,13 @@
     {
       "id": "house1792491302356",
       "kind": "house",
-      "x": 25,
-      "y": 5,
+      "x": 30,
+      "y": 10,
       "width": 2,
       "height": 2,
       "door": {
-        "x": 24,
-        "y": 6,
+        "x": 29,
+        "y": 11,
         "side": "west"
       },
       "imageSrc": null
@@ -121,13 +135,13 @@
     {
       "id": "house1792491306418",
       "kind": "house",
-      "x": 13,
-      "y": 4,
+      "x": 18,
+      "y": 9,
       "width": 2,
       "height": 2,
       "door": {
-        "x": 15,
-        "y": 4,
+        "x": 20,
+        "y": 9,
         "side": "east"
       },
       "imageSrc": null
@@ -135,13 +149,13 @@
     {
       "id": "house1792491309100",
       "kind": "house",
-      "x": 2,
-      "y": 6,
+      "x": 7,
+      "y": 11,
       "width": 2,
       "height": 2,
       "door": {
-        "x": 4,
-        "y": 7,
+        "x": 9,
+        "y": 12,
         "side": "east"
       },
       "imageSrc": null
@@ -149,13 +163,13 @@
     {
       "id": "house1792491311780",
       "kind": "house",
-      "x": 6,
-      "y": 10,
+      "x": 11,
+      "y": 15,
       "width": 2,
       "height": 2,
       "door": {
-        "x": 5,
-        "y": 10,
+        "x": 10,
+        "y": 15,
         "side": "west"
       },
       "imageSrc": null
@@ -163,13 +177,13 @@
     {
       "id": "house1792491313909",
       "kind": "house",
-      "x": 11,
-      "y": 8,
+      "x": 16,
+      "y": 13,
       "width": 2,
       "height": 2,
       "door": {
-        "x": 11,
-        "y": 7,
+        "x": 16,
+        "y": 12,
         "side": "north"
       },
       "imageSrc": null
@@ -177,13 +191,13 @@
     {
       "id": "house1792491315412",
       "kind": "house",
-      "x": 14,
-      "y": 9,
+      "x": 19,
+      "y": 14,
       "width": 3,
       "height": 2,
       "door": {
-        "x": 14,
-        "y": 8,
+        "x": 19,
+        "y": 13,
         "side": "north"
       },
       "imageSrc": null
@@ -191,13 +205,13 @@
     {
       "id": "house1792491338076",
       "kind": "house",
-      "x": 22,
-      "y": 13,
+      "x": 27,
+      "y": 18,
       "width": 2,
       "height": 2,
       "door": {
-        "x": 22,
-        "y": 12,
+        "x": 27,
+        "y": 17,
         "side": "north"
       },
       "imageSrc": null
@@ -205,13 +219,13 @@
     {
       "id": "house1792491339531",
       "kind": "house",
-      "x": 19,
-      "y": 8,
+      "x": 24,
+      "y": 13,
       "width": 2,
       "height": 3,
       "door": {
-        "x": 21,
-        "y": 10,
+        "x": 26,
+        "y": 15,
         "side": "east"
       },
       "imageSrc": null
@@ -219,13 +233,13 @@
     {
       "id": "house1792491347116",
       "kind": "house",
-      "x": 7,
-      "y": 24,
+      "x": 12,
+      "y": 29,
       "width": 4,
       "height": 3,
       "door": {
-        "x": 7,
-        "y": 23,
+        "x": 12,
+        "y": 28,
         "side": "north"
       },
       "imageSrc": null,
@@ -238,13 +252,13 @@
     {
       "id": "house1792491350284",
       "kind": "house",
-      "x": 8,
-      "y": 18,
+      "x": 13,
+      "y": 23,
       "width": 2,
       "height": 3,
       "door": {
-        "x": 8,
-        "y": 17,
+        "x": 13,
+        "y": 22,
         "side": "north"
       },
       "imageSrc": null,
@@ -257,13 +271,13 @@
     {
       "id": "house1792491353916",
       "kind": "house",
-      "x": 11,
-      "y": 21,
+      "x": 16,
+      "y": 26,
       "width": 2,
       "height": 2,
       "door": {
-        "x": 13,
-        "y": 21,
+        "x": 18,
+        "y": 26,
         "side": "east"
       },
       "imageSrc": null
@@ -271,13 +285,13 @@
     {
       "id": "house1792491356684",
       "kind": "house",
-      "x": 11,
-      "y": 18,
+      "x": 16,
+      "y": 23,
       "width": 2,
       "height": 2,
       "door": {
-        "x": 10,
-        "y": 18,
+        "x": 15,
+        "y": 23,
         "side": "west"
       },
       "imageSrc": null
@@ -285,13 +299,13 @@
     {
       "id": "house1792491359996",
       "kind": "house",
-      "x": 19,
-      "y": 18,
+      "x": 24,
+      "y": 23,
       "width": 2,
       "height": 4,
       "door": {
-        "x": 21,
-        "y": 18,
+        "x": 26,
+        "y": 23,
         "side": "east"
       },
       "imageSrc": null,
@@ -305,13 +319,13 @@
     {
       "id": "chapel",
       "kind": "chapel",
-      "x": 18,
-      "y": 4,
+      "x": 23,
+      "y": 9,
       "width": 4,
       "height": 2,
       "door": {
-        "x": 17,
-        "y": 4,
+        "x": 22,
+        "y": 9,
         "side": "west"
       },
       "imageSrc": "/images/straw/Chapel.png"
@@ -319,13 +333,13 @@
     {
       "id": "square",
       "kind": "square",
-      "x": 7,
-      "y": 13,
+      "x": 12,
+      "y": 18,
       "width": 4,
       "height": 4,
       "door": {
-        "x": 9,
-        "y": 12,
+        "x": 14,
+        "y": 17,
         "side": "north"
       },
       "imageSrc": "/images/straw/Town_Square.png"
@@ -333,13 +347,13 @@
     {
       "id": "market",
       "kind": "market",
-      "x": 15,
-      "y": 17,
+      "x": 20,
+      "y": 22,
       "width": 3,
       "height": 3,
       "door": {
-        "x": 14,
-        "y": 17,
+        "x": 19,
+        "y": 22,
         "side": "west"
       },
       "imageSrc": "/images/straw/Market.png"
@@ -347,13 +361,13 @@
     {
       "id": "tavern",
       "kind": "tavern",
-      "x": 12,
-      "y": 12,
+      "x": 17,
+      "y": 17,
       "width": 2,
       "height": 2,
       "door": {
-        "x": 12,
-        "y": 11,
+        "x": 17,
+        "y": 16,
         "side": "north"
       },
       "imageSrc": "/images/straw/Tavern.png"
@@ -361,13 +375,13 @@
     {
       "id": "house1792574285215",
       "kind": "house",
-      "x": 3,
-      "y": 3,
+      "x": 8,
+      "y": 8,
       "width": 3,
       "height": 2,
       "door": {
-        "x": 5,
-        "y": 5,
+        "x": 10,
+        "y": 10,
         "side": "south"
       },
       "imageSrc": null
@@ -376,160 +390,160 @@
   "gates": [
     {
       "id": "northGate",
-      "x": 14,
-      "y": 2,
+      "x": 19,
+      "y": 7,
       "direction": "north",
       "width": 3,
       "height": 2,
       "underTiles": [
         {
-          "x": 14,
-          "y": 2,
+          "x": 19,
+          "y": 7,
           "tile": "W"
         },
         {
-          "x": 15,
-          "y": 2,
+          "x": 20,
+          "y": 7,
           "tile": "R"
         },
         {
-          "x": 16,
-          "y": 2,
+          "x": 21,
+          "y": 7,
           "tile": "."
         },
         {
-          "x": 14,
-          "y": 3,
+          "x": 19,
+          "y": 8,
           "tile": "W"
         },
         {
-          "x": 15,
-          "y": 3,
+          "x": 20,
+          "y": 8,
           "tile": "W"
         },
         {
-          "x": 16,
-          "y": 3,
+          "x": 21,
+          "y": 8,
           "tile": "W"
         }
       ]
     },
     {
       "id": "eastGate",
-      "x": 26,
-      "y": 14,
+      "x": 31,
+      "y": 19,
       "direction": "east",
       "width": 2,
       "height": 3,
       "underTiles": [
         {
-          "x": 26,
-          "y": 14,
+          "x": 31,
+          "y": 19,
           "tile": "W"
         },
         {
-          "x": 27,
-          "y": 14,
+          "x": 32,
+          "y": 19,
           "tile": "."
         },
         {
-          "x": 26,
-          "y": 15,
+          "x": 31,
+          "y": 20,
           "tile": "W"
         },
         {
-          "x": 27,
-          "y": 15,
+          "x": 32,
+          "y": 20,
           "tile": "R"
         },
         {
-          "x": 26,
-          "y": 16,
+          "x": 31,
+          "y": 21,
           "tile": "W"
         },
         {
-          "x": 27,
-          "y": 16,
+          "x": 32,
+          "y": 21,
           "tile": "."
         }
       ]
     },
     {
       "id": "gate",
-      "x": 14,
-      "y": 26,
+      "x": 19,
+      "y": 31,
       "direction": "south",
       "width": 3,
       "height": 2,
       "underTiles": [
         {
-          "x": 14,
-          "y": 26,
+          "x": 19,
+          "y": 31,
           "tile": "W"
         },
         {
-          "x": 15,
-          "y": 26,
+          "x": 20,
+          "y": 31,
           "tile": "W"
         },
         {
-          "x": 16,
-          "y": 26,
+          "x": 21,
+          "y": 31,
           "tile": "W"
         },
         {
-          "x": 14,
-          "y": 27,
+          "x": 19,
+          "y": 32,
           "tile": "."
         },
         {
-          "x": 15,
-          "y": 27,
+          "x": 20,
+          "y": 32,
           "tile": "R"
         },
         {
-          "x": 16,
-          "y": 27,
+          "x": 21,
+          "y": 32,
           "tile": "W"
         }
       ]
     },
     {
       "id": "westGate",
-      "x": 2,
-      "y": 14,
+      "x": 7,
+      "y": 19,
       "direction": "west",
       "width": 2,
       "height": 3,
       "underTiles": [
         {
-          "x": 2,
-          "y": 14,
+          "x": 7,
+          "y": 19,
           "tile": "."
         },
         {
-          "x": 3,
-          "y": 14,
+          "x": 8,
+          "y": 19,
           "tile": "W"
         },
         {
-          "x": 2,
-          "y": 15,
+          "x": 7,
+          "y": 20,
           "tile": "R"
         },
         {
-          "x": 3,
-          "y": 15,
+          "x": 8,
+          "y": 20,
           "tile": "W"
         },
         {
-          "x": 2,
-          "y": 16,
+          "x": 7,
+          "y": 21,
           "tile": "."
         },
         {
-          "x": 3,
-          "y": 16,
+          "x": 8,
+          "y": 21,
           "tile": "W"
         }
       ]
@@ -538,303 +552,1341 @@
   "decor": [
     {
       "type": "well",
-      "x": 16,
-      "y": 16
+      "x": 21,
+      "y": 21,
+      "variant": 1
     },
     {
       "type": "crates",
-      "x": 19,
-      "y": 12
-    },
-    {
-      "type": "flowers",
-      "x": 12,
-      "y": 13
-    },
-    {
-      "type": "flowers",
-      "x": 4,
-      "y": 13
-    },
-    {
-      "type": "flowers",
-      "x": 3,
-      "y": 9
-    },
-    {
-      "type": "flowers",
-      "x": 4,
-      "y": 10
-    },
-    {
-      "type": "flowers",
-      "x": 8,
-      "y": 9
-    },
-    {
-      "type": "flowers",
-      "x": 10,
-      "y": 10
-    },
-    {
-      "type": "flowers",
-      "x": 13,
-      "y": 10
-    },
-    {
-      "type": "flowers",
-      "x": 18,
-      "y": 16
-    },
-    {
-      "type": "flowers",
-      "x": 22,
-      "y": 16
-    },
-    {
-      "type": "flowers",
-      "x": 23,
-      "y": 17
-    },
-    {
-      "type": "flowers",
       "x": 24,
-      "y": 12
+      "y": 17,
+      "variant": 2
     },
     {
       "type": "flowers",
-      "x": 26,
-      "y": 10
-    },
-    {
-      "type": "flowers",
-      "x": 24,
-      "y": 9
-    },
-    {
-      "type": "flowers",
-      "x": 24,
-      "y": 8
-    },
-    {
-      "type": "flowers",
-      "x": 26,
-      "y": 7
-    },
-    {
-      "type": "crates",
-      "x": 12,
-      "y": 16
-    },
-    {
-      "type": "crates",
-      "x": 6,
-      "y": 13
-    },
-    {
-      "type": "flowers",
-      "x": 4,
-      "y": 4
-    },
-    {
-      "type": "flowers",
-      "x": 5,
-      "y": 3
+      "x": 17,
+      "y": 18,
+      "variant": 3
     },
     {
       "type": "flowers",
       "x": 9,
-      "y": 3
+      "y": 18,
+      "variant": 1
     },
     {
       "type": "flowers",
-      "x": 11,
-      "y": 2
+      "x": 8,
+      "y": 14,
+      "variant": 1
     },
     {
       "type": "flowers",
-      "x": 11,
-      "y": 5
+      "x": 9,
+      "y": 15,
+      "variant": 1
     },
     {
       "type": "flowers",
-      "x": 20,
-      "y": 7
+      "x": 13,
+      "y": 14,
+      "variant": 3
     },
     {
-      "type": "bush",
+      "type": "flowers",
+      "x": 15,
+      "y": 15,
+      "variant": 1
+    },
+    {
+      "type": "flowers",
       "x": 18,
-      "y": 13
+      "y": 15,
+      "variant": 1
+    },
+    {
+      "type": "flowers",
+      "x": 23,
+      "y": 21,
+      "variant": 3
+    },
+    {
+      "type": "flowers",
+      "x": 27,
+      "y": 21,
+      "variant": 1
+    },
+    {
+      "type": "flowers",
+      "x": 28,
+      "y": 22,
+      "variant": 1
+    },
+    {
+      "type": "flowers",
+      "x": 29,
+      "y": 17,
+      "variant": 1
+    },
+    {
+      "type": "flowers",
+      "x": 31,
+      "y": 15,
+      "variant": 2
+    },
+    {
+      "type": "flowers",
+      "x": 29,
+      "y": 14,
+      "variant": 1
+    },
+    {
+      "type": "flowers",
+      "x": 29,
+      "y": 13,
+      "variant": 2
+    },
+    {
+      "type": "flowers",
+      "x": 31,
+      "y": 12,
+      "variant": 2
+    },
+    {
+      "type": "crates",
+      "x": 17,
+      "y": 21,
+      "variant": 3
+    },
+    {
+      "type": "crates",
+      "x": 11,
+      "y": 18,
+      "variant": 3
+    },
+    {
+      "type": "flowers",
+      "x": 9,
+      "y": 9,
+      "variant": 1
+    },
+    {
+      "type": "flowers",
+      "x": 10,
+      "y": 8,
+      "variant": 3
+    },
+    {
+      "type": "flowers",
+      "x": 14,
+      "y": 8,
+      "variant": 1
+    },
+    {
+      "type": "flowers",
+      "x": 16,
+      "y": 7,
+      "variant": 1
+    },
+    {
+      "type": "flowers",
+      "x": 16,
+      "y": 10,
+      "variant": 1
+    },
+    {
+      "type": "flowers",
+      "x": 25,
+      "y": 12,
+      "variant": 2
     },
     {
       "type": "bush",
       "x": 23,
-      "y": 15
+      "y": 18,
+      "variant": 3
     },
     {
       "type": "bush",
-      "x": 23,
-      "y": 19
+      "x": 28,
+      "y": 20,
+      "variant": 3
+    },
+    {
+      "type": "bush",
+      "x": 28,
+      "y": 24,
+      "variant": 2
     },
     {
       "type": "tree",
-      "x": 3,
-      "y": 21
+      "x": 8,
+      "y": 26,
+      "variant": 1
     },
     {
       "type": "tree",
-      "x": 7,
-      "y": 21
+      "x": 12,
+      "y": 26,
+      "variant": 2
+    },
+    {
+      "type": "tree",
+      "x": 16,
+      "y": 20,
+      "variant": 3
     },
     {
       "type": "tree",
       "x": 11,
-      "y": 15
+      "y": 14,
+      "variant": 1
     },
     {
       "type": "tree",
-      "x": 6,
-      "y": 9
+      "x": 17,
+      "y": 8,
+      "variant": 1
     },
     {
       "type": "tree",
-      "x": 12,
-      "y": 3
+      "x": 28,
+      "y": 10,
+      "variant": 1
     },
     {
       "type": "tree",
-      "x": 23,
-      "y": 5
-    },
-    {
-      "type": "tree",
-      "x": 16,
-      "y": 6
-    },
-    {
-      "type": "tree",
-      "x": 20,
-      "y": 2
+      "x": 21,
+      "y": 11,
+      "variant": 2
     },
     {
       "type": "tree",
       "x": 25,
-      "y": 1
+      "y": 7,
+      "variant": 1
     },
     {
       "type": "tree",
-      "x": 1,
-      "y": 18
+      "x": 30,
+      "y": 6,
+      "variant": 1
     },
     {
       "type": "tree",
-      "x": 4,
-      "y": 14
-    },
-    {
-      "type": "tree",
-      "x": 0,
-      "y": 9
-    },
-    {
-      "type": "tree",
-      "x": 12,
-      "y": 27
-    },
-    {
-      "type": "tree",
-      "x": 26,
-      "y": 26
-    },
-    {
-      "type": "tree",
-      "x": 16,
-      "y": 22
-    },
-    {
-      "type": "tree",
-      "x": 16,
-      "y": 21
-    },
-    {
-      "type": "tree",
-      "x": 25,
-      "y": 19
-    },
-    {
-      "type": "tree",
-      "x": 16,
-      "y": 14
-    },
-    {
-      "type": "tree",
-      "x": 13,
-      "y": 17
-    },
-    {
-      "type": "tree",
-      "x": 10,
-      "y": 21
-    },
-    {
-      "type": "tree",
-      "x": 13,
-      "y": 22
-    },
-    {
-      "type": "rock",
-      "x": 4,
-      "y": 17
-    },
-    {
-      "type": "rock",
       "x": 6,
-      "y": 2
+      "y": 23,
+      "variant": 2
+    },
+    {
+      "type": "tree",
+      "x": 9,
+      "y": 19,
+      "variant": 3
+    },
+    {
+      "type": "tree",
+      "x": 5,
+      "y": 14,
+      "variant": 1
+    },
+    {
+      "type": "tree",
+      "x": 17,
+      "y": 32,
+      "variant": 1
+    },
+    {
+      "type": "tree",
+      "x": 31,
+      "y": 31,
+      "variant": 1
+    },
+    {
+      "type": "tree",
+      "x": 21,
+      "y": 27,
+      "variant": 1
+    },
+    {
+      "type": "tree",
+      "x": 21,
+      "y": 26,
+      "variant": 2
+    },
+    {
+      "type": "tree",
+      "x": 30,
+      "y": 24,
+      "variant": 1
+    },
+    {
+      "type": "tree",
+      "x": 21,
+      "y": 19,
+      "variant": 3
+    },
+    {
+      "type": "tree",
+      "x": 18,
+      "y": 22,
+      "variant": 3
+    },
+    {
+      "type": "tree",
+      "x": 15,
+      "y": 26,
+      "variant": 2
+    },
+    {
+      "type": "tree",
+      "x": 18,
+      "y": 27,
+      "variant": 1
     },
     {
       "type": "rock",
-      "x": 10,
-      "y": 4
+      "x": 9,
+      "y": 22,
+      "variant": 3
+    },
+    {
+      "type": "rock",
+      "x": 11,
+      "y": 7,
+      "variant": 2
     },
     {
       "type": "rock",
       "x": 15,
-      "y": 5
+      "y": 9,
+      "variant": 1
     },
     {
       "type": "rock",
-      "x": 17,
-      "y": 2
+      "x": 20,
+      "y": 10,
+      "variant": 2
     },
     {
       "type": "rock",
-      "x": 26,
-      "y": 9
+      "x": 22,
+      "y": 7,
+      "variant": 1
     },
     {
       "type": "rock",
-      "x": 29,
-      "y": 9
+      "x": 31,
+      "y": 14,
+      "variant": 3
     },
     {
       "type": "rock",
-      "x": 26,
-      "y": 2
+      "x": 34,
+      "y": 14,
+      "variant": 3
+    },
+    {
+      "type": "rock",
+      "x": 31,
+      "y": 7,
+      "variant": 1
     },
     {
       "type": "cart",
+      "x": 15,
+      "y": 17,
+      "variant": 2
+    },
+    {
+      "type": "cart",
+      "x": 23,
+      "y": 24,
+      "variant": 3
+    },
+    {
+      "type": "cart",
+      "x": 22,
+      "y": 21,
+      "variant": 2
+    },
+    {
+      "type": "rock",
+      "variant": 3,
+      "x": 8,
+      "y": 0
+    },
+    {
+      "type": "rock",
+      "variant": 1,
+      "x": 9,
+      "y": 0
+    },
+    {
+      "type": "rock",
+      "variant": 2,
       "x": 10,
+      "y": 0
+    },
+    {
+      "type": "rock",
+      "variant": 3,
+      "x": 11,
+      "y": 0
+    },
+    {
+      "type": "rock",
+      "variant": 1,
+      "x": 12,
+      "y": 0
+    },
+    {
+      "type": "rock",
+      "variant": 2,
+      "x": 13,
+      "y": 0
+    },
+    {
+      "type": "rock",
+      "variant": 3,
+      "x": 14,
+      "y": 0
+    },
+    {
+      "type": "grass",
+      "variant": 1,
+      "x": 15,
+      "y": 0
+    },
+    {
+      "type": "grass",
+      "variant": 2,
+      "x": 16,
+      "y": 0
+    },
+    {
+      "type": "grass",
+      "variant": 3,
+      "x": 17,
+      "y": 0
+    },
+    {
+      "type": "grass",
+      "variant": 1,
+      "x": 18,
+      "y": 0
+    },
+    {
+      "type": "grass",
+      "variant": 1,
+      "x": 21,
+      "y": 0
+    },
+    {
+      "type": "rock",
+      "variant": 2,
+      "x": 22,
+      "y": 0
+    },
+    {
+      "type": "rock",
+      "variant": 3,
+      "x": 23,
+      "y": 0
+    },
+    {
+      "type": "rock",
+      "variant": 1,
+      "x": 24,
+      "y": 0
+    },
+    {
+      "type": "rock",
+      "variant": 2,
+      "x": 25,
+      "y": 0
+    },
+    {
+      "type": "grass",
+      "variant": 3,
+      "x": 26,
+      "y": 0
+    },
+    {
+      "type": "rock",
+      "variant": 1,
+      "x": 27,
+      "y": 0
+    },
+    {
+      "type": "rock",
+      "variant": 2,
+      "x": 28,
+      "y": 0
+    },
+    {
+      "type": "rock",
+      "variant": 3,
+      "x": 29,
+      "y": 0
+    },
+    {
+      "type": "rock",
+      "variant": 3,
+      "x": 8,
+      "y": 3
+    },
+    {
+      "type": "rock",
+      "variant": 1,
+      "x": 9,
+      "y": 3
+    },
+    {
+      "type": "rock",
+      "variant": 2,
+      "x": 10,
+      "y": 3
+    },
+    {
+      "type": "rock",
+      "variant": 3,
+      "x": 11,
+      "y": 3
+    },
+    {
+      "type": "rock",
+      "variant": 1,
+      "x": 12,
+      "y": 3
+    },
+    {
+      "type": "rock",
+      "variant": 2,
+      "x": 13,
+      "y": 3
+    },
+    {
+      "type": "rock",
+      "variant": 3,
+      "x": 14,
+      "y": 3
+    },
+    {
+      "type": "grass",
+      "variant": 1,
+      "x": 15,
+      "y": 3
+    },
+    {
+      "type": "grass",
+      "variant": 2,
+      "x": 16,
+      "y": 3
+    },
+    {
+      "type": "grass",
+      "variant": 3,
+      "x": 17,
+      "y": 3
+    },
+    {
+      "type": "grass",
+      "variant": 1,
+      "x": 18,
+      "y": 3
+    },
+    {
+      "type": "grass",
+      "variant": 1,
+      "x": 21,
+      "y": 3
+    },
+    {
+      "type": "rock",
+      "variant": 2,
+      "x": 22,
+      "y": 3
+    },
+    {
+      "type": "rock",
+      "variant": 3,
+      "x": 23,
+      "y": 3
+    },
+    {
+      "type": "rock",
+      "variant": 1,
+      "x": 24,
+      "y": 3
+    },
+    {
+      "type": "rock",
+      "variant": 2,
+      "x": 25,
+      "y": 3
+    },
+    {
+      "type": "grass",
+      "variant": 3,
+      "x": 26,
+      "y": 3
+    },
+    {
+      "type": "rock",
+      "variant": 1,
+      "x": 27,
+      "y": 3
+    },
+    {
+      "type": "rock",
+      "variant": 2,
+      "x": 28,
+      "y": 3
+    },
+    {
+      "type": "rock",
+      "variant": 3,
+      "x": 29,
+      "y": 3
+    },
+    {
+      "type": "bush",
+      "variant": 1,
+      "x": 0,
+      "y": 6
+    },
+    {
+      "type": "bush",
+      "variant": 2,
+      "x": 1,
+      "y": 6
+    },
+    {
+      "type": "bush",
+      "variant": 3,
+      "x": 2,
+      "y": 6
+    },
+    {
+      "type": "bush",
+      "variant": 1,
+      "x": 3,
+      "y": 6
+    },
+    {
+      "type": "bush",
+      "variant": 2,
+      "x": 4,
+      "y": 6
+    },
+    {
+      "type": "bush",
+      "variant": 3,
+      "x": 5,
+      "y": 6
+    },
+    {
+      "type": "bush",
+      "variant": 1,
+      "x": 0,
+      "y": 9
+    },
+    {
+      "type": "bush",
+      "variant": 2,
+      "x": 1,
+      "y": 9
+    },
+    {
+      "type": "bush",
+      "variant": 3,
+      "x": 2,
+      "y": 9
+    },
+    {
+      "type": "bush",
+      "variant": 1,
+      "x": 3,
+      "y": 9
+    },
+    {
+      "type": "bush",
+      "variant": 2,
+      "x": 4,
+      "y": 9
+    },
+    {
+      "type": "bush",
+      "variant": 3,
+      "x": 5,
+      "y": 9
+    },
+    {
+      "type": "bush",
+      "variant": 1,
+      "x": 0,
       "y": 12
     },
     {
-      "type": "cart",
+      "type": "bush",
+      "variant": 2,
+      "x": 1,
+      "y": 12
+    },
+    {
+      "type": "bush",
+      "variant": 3,
+      "x": 2,
+      "y": 12
+    },
+    {
+      "type": "bush",
+      "variant": 1,
+      "x": 3,
+      "y": 12
+    },
+    {
+      "type": "bush",
+      "variant": 2,
+      "x": 4,
+      "y": 12
+    },
+    {
+      "type": "bush",
+      "variant": 3,
+      "x": 5,
+      "y": 12
+    },
+    {
+      "type": "bush",
+      "variant": 1,
+      "x": 0,
+      "y": 15
+    },
+    {
+      "type": "bush",
+      "variant": 2,
+      "x": 1,
+      "y": 15
+    },
+    {
+      "type": "bush",
+      "variant": 3,
+      "x": 2,
+      "y": 15
+    },
+    {
+      "type": "bush",
+      "variant": 1,
+      "x": 3,
+      "y": 15
+    },
+    {
+      "type": "bush",
+      "variant": 2,
+      "x": 4,
+      "y": 15
+    },
+    {
+      "type": "bush",
+      "variant": 3,
+      "x": 5,
+      "y": 15
+    },
+    {
+      "type": "bush",
+      "variant": 1,
+      "x": 0,
+      "y": 18
+    },
+    {
+      "type": "bush",
+      "variant": 2,
+      "x": 1,
+      "y": 18
+    },
+    {
+      "type": "bush",
+      "variant": 3,
+      "x": 2,
+      "y": 18
+    },
+    {
+      "type": "bush",
+      "variant": 1,
+      "x": 3,
+      "y": 18
+    },
+    {
+      "type": "bush",
+      "variant": 2,
+      "x": 4,
+      "y": 18
+    },
+    {
+      "type": "bush",
+      "variant": 3,
+      "x": 5,
+      "y": 18
+    },
+    {
+      "type": "bush",
+      "variant": 1,
+      "x": 0,
+      "y": 21
+    },
+    {
+      "type": "bush",
+      "variant": 2,
+      "x": 1,
+      "y": 21
+    },
+    {
+      "type": "bush",
+      "variant": 3,
+      "x": 2,
+      "y": 21
+    },
+    {
+      "type": "bush",
+      "variant": 1,
+      "x": 3,
+      "y": 21
+    },
+    {
+      "type": "bush",
+      "variant": 2,
+      "x": 4,
+      "y": 21
+    },
+    {
+      "type": "bush",
+      "variant": 3,
+      "x": 5,
+      "y": 21
+    },
+    {
+      "type": "bush",
+      "variant": 1,
+      "x": 0,
+      "y": 24
+    },
+    {
+      "type": "bush",
+      "variant": 2,
+      "x": 1,
+      "y": 24
+    },
+    {
+      "type": "bush",
+      "variant": 3,
+      "x": 2,
+      "y": 24
+    },
+    {
+      "type": "bush",
+      "variant": 1,
+      "x": 3,
+      "y": 24
+    },
+    {
+      "type": "bush",
+      "variant": 2,
+      "x": 4,
+      "y": 24
+    },
+    {
+      "type": "bush",
+      "variant": 3,
+      "x": 5,
+      "y": 24
+    },
+    {
+      "type": "bush",
+      "variant": 1,
+      "x": 0,
+      "y": 27
+    },
+    {
+      "type": "bush",
+      "variant": 2,
+      "x": 1,
+      "y": 27
+    },
+    {
+      "type": "bush",
+      "variant": 3,
+      "x": 2,
+      "y": 27
+    },
+    {
+      "type": "bush",
+      "variant": 1,
+      "x": 3,
+      "y": 27
+    },
+    {
+      "type": "bush",
+      "variant": 2,
+      "x": 4,
+      "y": 27
+    },
+    {
+      "type": "bush",
+      "variant": 3,
+      "x": 5,
+      "y": 27
+    },
+    {
+      "type": "bush",
+      "variant": 1,
+      "x": 0,
+      "y": 30
+    },
+    {
+      "type": "bush",
+      "variant": 2,
+      "x": 1,
+      "y": 30
+    },
+    {
+      "type": "bush",
+      "variant": 3,
+      "x": 2,
+      "y": 30
+    },
+    {
+      "type": "bush",
+      "variant": 1,
+      "x": 3,
+      "y": 30
+    },
+    {
+      "type": "bush",
+      "variant": 2,
+      "x": 4,
+      "y": 30
+    },
+    {
+      "type": "bush",
+      "variant": 3,
+      "x": 5,
+      "y": 30
+    },
+    {
+      "type": "bush",
+      "variant": 1,
+      "x": 0,
+      "y": 33
+    },
+    {
+      "type": "bush",
+      "variant": 2,
+      "x": 1,
+      "y": 33
+    },
+    {
+      "type": "bush",
+      "variant": 3,
+      "x": 2,
+      "y": 33
+    },
+    {
+      "type": "bush",
+      "variant": 1,
+      "x": 3,
+      "y": 33
+    },
+    {
+      "type": "bush",
+      "variant": 2,
+      "x": 4,
+      "y": 33
+    },
+    {
+      "type": "bush",
+      "variant": 3,
+      "x": 5,
+      "y": 33
+    },
+    {
+      "type": "flowers",
+      "variant": 1,
+      "x": 0,
+      "y": 36
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 1,
+      "y": 36
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 2,
+      "y": 36
+    },
+    {
+      "type": "flowers",
+      "variant": 1,
+      "x": 3,
+      "y": 36
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 4,
+      "y": 36
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 5,
+      "y": 36
+    },
+    {
+      "type": "flowers",
+      "variant": 1,
+      "x": 6,
+      "y": 36
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 7,
+      "y": 36
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 8,
+      "y": 36
+    },
+    {
+      "type": "flowers",
+      "variant": 1,
+      "x": 9,
+      "y": 36
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 10,
+      "y": 36
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 11,
+      "y": 36
+    },
+    {
+      "type": "flowers",
+      "variant": 1,
+      "x": 12,
+      "y": 36
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 13,
+      "y": 36
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 14,
+      "y": 36
+    },
+    {
+      "type": "flowers",
+      "variant": 1,
+      "x": 15,
+      "y": 36
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 16,
+      "y": 36
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 17,
+      "y": 36
+    },
+    {
+      "type": "flowers",
+      "variant": 1,
       "x": 18,
-      "y": 19
+      "y": 36
+    },
+    {
+      "type": "grass",
+      "variant": 2,
+      "x": 19,
+      "y": 36
+    },
+    {
+      "type": "grass",
+      "variant": 1,
+      "x": 21,
+      "y": 36
+    },
+    {
+      "type": "grass",
+      "variant": 2,
+      "x": 22,
+      "y": 36
+    },
+    {
+      "type": "grass",
+      "variant": 3,
+      "x": 23,
+      "y": 36
+    },
+    {
+      "type": "grass",
+      "variant": 1,
+      "x": 24,
+      "y": 36
+    },
+    {
+      "type": "grass",
+      "variant": 2,
+      "x": 25,
+      "y": 36
+    },
+    {
+      "type": "grass",
+      "variant": 3,
+      "x": 26,
+      "y": 36
+    },
+    {
+      "type": "grass",
+      "variant": 1,
+      "x": 27,
+      "y": 36
+    },
+    {
+      "type": "bush",
+      "variant": 2,
+      "x": 28,
+      "y": 36
+    },
+    {
+      "type": "bush",
+      "variant": 3,
+      "x": 29,
+      "y": 36
+    },
+    {
+      "type": "flowers",
+      "variant": 1,
+      "x": 0,
+      "y": 39
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 1,
+      "y": 39
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 2,
+      "y": 39
+    },
+    {
+      "type": "flowers",
+      "variant": 1,
+      "x": 3,
+      "y": 39
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 4,
+      "y": 39
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 5,
+      "y": 39
+    },
+    {
+      "type": "flowers",
+      "variant": 1,
+      "x": 6,
+      "y": 39
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 7,
+      "y": 39
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 8,
+      "y": 39
+    },
+    {
+      "type": "flowers",
+      "variant": 1,
+      "x": 9,
+      "y": 39
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 10,
+      "y": 39
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 11,
+      "y": 39
+    },
+    {
+      "type": "flowers",
+      "variant": 1,
+      "x": 12,
+      "y": 39
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 13,
+      "y": 39
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 14,
+      "y": 39
+    },
+    {
+      "type": "flowers",
+      "variant": 1,
+      "x": 15,
+      "y": 39
+    },
+    {
+      "type": "flowers",
+      "variant": 2,
+      "x": 16,
+      "y": 39
+    },
+    {
+      "type": "flowers",
+      "variant": 3,
+      "x": 17,
+      "y": 39
+    },
+    {
+      "type": "flowers",
+      "variant": 1,
+      "x": 18,
+      "y": 39
+    },
+    {
+      "type": "grass",
+      "variant": 2,
+      "x": 19,
+      "y": 39
+    },
+    {
+      "type": "grass",
+      "variant": 1,
+      "x": 21,
+      "y": 39
+    },
+    {
+      "type": "grass",
+      "variant": 2,
+      "x": 22,
+      "y": 39
+    },
+    {
+      "type": "grass",
+      "variant": 3,
+      "x": 23,
+      "y": 39
+    },
+    {
+      "type": "grass",
+      "variant": 1,
+      "x": 24,
+      "y": 39
+    },
+    {
+      "type": "grass",
+      "variant": 2,
+      "x": 25,
+      "y": 39
+    },
+    {
+      "type": "grass",
+      "variant": 3,
+      "x": 26,
+      "y": 39
+    },
+    {
+      "type": "grass",
+      "variant": 1,
+      "x": 27,
+      "y": 39
+    },
+    {
+      "type": "bush",
+      "variant": 2,
+      "x": 28,
+      "y": 39
+    },
+    {
+      "type": "bush",
+      "variant": 3,
+      "x": 29,
+      "y": 39
     },
     {
       "type": "cart",
-      "x": 17,
-      "y": 16
+      "variant": 2,
+      "x": 38,
+      "y": 24
+    },
+    {
+      "type": "crates",
+      "variant": 3,
+      "x": 37,
+      "y": 25
+    },
+    {
+      "type": "barrel",
+      "variant": 2,
+      "x": 38,
+      "y": 26
+    },
+    {
+      "type": "cart",
+      "variant": 3,
+      "x": 39,
+      "y": 17
+    },
+    {
+      "type": "crates",
+      "variant": 2,
+      "x": 38,
+      "y": 18
     }
   ],
   "tileImages": {
@@ -847,10 +1899,14 @@
     "F": null,
     "M": null,
     "A": null,
-    "~": null
+    "~": null,
+    "D": null,
+    "P": null,
+    "S": null,
+    "K": null
   },
   "cellImages": [],
-  "revision": 7,
+  "revision": 9,
   "secondsPerCell": 1,
   "id": "briarwick-town",
   "ambience": {
@@ -883,28 +1939,28 @@
     "accents": [
       {
         "type": "flowers",
-        "x": 15,
-        "y": 13
+        "x": 20,
+        "y": 18
       },
       {
         "type": "grass",
-        "x": 4,
-        "y": 16
-      },
-      {
-        "type": "grass",
-        "x": 5,
-        "y": 20
-      },
-      {
-        "type": "grass",
-        "x": 17,
+        "x": 9,
         "y": 21
       },
       {
-        "type": "flowers",
-        "x": 18,
+        "type": "grass",
+        "x": 10,
         "y": 25
+      },
+      {
+        "type": "grass",
+        "x": 22,
+        "y": 26
+      },
+      {
+        "type": "flowers",
+        "x": 23,
+        "y": 30
       }
     ],
     "dust": [
@@ -912,16 +1968,16 @@
         "id": "market-lane",
         "tiles": [
           {
-            "x": 14,
-            "y": 17
+            "x": 19,
+            "y": 22
           },
           {
-            "x": 14,
-            "y": 18
+            "x": 19,
+            "y": 23
           },
           {
-            "x": 14,
-            "y": 19
+            "x": 19,
+            "y": 24
           }
         ],
         "seconds": 18,
@@ -931,12 +1987,12 @@
         "id": "north-lane",
         "tiles": [
           {
-            "x": 16,
-            "y": 7
+            "x": 21,
+            "y": 12
           },
           {
-            "x": 17,
-            "y": 7
+            "x": 22,
+            "y": 12
           }
         ],
         "seconds": 18,
@@ -946,16 +2002,16 @@
         "id": "south-lane",
         "tiles": [
           {
-            "x": 7,
-            "y": 23
+            "x": 12,
+            "y": 28
           },
           {
-            "x": 8,
-            "y": 23
+            "x": 13,
+            "y": 28
           },
           {
-            "x": 9,
-            "y": 23
+            "x": 14,
+            "y": 28
           }
         ],
         "seconds": 18,
@@ -978,24 +2034,24 @@
         },
         "arrival": {
           "from": {
-            "x": -1,
-            "y": 12
+            "x": 4,
+            "y": 17
           },
           "control": {
-            "x": 5,
-            "y": 1
+            "x": 10,
+            "y": 6
           },
           "seconds": 7
         },
         "restSeconds": 8,
         "departure": {
           "control": {
-            "x": 8,
-            "y": 4
+            "x": 13,
+            "y": 9
           },
           "to": {
-            "x": 31,
-            "y": -2
+            "x": 36,
+            "y": 3
           },
           "seconds": 9
         },
@@ -1016,24 +2072,24 @@
         },
         "arrival": {
           "from": {
-            "x": 31,
-            "y": 27
+            "x": 36,
+            "y": 32
           },
           "control": {
-            "x": 20,
-            "y": 16
+            "x": 25,
+            "y": 21
           },
           "seconds": 8
         },
         "restSeconds": 10,
         "departure": {
           "control": {
-            "x": 9,
-            "y": 20
+            "x": 14,
+            "y": 25
           },
           "to": {
-            "x": -2,
-            "y": 28
+            "x": 3,
+            "y": 33
           },
           "seconds": 8
         },

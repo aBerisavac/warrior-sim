@@ -13,6 +13,7 @@ import TradingPanel from './TradingPanel.vue'
 import characters from '../data/characters.json'
 import PlayerInventory from './PlayerInventory.vue'
 import CircleIcon from './CircleIcon.vue'
+import SkillsPanel from './SkillsPanel.vue'
 import { activeQuests, hasQuest, primaryQuest, questById } from '../progression'
 
 const props = defineProps({
@@ -35,6 +36,12 @@ const placeName = () => t('places.' + props.selectedPlace.id + '.name')
 const entryText = (entry) => translateEntry(t, entry)
 const currentQuests = computed(() => activeQuests(props.game.completedQuests))
 const shownQuests = computed(() => currentQuests.value.length ? currentQuests.value : [primaryQuest(props.game.completedQuests)].filter(Boolean))
+const journalTab = ref('quests')
+const uniqueJournal = computed(() => {
+  const seen = new Set()
+  return props.game.journal.filter(entry => { const key = typeof entry === 'string' ? entry : JSON.stringify(entry); if (seen.has(key)) return false; seen.add(key); return true })
+})
+watch(() => props.modal, () => { journalTab.value = 'quests' })
 const portraitOpen = ref(false)
 watch([() => props.modal, () => props.merchantId], () => { portraitOpen.value = false })
 const writer = ref(null)
@@ -88,6 +95,9 @@ const dialogueText = computed(() => {
 watch([() => props.modal, dialogueText], () => { woodCompleted.value = false; woodStarted.value = props.modal === 'wood' && props.game.skipWoodcuttingIntro === true; dialogueReady.value = woodStarted.value || !dialogueText.value }, { immediate: true })
 
 function titleKey() {
+  if (['journal', 'objective'].includes(props.modal)) return 'interface.journal'
+  if (props.modal === 'skills') return 'sidebar.skillTree'
+  if (props.modal === 'help') return 'sidebar.howToPlay'
   if (props.modal === 'event') return props.game.stage === 'drafted' ? 'modal.title.eventDraft' : 'modal.title.eventBandits'
   if (props.modal === 'woodDone') return 'modal.title.wood'
   if (props.modal === 'dishesDone') return 'modal.title.dishes'
@@ -97,13 +107,15 @@ function titleKey() {
 
 <template>
   <div v-if="modal" class="map-modal-scrim" :inert="audioPaused" @click.self="requestClose">
-    <section :class="['map-modal', { 'map-modal--wood': modal === 'wood', 'map-modal--inventory': modal === 'inventory', 'map-modal--trade': modal === 'trade', 'map-modal--portrait': modal === 'trade' && portraitOpen }]" role="dialog" aria-modal="true" :aria-label="t(titleKey())" @click="writer?.reveal()">
+    <section :class="['map-modal', { 'map-modal--wood': modal === 'wood', 'map-modal--minigame': ['wood', 'dishes'].includes(modal), 'map-modal--inventory': modal === 'inventory', 'map-modal--trade': modal === 'trade', 'map-modal--portrait': modal === 'trade' && portraitOpen }]" role="dialog" aria-modal="true" :aria-label="t(titleKey())" @click="writer?.reveal()">
       <img v-if="modal === 'trade'" class="merchant-modal-art" :src="characters[merchantSpeaker(merchantId)].sceneSrc" alt="" />
       <div class="modal-top"><span>{{ t(titleKey()) }}</span><button v-if="modal === 'trade'" class="merchant-portrait-toggle" :aria-label="t('trade.viewPortrait')" :aria-pressed="portraitOpen" @click.stop="portraitOpen = !portraitOpen"><SpeakerPortrait :speaker="merchantSpeaker(merchantId)" compact /></button><button :disabled="modal !== 'wood' && !canClose" @click="requestClose" :aria-label="t('modal.close')">×</button></div>
 
       <DialogueBubble v-if="modal === 'smithingUnavailable'" speaker="player" thought>{{ t('workshop.noSupplies') }}</DialogueBubble>
       <PlayerInventory v-else-if="modal === 'inventory'" :hunger="game.hunger" @eat="emit('eat', $event)" :inventory="game.inventory" :equipment="game.equipment" @equip="emit('equip', $event)" />
-      <template v-else-if="modal === 'objective'">
+      <template v-else-if="modal === 'objective' || modal === 'journal'">
+        <nav class="journal-tabs" :aria-label="t('interface.journal')"><button :aria-pressed="journalTab === 'quests'" @click="journalTab = 'quests'">{{ t('sidebar.currentObjective') }}</button><button :aria-pressed="journalTab === 'events'" @click="journalTab = 'events'">{{ t('sidebar.recentEvents') }}</button></nav>
+        <div v-if="journalTab === 'quests'">
         <h3>{{ t('sidebar.currentObjective') }}</h3>
         <p v-if="!shownQuests.length">{{ t('sidebar.objectivePendingHint') }}</p>
         <div v-for="quest in shownQuests" :key="quest.id" class="modal-quest">
@@ -111,6 +123,8 @@ function titleKey() {
           <p>{{ t(hasQuest(game.completedQuests, quest.id) && quest.completedDescriptionKey ? quest.completedDescriptionKey : quest.descriptionKey) }}</p>
           <ul v-if="!hasQuest(game.completedQuests, quest.id)"><li v-for="step in quest.objectives" :key="step.textKey">{{ t(step.textKey) }}</li></ul>
         </div>
+        </div>
+        <ul v-else class="modal-journal"><li v-for="(entry, i) in uniqueJournal" :key="i">{{ entryText(entry) }}</li></ul>
       </template>
 
       <template v-else-if="modal === 'pawn'">
@@ -126,10 +140,12 @@ function titleKey() {
         <p>{{ t('modal.pawnHelp') }}</p>
       </template>
 
-      <template v-else-if="modal === 'journal'">
-        <h3>{{ t('sidebar.fieldNotes') }}</h3>
-        <ul class="modal-journal"><li v-for="(entry, i) in game.journal" :key="i">{{ entryText(entry) }}</li></ul>
-        <button class="modal-secondary" @click="emit('modal', 'restart')">↺ {{ t('modal.restartAction') }}</button>
+      <SkillsPanel v-else-if="modal === 'skills'" />
+      <template v-else-if="modal === 'help'">
+        <h3>{{ t('sidebar.howToPlay') }}</h3><p>{{ t('sidebar.howToPlay1') }}</p><p>{{ t('sidebar.howToPlay2a') }} {{ t('sidebar.townMap') }} {{ t('sidebar.howToPlay2b') }}</p>
+        <h3>{{ t('sidebar.survivalRules') }}</h3><p><b>{{ t('sidebar.stayAwake') }}</b> {{ t('sidebar.stayAwakeRule') }}</p><p><b>{{ t('sidebar.getHurt') }}</b> {{ t('sidebar.getHurtRule') }}</p>
+        <h3>{{ t('map.growthTitle') }}</h3><p>{{ t('map.growthDescription') }}</p>
+        <p class="game-save-note">{{ t('app.saved') }}</p><button class="modal-secondary" @click="emit('modal', 'restart')">↺ {{ t('modal.restartAction') }}</button>
       </template>
 
       <template v-else-if="modal === 'restart'">

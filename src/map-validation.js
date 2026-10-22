@@ -1,16 +1,17 @@
 import { buildingCells, gateCells } from './town-grid.js'
+import { DECOR_TYPES, DECOR_VARIANTS } from './map-decorations.js'
 
 const requiredBuildings = ['smithy', 'market', 'square', 'tavern', 'chapel', 'barracks']
 const requiredGates = ['northGate', 'eastGate', 'gate', 'westGate']
-const roadTiles = new Set(['R', 'G', 'B'])
-const validTiles = new Set(['.', 'R', 'G', 'B', 'W', 'H', 'F', 'M', 'A', '~'])
+const roadTiles = new Set(['R', 'G', 'B', 'D'])
+const validTiles = new Set(['.', 'R', 'G', 'B', 'D', 'W', 'H', 'F', 'M', 'A', 'P', 'S', 'K', '~'])
 const cellKey = (x, y) => `${x},${y}`
 
 export function validateTownMap(map) {
   const errors = []
   if (map?.revision != null && (!Number.isInteger(map.revision) || map.revision < 0)) errors.push('Invalid map revision')
-  if (map?.columns !== 30 || map?.rows !== 30 || !Number.isInteger(map?.cellSize) || map.cellSize < 16) return ['Map must be a 30x30 grid with a cell size.']
-  if (!Array.isArray(map.terrain) || map.terrain.length !== 30 || map.terrain.some((row) => typeof row !== 'string' || [...row].length !== 30 || [...row].some((tile) => !validTiles.has(tile)))) return ['Map terrain must contain 30 rows of 30 valid cells.']
+  if (map?.columns !== 40 || map?.rows !== 40 || !Number.isInteger(map?.cellSize) || map.cellSize < 16) return ['Map must be a 40x40 grid with a cell size.']
+  if (!Array.isArray(map.terrain) || map.terrain.length !== map.rows || map.terrain.some((row) => typeof row !== 'string' || [...row].length !== map.columns || [...row].some((tile) => !validTiles.has(tile)))) return ['Map terrain must contain 40 rows of 40 valid cells.']
   const at = (x, y) => map.terrain[y]?.[x]
   const buildings = Array.isArray(map.buildings) ? map.buildings : []
   const gates = Array.isArray(map.gates) ? map.gates : []
@@ -20,7 +21,7 @@ export function validateTownMap(map) {
     if (ids.has(building.id)) errors.push(`Duplicate building: ${building.id}`)
     ids.add(building.id)
     const { x, y, width, height, shape, door } = building
-    if (![x, y, width, height].every(Number.isInteger) || width < 2 || height < 2 || width > 4 || height > 4 || x < 0 || y < 0 || x + width > 30 || y + height > 30 || shape && (shape.length !== height || shape.some((row) => row.length !== width || !/^[.#]+$/.test(row)))) {
+    if (![x, y, width, height].every(Number.isInteger) || width < 2 || height < 2 || width > 4 || height > 4 || x < 0 || y < 0 || x + width > map.columns || y + height > map.rows || shape && (shape.length !== height || shape.some((row) => row.length !== width || !/^[.#]+$/.test(row)))) {
       errors.push(`Invalid footprint: ${building.id}`)
       continue
     }
@@ -56,14 +57,14 @@ export function validateTownMap(map) {
     if (building.imageSrc != null && typeof building.imageSrc !== 'string') errors.push(`Invalid image source: ${building.id}`)
   }
   for (const id of requiredBuildings) if (!ids.has(id)) errors.push(`Missing building: ${id}`)
-  for (let y = 0; y < 30; y++) for (let x = 0; x < 30; x++) if (at(x, y) === 'H' && !occupied.has(cellKey(x, y))) errors.push(`Unassigned building cell: ${x},${y}`)
+  for (let y = 0; y < map.rows; y++) for (let x = 0; x < map.columns; x++) if (at(x, y) === 'H' && !occupied.has(cellKey(x, y))) errors.push(`Unassigned building cell: ${x},${y}`)
   const gateIds = new Set()
   const gateOccupied = new Set()
   for (const gate of gates) {
     if (gateIds.has(gate.id)) errors.push(`Duplicate gate: ${gate.id}`)
     gateIds.add(gate.id)
     const width = gate.width ?? 1, height = gate.height ?? 1
-    if (![gate.x, gate.y, width, height].every(Number.isInteger) || width < 1 || height < 1 || gate.x < 0 || gate.y < 0 || gate.x + width > 30 || gate.y + height > 30) {
+    if (![gate.x, gate.y, width, height].every(Number.isInteger) || width < 1 || height < 1 || gate.x < 0 || gate.y < 0 || gate.x + width > map.columns || gate.y + height > map.rows) {
       errors.push(`Invalid gate footprint: ${gate.id}`)
       continue
     }
@@ -77,13 +78,13 @@ export function validateTownMap(map) {
     if (gate.underTiles != null && (!Array.isArray(gate.underTiles) || gate.underTiles.some((cell) => !Number.isInteger(cell.x) || !Number.isInteger(cell.y) || typeof cell.tile !== 'string' || !validTiles.has(cell.tile)))) errors.push(`Invalid gate backing tiles: ${gate.id}`)
   }
   for (const id of requiredGates) if (!gateIds.has(id)) errors.push(`Missing gate: ${id}`)
-  for (let y = 0; y < 30; y++) for (let x = 0; x < 30; x++) if (at(x, y) === 'G' && !gateOccupied.has(cellKey(x, y))) errors.push(`Unassigned gate cell: ${x},${y}`)
-  const decorTypes = new Set(['well', 'crates', 'flowers', 'bush', 'tree', 'rock', 'barrel', 'cart'])
-  if (!Array.isArray(map.decor) || map.decor.some((item) => !decorTypes.has(item.type) || !Number.isInteger(item.x) || !Number.isInteger(item.y) || item.x < 0 || item.x >= 30 || item.y < 0 || item.y >= 30)) errors.push('Invalid decorations')
+  for (let y = 0; y < map.rows; y++) for (let x = 0; x < map.columns; x++) if (at(x, y) === 'G' && !gateOccupied.has(cellKey(x, y))) errors.push(`Unassigned gate cell: ${x},${y}`)
+  const decorTypes = new Set(DECOR_TYPES)
+  if (!Array.isArray(map.decor) || map.decor.some((item) => !decorTypes.has(item.type) || item.variant != null && !DECOR_VARIANTS.includes(item.variant) || !Number.isInteger(item.x) || !Number.isInteger(item.y) || item.x < 0 || item.x >= map.columns || item.y < 0 || item.y >= map.rows)) errors.push('Invalid decorations')
   if (!map.tileImages || Object.values(map.tileImages).some((src) => src != null && typeof src !== 'string')) errors.push('Invalid tile image sources')
-  if (!Array.isArray(map.cellImages) || map.cellImages.some((image) => !Number.isInteger(image.x) || !Number.isInteger(image.y) || image.x < 0 || image.x >= 30 || image.y < 0 || image.y >= 30 || typeof image.src !== 'string')) errors.push('Invalid cell image sources')
+  if (!Array.isArray(map.cellImages) || map.cellImages.some((image) => !Number.isInteger(image.x) || !Number.isInteger(image.y) || image.x < 0 || image.x >= map.columns || image.y < 0 || image.y >= map.rows || typeof image.src !== 'string')) errors.push('Invalid cell image sources')
   const roads = new Set()
-  for (let y = 0; y < 30; y++) for (let x = 0; x < 30; x++) if (roadTiles.has(at(x, y))) roads.add(cellKey(x, y))
+  for (let y = 0; y < map.rows; y++) for (let x = 0; x < map.columns; x++) if (roadTiles.has(at(x, y))) roads.add(cellKey(x, y))
   const first = roads.values().next().value
   if (first) {
     const seen = new Set([first]), queue = [first]

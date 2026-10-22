@@ -133,13 +133,18 @@ export function readSave() {
       delete state.gameplayUnlocked
       delete state.marketUnlocked
       const journey = state.travel
+      if (journey && saved.mapRevision === 7 && [8, 9].includes(mapGrid.revision)) {
+        const offset = 5 * mapGrid.cellSize
+        journey.route = journey.route?.map(point => ({ x: point.x + offset, y: point.y + offset }))
+        if (journey.position) journey.position = { x: journey.position.x + offset, y: journey.position.y + offset }
+      }
       if (journey && journey.minutesPerCell !== (mapGrid.minutesPerCell || 1) && Number.isFinite(journey.totalMinutes) && Number.isFinite(journey.elapsedMinutes)) {
         const timeRatio = (mapGrid.minutesPerCell || 1) / (journey.minutesPerCell || 1)
         journey.totalMinutes *= timeRatio
         journey.elapsedMinutes *= timeRatio
         journey.minutesPerCell = mapGrid.minutesPerCell || 1
       }
-      if (saved.version < 8 || saved.mapRevision !== mapGrid.revision || !journey?.destinationId || !places.some((place) => place.id === journey.destinationId && place.available)
+      if (saved.version < 8 || (saved.mapRevision !== mapGrid.revision && !(saved.mapRevision === 7 && [8, 9].includes(mapGrid.revision)) && !(saved.mapRevision === 8 && mapGrid.revision === 9)) || !journey?.destinationId || !places.some((place) => place.id === journey.destinationId && place.available)
         || !isUnlocked(completedQuests, 'places', journey.destinationId)
         || !Array.isArray(journey.route) || journey.route.length < 2
         || !journey.route.every((point) => Number.isFinite(point.x) && Number.isFinite(point.y))

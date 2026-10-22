@@ -205,8 +205,17 @@ try {
   assert.deepEqual(loaded.travel.position, halfway)
   saved.mapRevision -= 1
   loaded = game.readSave()
+  assert.deepEqual(loaded.travel.position, halfway, 'Existing routes stay in place when the town outskirts change')
+  saved.mapRevision -= 1
+  saved.travel.route = marketRoute.points.map(point => ({ x: point.x - 5 * routes.mapGrid.cellSize, y: point.y - 5 * routes.mapGrid.cellSize }))
+  saved.travel.position = { x: halfway.x - 5 * routes.mapGrid.cellSize, y: halfway.y - 5 * routes.mapGrid.cellSize }
+  loaded = game.readSave()
+  assert.deepEqual(loaded.travel.position, halfway, 'Travel position follows the shifted town layout')
+  assert.deepEqual(loaded.travel.route, marketRoute.points, 'Travel route follows the shifted town layout')
+  saved.mapRevision -= 1
+  loaded = game.readSave()
   assert.equal(loaded.travel, null, 'A changed town map invalidates saved travel')
-  saved.mapRevision += 1
+  saved.mapRevision += 3
   saved.version = 7
   loaded = game.readSave()
   assert.equal(loaded.travel, null, 'Old travel timing must be discarded during migration')

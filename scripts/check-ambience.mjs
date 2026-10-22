@@ -21,7 +21,7 @@ const occupied = structuredClone(map)
 occupied.ambience.accents = [{ x: tree.x, y: tree.y, type: 'grass' }, { x: 12, y: 12, type: 'grass' }, ...map.ambience.accents]
 assert.equal(groundAccents(occupied).length, map.ambience.accents.length, 'Grass never covers existing vegetation or a building')
 const dust = structuredClone(map)
-dust.ambience.dust[0].tiles.push({ x: 12, y: 12 })
+dust.ambience.dust[0].tiles.push({ x: 0, y: 0 })
 assert(dustPatches(dust).every(patch => patch.tiles.every(tile => dust.terrain[tile.y][tile.x] === 'R')))
 assert(validateMapAmbience(dust).some(error => error.includes('Dust')))
 

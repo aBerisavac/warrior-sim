@@ -5,8 +5,7 @@ import { DISHES_PAY, MERCHANT_TIP } from './currency'
 import { canStartDailyJob, canResumeDailyJob, startDailyJob, endDailyJob } from './daily-jobs'
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch, watchEffect } from 'vue'
 import { useI18n } from 'vue-i18n'
-import PlayerSidebar from './components/PlayerSidebar.vue'
-import DetailsSidebar from './components/DetailsSidebar.vue'
+import GameToolbar from './components/GameToolbar.vue'
 import MapHud from './components/MapHud.vue'
 import TownMap from './components/TownMap.vue'
 import MapEditor from './components/MapEditor.vue'
@@ -22,7 +21,7 @@ import GameModal from './components/GameModal.vue'
 import AudioSettings from './components/AudioSettings.vue'
 import { encounterCue, createAudioEngine, readAudioSettings, AUDIO_SETTINGS_KEY, sceneSounds, useGameAudio } from './audio'
 import TutorialCloud from './components/TutorialCloud.vue'
-import { dayNumber, fatigueFactor, formatTime, initialState, injuryFactor, places, readSave, SAVE_KEY, staminaCap } from './game'
+import { dayNumber, formatTime, initialState, places, readSave, SAVE_KEY, staminaCap } from './game'
 import { hasQuest, isUnlocked, questById, QUEST, stageFromQuests } from './progression'
 import { placePoint, pointAtDistance, routeFromPoint, travelMinutesFromPoint, mapGrid } from './routes'
 import { hasRequiredItems, items } from './inventory'
@@ -47,6 +46,8 @@ const activeMerchant = computed(() => merchantAt(game.location))
 const mapView = ref('town')
 const editingMap = ref(false)
 const gameFrame = ref(null)
+const gameHeader = ref(null)
+const gameFooter = ref(null)
 const expandedGame = ref(false)
 const fullscreenGame = ref(false)
 const displayError = ref('')
@@ -54,9 +55,8 @@ let gameSizeObserver
 function fitGameSquare() {
   const frame = gameFrame.value
   if (!frame) return
-  const occupied = [...frame.children].filter(child => !child.classList.contains('map-canvas'))
-    .reduce((height, child) => height + child.getBoundingClientRect().height, 0)
-  frame.style.setProperty('--game-square', `${Math.max(0, Math.min(frame.clientWidth, frame.clientHeight - occupied))}px`)
+  const reserved = (gameHeader.value?.offsetHeight || 0) + (gameFooter.value?.offsetHeight || 0)
+  frame.style.setProperty('--game-square', `${Math.max(0, Math.min(frame.clientWidth, frame.clientHeight - reserved))}px`)
 }
 function syncFullscreen() { fullscreenGame.value = document.fullscreenElement === gameFrame.value }
 function handleDisplayKey(event) {
@@ -175,7 +175,6 @@ watch(() => game.completedQuests, () => {
   game.materials = hasQuest(game.completedQuests, QUEST.IRON_STOCK_BOUGHT)
   game.dagger = hasQuest(game.completedQuests, QUEST.DAGGER_FORGED)
 }, { deep: true })
-const selectedTutorialLocked = computed(() => !placeUnlocked(game.selected))
 let introTimer
 let travelTimer
 let marketPassing = 18 + Math.random() * 15, marketCallout = 55 + Math.random() * 40
@@ -187,11 +186,8 @@ const currentPlace = computed(() => places.find((place) => place.id === game.loc
 const pawnPosition = computed(() => game.travel?.position || placePoint(game.location))
 const tripMinutes = computed(() => selectedPlace.value.available ? travelMinutesFromPoint(pawnPosition.value, game.selected) : 0)
 const stamina = computed(() => staminaCap(game))
-const fatigue = computed(() => Math.round(fatigueFactor(game) * 100))
-const injury = computed(() => Math.round(injuryFactor(game) * 100))
 const day = computed(() => dayNumber(game.minutes))
 const clock = computed(() => formatTime(game.minutes))
-const awakeHours = computed(() => Math.floor((game.minutes - game.awakeSince) / 60))
 const sleepNeed = computed(() => Math.floor(sleepNeedPercent(game)))
 const moodKey = computed(() => game.reputation <= -3 ? 'refuses' : game.reputation < 0 ? 'irritated' : game.reputation > 1 ? 'friendly' : 'neutral')
 
@@ -215,9 +211,8 @@ onMounted(() => {
   document.addEventListener('visibilitychange', audioVisibility)
   gameSizeObserver = new ResizeObserver(fitGameSquare)
   gameSizeObserver.observe(gameFrame.value)
-  for (const child of gameFrame.value.children) {
-    if (child.classList.contains('map-hud') || child.classList.contains('game-display-controls') || child.classList.contains('map-footer')) gameSizeObserver.observe(child)
-  }
+  gameSizeObserver.observe(gameHeader.value)
+  gameSizeObserver.observe(gameFooter.value)
   document.addEventListener('fullscreenchange', syncFullscreen)
   document.addEventListener('keydown', handleDisplayKey)
   scheduleIntro()
@@ -540,45 +535,16 @@ function reset() {
 </script>
 
 <template>
-  <div class="app-shell">
-    <header class="topbar">
-      <div class="brand">
-        <span class="brand-seal">✣</span>
-        <div><span class="eyebrow">{{ t('app.tagline') }}</span><h1>{{ t('app.title') }}</h1></div>
+  <main class="game-shell">
+    <section ref="gameFrame" class="map-frame game-window" :class="{ 'map-frame--expanded': expandedGame, 'map-frame--fullscreen': fullscreenGame }" :aria-label="t('app.title')">
+      <div id="game-animation-layer" class="game-animation-layer" aria-hidden="true"></div>
+      <div ref="gameHeader" class="game-header">
+        <GameToolbar :map-name="t(mapView === 'town' ? 'map.townName' : 'map.forgeName')" :day="day" :clock="clock" :expanded="expandedGame" :fullscreen="fullscreenGame" :muted="audioSettings.muted" :busy="!!forgeLesson || !!modal || settingsOpen || editingMap" :completed-quests="game.completedQuests" :can-edit="mapView === 'town'" :editing="editingMap" @modal="openHomeModal" @expand="expandedGame = !expandedGame" @fullscreen="toggleGameFullscreen" @mute="audioSettings.muted = !audioSettings.muted" @settings="settingsOpen = !settingsOpen" @editor="editingMap = !editingMap" />
       </div>
-      <div class="top-meta">
-        <span class="chapter">{{ t('app.chapter') }} <i></i> {{ t('app.chapterName') }}</span>
-        <span class="save-indicator"><span></span> {{ t('app.saved') }}</span>
-      </div>
-    </header>
-
-    <main class="layout">
-      <PlayerSidebar :game="game" :map-view="mapView" :stamina="stamina" :fatigue="fatigue" :injury="injury" :day="day" :clock="clock" :awake-hours="awakeHours" />
-
-      <section class="map-column">
-        <div class="map-heading">
-          <div>
-            <span class="eyebrow">{{ t(mapView === 'town' ? 'map.townEyebrow' : 'map.forgeEyebrow') }}</span>
-            <h2>{{ t(mapView === 'town' ? 'map.townName' : 'map.forgeName') }}</h2>
-            <p>{{ t(mapView === 'town' ? 'map.townDescription' : 'map.forgeDescription') }}</p>
-          </div>
-          <div v-if="mapView === 'town'" class="map-scale"><span class="dot" :class="game.stage === 'intro' ? 'hollow' : 'green'"></span> {{ t(game.stage === 'intro' ? 'map.locked' : tutorialStage && !placeUnlocked('market') ? 'map.tutorialOpen' : 'map.open') }} <span class="dot hollow"></span> {{ t('map.future') }}</div>
-        </div>
-
-        <div ref="gameFrame" class="map-frame" :class="{ 'map-frame--playing': !editingMap, 'map-frame--expanded': expandedGame, 'map-frame--fullscreen': fullscreenGame }">
-          <div id="game-animation-layer" class="game-animation-layer" aria-hidden="true"></div>
-          <div class="game-display-controls">
-            <button type="button" :aria-pressed="expandedGame" :disabled="fullscreenGame" @click="expandedGame = !expandedGame">{{ t(expandedGame ? 'map.restoreWindow' : 'map.expandWindow') }}</button>
-            <button type="button" :aria-pressed="fullscreenGame" @click="toggleGameFullscreen">{{ t(fullscreenGame ? 'map.exitFullscreen' : 'map.enterFullscreen') }}</button>
-            <button class="game-audio-icon" type="button" data-audio-ui="off" :aria-pressed="audioSettings.muted" :aria-label="t(audioSettings.muted ? 'audio.unmute' : 'audio.mute')" :title="t(audioSettings.muted ? 'audio.unmute' : 'audio.mute')" @click="audioSettings.muted = !audioSettings.muted"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4Z"/><path v-if="audioSettings.muted" d="m17 9 5 6m0-6-5 6"/><path v-else d="M17 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button>
-            <button class="game-audio-icon" type="button" :aria-label="t('audio.settings')" :title="t('audio.settings')" :aria-expanded="settingsOpen" @click="settingsOpen = !settingsOpen"><span aria-hidden="true">⚙</span></button>
-            <span v-if="displayError" role="status">{{ displayError }}</span>
-          </div>
-          <div v-if="mapView === 'town' && !editingMap" class="map-edit-toggle"><button type="button" @click="editingMap = !editingMap">{{ t(editingMap ? 'mapEditor.close' : 'mapEditor.open') }}</button></div>
-          <MapEditor v-if="editingMap && mapView === 'town'" @close="editingMap = false" />
-          <template v-else>
-          <MapHud :at-home="game.location === 'smithy' && !game.workshop.working" :busy="!!forgeLesson || !!modal && modal !== 'workshop'" :health="game.health" :stamina="stamina" :sleep-need="sleepNeed" :coins="game.coins" :hunger="Math.round(game.hunger)" :completed-quests="game.completedQuests" :traveling="!!game.travel" @modal="openHomeModal" />
-          <div class="map-canvas">
+      <div class="map-canvas">
+        <span v-if="displayError" class="game-display-error" role="status">{{ displayError }}</span>
+        <MapEditor v-if="editingMap && mapView === 'town'" @close="editingMap = false" />
+        <template v-else>
             <TownMap :ambience-paused="settingsOpen" :smithy-entry-locked="!canEnterSmithy(game)" v-if="mapView === 'town'" :current-location="game.location" :pawn-position="pawnPosition" :travel="game.travel" :building-tiers="game.buildingTiers" :dialogue-blocked="!!tutorialQuest && !cloudReady" :selected-id="game.selected" :tutorial-stage="tutorialStage" :completed-quests="game.completedQuests" @menu="townMenu = $event" @select="selectPlace" @action="handleAction" @job="handleJob" />
             <ForgeMap v-else ref="forgeMap" :guiding="!!forgeLesson || !!tutorialQuest" :occupied="!!modal" :paused="settingsOpen" :dialogue-blocked="!!forgeLesson || !!tutorialQuest && !cloudReady" :completed-quests="game.completedQuests" :workshop="game.workshop" :storehouse="game.storehouse" :inventory="game.inventory" :feedback="workshopFeedback" @command="workshopCommand" @station="openWorkshop" @town="leaveForge()" @modal="openHomeModal" />
             <button v-if="tutorialQuest" class="cloud-toggle" type="button" :aria-label="t(cloudVisible ? 'map.hideCloud' : 'map.showCloud')" :title="t(cloudVisible ? 'map.hideCloud' : 'map.showCloud')" @click="cloudVisible = !cloudVisible">{{ cloudVisible ? '−' : '+' }}</button>
@@ -591,26 +557,13 @@ function reset() {
               :trade-agreement="tradeAgreement" :stamina="stamina" :sleep-need="sleepNeed"
               :mood-key="moodKey" :trade-feedback="tradeFeedback" :tavern-reply="tavernReply"
               @eat="eat" @rest="rest" @equip="game.equipment = $event" @market-notice-read="readMarketNotice" @close="closeModal" @modal="modal = $event" @reset="reset" @trade-offer="makeTradeOffer" @trade-confirm="confirmTrade" @tip="tip"
-              @update:skip-woodcutting-intro="game.skipWoodcuttingIntro = $event" @work="work" @wood-finished="finishWoodcutting" @tavern-answer="answerInnkeeper" @forge="forge" @sleep="sleep" />
-            <AudioSettings v-if="settingsOpen" :settings="audioSettings" :status="audio.status" @change="Object.assign(audioSettings, $event)" @preview="audio.preview($event)" @close="settingsOpen = false" />
-          </div>
-          </template>
-          <div class="map-footer">
-            <span><i class="location-dot"></i> {{ game.travel ? t('map.onRoad', { place: t('places.' + game.travel.destinationId + '.name') }) : t(mapView === 'town' ? 'map.youAt' : 'map.inside') }} <strong v-if="!game.travel">{{ t('places.' + currentPlace.id + '.name') }}</strong></span>
-            <span>{{ t(mapView === 'town' ? 'map.hoverHint' : 'map.doorHint') }}</span>
-          </div>
-        </div>
-
-        <div class="growth-banner">
-          <div class="growth-icon">♜</div>
-          <div><strong>{{ t('map.growthTitle') }}</strong><span>{{ t('map.growthDescription') }}</span></div>
-          <span class="growth-tag">{{ t('map.growthTag') }}</span>
-        </div>
-      </section>
-
-      <DetailsSidebar :building-tiers="game.buildingTiers" :tutorial-locked="!!selectedTutorialLocked" :selected-place="selectedPlace" :current-location="game.travel ? '' : game.location" :trip-minutes="tripMinutes" :event="game.event" :journal="game.journal" />
-    </main>
-
-    <footer class="footer"><span>{{ t('map.footerTitle') }}</span><span>{{ t('map.footerDescription') }}</span></footer>
-  </div>
+              @update:skip-woodcutting-intro="game.skipWoodcuttingIntro = $event" @work="work" @wood-finished="finishWoodcutting" @tavern-answer="answerInnkeeper" @forge="forge" @sleep="sleep" />        </template>
+        <AudioSettings v-if="settingsOpen" :settings="audioSettings" :status="audio.status" @change="Object.assign(audioSettings, $event)" @preview="audio.preview($event)" @close="settingsOpen = false" />
+      </div>
+      <footer ref="gameFooter" class="game-footer">
+        <MapHud :at-home="game.location === 'smithy' && !game.workshop.working" :busy="!!forgeLesson || !!modal && modal !== 'workshop' || settingsOpen" :health="game.health" :stamina="stamina" :sleep-need="sleepNeed" :coins="game.coins" :hunger="Math.round(game.hunger)" :completed-quests="game.completedQuests" :traveling="!!game.travel" @modal="openHomeModal" />
+        <span class="game-location-caption"><i class="location-dot"></i>{{ game.travel ? t('map.onRoad', { place: t('places.' + game.travel.destinationId + '.name') }) : t('places.' + currentPlace.id + '.name') }}</span>
+      </footer>
+    </section>
+  </main>
 </template>

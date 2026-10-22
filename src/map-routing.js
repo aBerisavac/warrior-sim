@@ -1,6 +1,6 @@
 import { buildingCells, gateCells } from './town-grid.js'
 
-const walkable = new Set(['R', 'G', 'B'])
+const walkable = new Set(['R', 'G', 'B', 'D'])
 const key = (x, y) => `${x},${y}`
 const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y)
 const samePoint = (a, b) => distance(a, b) < 0.001
@@ -61,7 +61,7 @@ export function createMapRoutes(map) {
     cells.sort((a, b) => {
       const score = (cell) => {
         const roadNeighbor = [[cell.x + 1, cell.y], [cell.x - 1, cell.y], [cell.x, cell.y + 1], [cell.x, cell.y - 1]]
-          .some(([x, y]) => map.terrain[y]?.[x] === 'R' || map.terrain[y]?.[x] === 'B')
+          .some(([x, y]) => ['R', 'B', 'D'].includes(map.terrain[y]?.[x]))
         return (roadNeighbor ? 0 : 100) + Math.abs(cell.x - centerX) + Math.abs(cell.y - centerY)
       }
       return score(a) - score(b)

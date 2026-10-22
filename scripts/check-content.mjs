@@ -79,11 +79,11 @@ assert(questIds.has(travelEvents.scriptedBandits.questCompleted), 'Unknown bandi
 
 assert(travelEvents.roadTravelerChance >= 0 && travelEvents.roadTravelerChance <= 1, 'Invalid road event chance')
 
-assert.equal(townMap.columns, 30, 'Town must be 20 cells wide')
+assert.equal(townMap.columns, 40, 'Town must be 40 cells wide')
 
-assert.equal(townMap.rows, 30, 'Town must be 20 cells tall')
+assert.equal(townMap.rows, 40, 'Town must be 40 cells tall')
 
-assert(townMap.terrain.length === 30 && townMap.terrain.every((row) => row.length === 30), 'Town grid must be 30x30')
+assert(townMap.terrain.length === townMap.rows && townMap.terrain.every((row) => row.length === townMap.columns), 'Town grid must be 40x40')
 
 assert.deepEqual(validateTownMap(townMap), [], 'Town map editor validation failed')
 const validTiles = new Set(Object.keys(townMap.legend))
@@ -92,7 +92,7 @@ for (const row of townMap.terrain) for (const tile of row) assert(validTiles.has
 
 const tileAt = (x, y) => townMap.terrain[y]?.[x]
 
-const roadTiles = new Set(['R', 'G', 'B'])
+const roadTiles = new Set(['R', 'G', 'B', 'D'])
 
 const entrances = new Set()
 const occupiedCells = new Set()
@@ -128,7 +128,7 @@ for (const building of townMap.buildings) {
   assert(neighbor && cells.some(([bx, by]) => bx === neighbor[0] && by === neighbor[1]), 'Door does not face its building: ' + building.id)
   if (building.kind !== 'house') entrances.add(building.id)
 }
-for (let y = 0; y < 30; y++) for (let x = 0; x < 30; x++) if (tileAt(x, y) === 'H') assert(occupiedCells.has(`${x},${y}`), 'Unassigned building cell')
+for (let y = 0; y < townMap.rows; y++) for (let x = 0; x < townMap.columns; x++) if (tileAt(x, y) === 'H') assert(occupiedCells.has(`${x},${y}`), 'Unassigned building cell')
 for (const gate of townMap.gates) {
 
   for (const cell of gateCells(gate)) assert.equal(tileAt(cell.x, cell.y), 'G', 'Gate lacks gate tile: ' + gate.id)
@@ -139,13 +139,21 @@ for (const gate of townMap.gates) {
 
 assert.equal(townMap.gates.length, 4, 'Town needs four gates')
 
-assert(townMap.terrain.some((row) => row.includes('B')), 'Town bridge missing')
+assert(townMap.terrain.some((row) => row.includes('B') || row.includes('D')), 'Town bridge missing')
+assert.equal(tileAt(0, 20), 'R', 'West road must reach the forest edge')
+assert.equal(tileAt(20, 0), 'R', 'Mountain pass must reach the northern edge')
+assert.equal(tileAt(20, 39), 'R', 'Farm road must reach the southern edge')
+assert.equal(tileAt(33, 20), 'D', 'The east gate must meet the drawbridge')
+assert.equal(tileAt(37, 20), 'D', 'The drawbridge must span the river')
+assert.equal(tileAt(39, 20), 'R', 'The eastern road must continue beyond the bridge')
+assert.equal(tileAt(31, 39), '~', 'The river must reach the southern edge')
+assert.equal(tileAt(38, 11), 'P', 'The eastern pond must be present')
 
 for (const decor of townMap.decor) assert(tileAt(decor.x, decor.y) !== undefined, 'Decor outside map')
 
 const walkable = new Set()
 
-for (let y = 0; y < 30; y++) for (let x = 0; x < 30; x++) if (roadTiles.has(tileAt(x, y))) walkable.add(`${x},${y}`)
+for (let y = 0; y < townMap.rows; y++) for (let x = 0; x < townMap.columns; x++) if (roadTiles.has(tileAt(x, y))) walkable.add(`${x},${y}`)
 
 const origin = townMap.buildings.find((building) => building.id === 'smithy').door
 

@@ -2,6 +2,8 @@
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import sourceMap from '../data/town-map.json'
+import { expandTownMap } from '../expand-town-map'
+import { DECOR_TYPES, DECOR_VARIANTS } from '../map-decorations'
 import { buildingCells, gateCells } from '../town-grid'
 import { validateTownMap } from '../map-validation'
 import { groundAccents, dustPatches, roofPerch } from '../map-ambience'
@@ -13,7 +15,12 @@ const draftKey = 'briarwick-town-map-draft-v1'
 function loadDraft() {
   try {
     const saved = JSON.parse(localStorage.getItem(draftKey))
-    if (saved?.columns === 30 && saved?.rows === 30) return { ...saved, id: sourceMap.id, ambience: saved.ambience || structuredClone(sourceMap.ambience) }
+    if (saved?.columns === 30 && saved?.rows === 30) {
+      const expanded = expandTownMap({ ...saved, id: sourceMap.id, ambience: saved.ambience || null })
+      expanded.ambience ||= structuredClone(sourceMap.ambience)
+      return expanded
+    }
+    if (saved?.columns === sourceMap.columns && saved?.rows === sourceMap.rows) return { ...saved, id: sourceMap.id, ambience: saved.ambience || structuredClone(sourceMap.ambience) }
   } catch { /* An incomplete draft can be discarded. */ }
   return structuredClone(sourceMap)
 }
@@ -28,11 +35,11 @@ const dragEnd = ref(null)
 const hoverCell = ref(null)
 const terrainTools = [
   ['R', 'road'], ['.', 'ground'], ['W', 'wall'], ['~', 'river'],
-  ['B', 'bridge'], ['F', 'forest'], ['M', 'mountain'], ['A', 'farm'],
+  ['B', 'bridge'], ['D', 'drawbridge'], ['P', 'pond'], ['F', 'forest'], ['S', 'meadow'], ['M', 'mountain'], ['K', 'scree'], ['A', 'farm'],
 ]
 const buildingTools = ['smithy', 'market', 'square', 'tavern', 'chapel', 'barracks', 'house']
 const gateTools = ['northGate', 'eastGate', 'gate', 'westGate']
-const decorTools = ['well', 'crates', 'flowers', 'bush', 'tree', 'rock', 'barrel', 'cart']
+const decorTools = DECOR_TYPES.flatMap(type => DECOR_VARIANTS.map(variant => `${type}:${variant}`))
 const isTileTool = computed(() => terrainTools.some(([code]) => code === tool.value))
 const isBuildingTool = computed(() => buildingTools.includes(tool.value))
 const isGateTool = computed(() => gateTools.includes(tool.value))
@@ -70,7 +77,7 @@ const preview = computed(() => {
   const spanY = Math.abs(end.y - dragStart.value.y) + 1
   const width = isBuildingTool.value ? Math.min(4, Math.max(2, spanX)) : spanX
   const height = isBuildingTool.value ? Math.min(4, Math.max(2, spanY)) : spanY
-  return { x: Math.min(30 - width, x), y: Math.min(30 - height, y), width, height }
+  return { x: Math.min(map.value.columns - width, x), y: Math.min(map.value.rows - height, y), width, height }
 })
 watch(map, (value) => localStorage.setItem(draftKey, JSON.stringify(value)), { deep: true })
 watch(tool, () => { imageForPlacement.value = '' })
@@ -92,16 +99,16 @@ function chooseDoor(building) {
   for (const { x, y } of buildingCells(building)) {
     for (const [dx, dy, side] of [[0,-1,'north'],[1,0,'east'],[0,1,'south'],[-1,0,'west']]) {
       const nx = x + dx, ny = y + dy
-      if (nx < 0 || ny < 0 || nx >= 30 || ny >= 30 || buildingCells(building).some((cell) => cell.x === nx && cell.y === ny)) continue
+      if (nx < 0 || ny < 0 || nx >= map.value.columns || ny >= map.value.rows || buildingCells(building).some((cell) => cell.x === nx && cell.y === ny)) continue
       candidates.push({ x: nx, y: ny, side })
     }
   }
-  building.door = candidates.find((door) => ['R', 'G', 'B'].includes(tileAt(door.x, door.y))) || candidates[0]
+  building.door = candidates.find((door) => ['R', 'G', 'B', 'D'].includes(tileAt(door.x, door.y))) || candidates[0]
 }
 function refreshDoors() {
   for (const building of map.value.buildings) {
     const door = building.door
-    if (!door || !['R', 'G', 'B'].includes(tileAt(door.x, door.y))) chooseDoor(building)
+    if (!door || !['R', 'G', 'B', 'D'].includes(tileAt(door.x, door.y))) chooseDoor(building)
   }
 }
 function paint(x, y) {
@@ -111,7 +118,7 @@ function paint(x, y) {
     setTile(x, y, tool.value)
     refreshDoors()
   } else if (tool.value === 'door') {
-    if (!['R', 'G', 'B'].includes(tileAt(x, y))) { status.value = t('mapEditor.doorRoad'); return }
+    if (!['R', 'G', 'B', 'D'].includes(tileAt(x, y))) { status.value = t('mapEditor.doorRoad'); return }
     for (const [dx, dy, side] of [[0,1,'north'],[-1,0,'east'],[0,-1,'south'],[1,0,'west']]) {
       const building = buildingAt(x + dx, y + dy)
       if (building) { building.door = { x, y, side }; status.value = t('mapEditor.doorPlaced'); return }
@@ -122,7 +129,8 @@ function paint(x, y) {
     if (imageForPlacement.value) map.value.cellImages.push({ x, y, src: imageForPlacement.value })
   } else if (decorTools.includes(tool.value)) {
     map.value.decor = map.value.decor.filter((item) => item.x !== x || item.y !== y)
-    map.value.decor.push({ type: tool.value, x, y })
+    const [type, variant] = tool.value.split(':')
+    map.value.decor.push({ type, variant: Number(variant), x, y })
   }
 }
 function placeGate(bounds) {
@@ -167,7 +175,7 @@ function placeBuilding(bounds) {
 }
 function cellFromEvent(event) {
   const rect = event.currentTarget.getBoundingClientRect()
-  return { x: Math.max(0, Math.min(29, Math.floor((event.clientX - rect.left) / rect.width * 30))), y: Math.max(0, Math.min(29, Math.floor((event.clientY - rect.top) / rect.height * 30))) }
+  return { x: Math.max(0, Math.min(map.value.columns - 1, Math.floor((event.clientX - rect.left) / rect.width * map.value.columns))), y: Math.max(0, Math.min(map.value.rows - 1, Math.floor((event.clientY - rect.top) / rect.height * map.value.rows))) }
 }
 function pointerDown(event) {
   if (event.button !== 0) return
@@ -224,7 +232,7 @@ async function saveJson() {
 <template>
   <div class="map-editor">
     <div class="map-editor-bar">
-      <strong>{{ t('mapEditor.title') }} <small>30 × 30</small></strong>
+      <strong>{{ t('mapEditor.title') }} <small>{{ map.columns }} × {{ map.rows }}</small></strong>
       <button type="button" @click="emit('close')">{{ t('mapEditor.close') }}</button>
     </div>
     <div class="map-editor-controls">
@@ -233,7 +241,7 @@ async function saveJson() {
           <optgroup :label="t('mapEditor.terrain')"><option v-for="[code, label] in terrainTools" :key="code" :value="code">{{ t('mapEditor.' + label) }}</option></optgroup>
           <optgroup :label="t('mapEditor.buildings')"><option v-for="id in buildingTools" :key="id" :value="id">{{ id === 'house' ? t('mapEditor.house') : t('places.' + id + '.name') }}</option></optgroup>
           <optgroup :label="t('mapEditor.gates')"><option v-for="id in gateTools" :key="id" :value="id">{{ t('places.' + id + '.name') }}</option></optgroup>
-          <optgroup :label="t('mapEditor.details')"><option value="door">{{ t('mapEditor.door') }}</option><option value="cellImage">{{ t('mapEditor.cellImage') }}</option><option v-for="id in decorTools" :key="id" :value="id">{{ t('mapEditor.' + id) }}</option></optgroup>
+          <optgroup :label="t('mapEditor.details')"><option value="door">{{ t('mapEditor.door') }}</option><option value="cellImage">{{ t('mapEditor.cellImage') }}</option><option v-for="id in decorTools" :key="id" :value="id">{{ t('mapEditor.' + id.split(':')[0]) }} {{ id.split(':')[1] }}</option></optgroup>
         </select>
       </label>
       <label v-if="isBuildingTool">{{ t('mapEditor.shape') }} <select v-model="shape"><option value="rectangle">{{ t('mapEditor.rectangle') }}</option><option value="L">{{ t('mapEditor.lShape') }}</option></select></label>
@@ -243,8 +251,8 @@ async function saveJson() {
     <div class="map-editor-canvas">
       <TownArt :map="map" :ambience-enabled="false" />
       <div class="map-editor-hit" @pointerdown="pointerDown" @pointermove="pointerMove" @pointerup="pointerUp" @pointercancel="pointerUp" @pointerleave="hoverCell = null"></div>
-      <div v-if="preview" class="map-editor-preview" :style="{ left: preview.x / 30 * 100 + '%', top: preview.y / 30 * 100 + '%', width: preview.width / 30 * 100 + '%', height: preview.height / 30 * 100 + '%' }"></div>
-      <div v-else-if="hoverCell" class="map-editor-hover" :style="{ left: hoverCell.x / 30 * 100 + '%', top: hoverCell.y / 30 * 100 + '%' }"></div>
+      <div v-if="preview" class="map-editor-preview" :style="{ left: preview.x / map.columns * 100 + '%', top: preview.y / map.rows * 100 + '%', width: preview.width / map.columns * 100 + '%', height: preview.height / map.rows * 100 + '%' }"></div>
+      <div v-else-if="hoverCell" class="map-editor-hover" :style="{ left: hoverCell.x / map.columns * 100 + '%', top: hoverCell.y / map.rows * 100 + '%' }"></div>
     </div>
     <div class="map-editor-bottom">
       <div class="map-editor-feedback" role="status">{{ status || (problems.length ? t('mapEditor.errors', { count: problems.length }) + ' ' + problems[0] : t('mapEditor.ready')) }}</div>

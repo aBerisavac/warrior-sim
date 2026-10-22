@@ -462,8 +462,12 @@
     "wall": "Palisade wall",
     "river": "River",
     "bridge": "Wooden bridge",
+    "drawbridge": "Drawbridge",
+    "pond": "Pond",
     "forest": "Forest",
+    "meadow": "Wild meadow",
     "mountain": "Mountain",
+    "scree": "Rocky ground",
     "farm": "Farmland",
     "house": "House",
     "door": "Set entrance",
@@ -500,6 +504,7 @@
     "rock": "Rock",
     "barrel": "Barrel",
     "cart": "Cart",
+    "grass": "Grass",
     "gateImageHelp": "Each gate can use its own image path."
   },
   "tiers": {
@@ -1280,5 +1285,10 @@
       "shortGrip": "A longer handle would give this large blade better leverage.",
       "lengthBudget": "Each stock unit supports up to 20 cm of metal length. Add stock or shorten the design."
     }
+  },
+  "interface": {
+    "toolbar": "Game toolbar",
+    "journal": "Journal & objectives",
+    "skillsPending": "Skill training is not available yet."
   }
 }

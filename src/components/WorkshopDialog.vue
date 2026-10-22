@@ -124,3 +124,8 @@ onBeforeUnmount(() => { cancel(); clearInterval(timer); window.removeEventListen
 
 <style scoped>.workshop-overlay .workshop-dialog.workshop-dialog--designer{position:absolute;inset:8px;width:auto;max-height:none;transform:none}.workshop-dialog--designer .workshop-body{overflow:auto}</style>
 <style scoped>.working-range{font-size:10px;margin:2px 0 4px;flex:none;color:#cab481}.workshop-dialog--minigame .weapon-preview{height:clamp(40px,12cqh,95px)}</style>
+<style scoped>
+.workshop-overlay:has(.workshop-dialog--minigame),.workshop-overlay:has(.workshop-dialog--designer){z-index:40}.workshop-overlay .workshop-dialog.workshop-dialog--minigame,.workshop-overlay .workshop-dialog.workshop-dialog--designer{inset:0;width:100%;height:100%;max-width:none;max-height:none;border-radius:0;padding:12px}.workshop-dialog--minigame .workshop-body{display:flex;flex-direction:column;overflow:auto}.workshop-dialog--minigame .dagger-assembly,.workshop-dialog--minigame .dagger-sharpening{flex:1;min-height:160px}.workshop-dialog--minigame .hammer-grid{flex:1;min-height:100px;grid-template-rows:repeat(2,minmax(30px,1fr))}.workshop-dialog--minigame .quench-scene{flex:1;min-height:90px;height:auto}.workshop-dialog--minigame .working-range{font-size:9px}@media(max-width:570px){.workshop-overlay .workshop-dialog.workshop-dialog--minigame,.workshop-overlay .workshop-dialog.workshop-dialog--designer{padding:7px}}
+</style>
+
+<style scoped>.workshop-overlay .workshop-dialog.workshop-dialog--minigame,.workshop-overlay .workshop-dialog.workshop-dialog--designer{background:#25362b}</style>
