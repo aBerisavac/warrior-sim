@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
+import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import MapAmbience from './MapAmbience.vue'
 import { ambienceFor, ambienceSeed, vegetationMotion } from '../map-ambience'
@@ -12,28 +12,88 @@ const props = defineProps({ ambienceEnabled: { type: Boolean, default: true }, p
 const emit = defineEmits(['road-cell'])
 const motionUnavailable = ref(false)
 const hoveredRoad = ref(null)
+const glowingRoads = ref([])
+const litRoads = new Set()
+const fadeTimers = new Map()
+let previousPointer = null
 let media
 function updateMotion() { motionUnavailable.value = document.hidden || !!media?.matches }
 onMounted(() => { media = window.matchMedia?.('(prefers-reduced-motion: reduce)'); updateMotion(); media?.addEventListener('change', updateMotion); document.addEventListener('visibilitychange', updateMotion) })
-onBeforeUnmount(() => { media?.removeEventListener('change', updateMotion); document.removeEventListener('visibilitychange', updateMotion) })
+onBeforeUnmount(() => { media?.removeEventListener('change', updateMotion); document.removeEventListener('visibilitychange', updateMotion); clearRoadGlow() })
 const config = computed(() => props.ambienceEnabled ? ambienceFor(props.map) : null)
 const motionStyle = decor => config.value ? vegetationMotion(props.map, decor) : null
 const tileMotionStyle = (x, y) => ({ '--water-delay': -ambienceSeed(props.map, x, y, 'water') * 12 + 's' })
 const artFor = (structure) => structureImage(structure, props.tiers)
 const mapSize = computed(() => ({ width: props.map.columns * props.map.cellSize, height: props.map.rows * props.map.cellSize }))
 const wallNeighbor = (x, y) => props.map.terrain[y]?.[x] === 'W' || props.map.gates?.some(gate => x >= gate.x && x < gate.x + (gate.width ?? 1) && y >= gate.y && y < gate.y + (gate.height ?? 1))
-function roadFromEvent(event) {
+const roadAt = (x, y) => ['R', 'G', 'B', 'D'].includes(props.map.terrain[y]?.[x]) && cellInsideGates(props.map, x, y)
+function cellFromEvent(event) {
   const svg = event.currentTarget
   const point = svg.createSVGPoint()
   point.x = event.clientX; point.y = event.clientY
   const local = point.matrixTransform(svg.getScreenCTM().inverse())
-  const x = Math.floor(local.x / props.map.cellSize), y = Math.floor(local.y / props.map.cellSize)
-  return ['R', 'G', 'B', 'D'].includes(props.map.terrain[y]?.[x]) && cellInsideGates(props.map, x, y) ? { x, y } : null
+  return { x: local.x / props.map.cellSize, y: local.y / props.map.cellSize }
 }
+function roadFromEvent(event) {
+  const point = cellFromEvent(event)
+  const x = Math.floor(point.x), y = Math.floor(point.y)
+  return roadAt(x, y) ? { x, y } : null
+}
+function lightRoad(x, y) {
+  if (!roadAt(x, y)) return
+  const id = `${x},${y}`
+  if (!litRoads.has(id)) {
+    litRoads.add(id)
+    glowingRoads.value = [...glowingRoads.value, { id, x, y }]
+  }
+  clearTimeout(fadeTimers.get(id))
+  fadeTimers.delete(id)
+  return id
+}
+function fadeRoad(id) {
+  if (!id) return
+  clearTimeout(fadeTimers.get(id))
+  fadeTimers.set(id, setTimeout(() => {
+    fadeTimers.delete(id)
+    litRoads.delete(id)
+    glowingRoads.value = glowingRoads.value.filter(road => road.id !== id)
+  }, 1500))
+}
+function clearRoadGlow() {
+  for (const timer of fadeTimers.values()) clearTimeout(timer)
+  fadeTimers.clear()
+  litRoads.clear()
+  glowingRoads.value = []
+  hoveredRoad.value = null
+  previousPointer = null
+}
+watch(() => props.map.id, clearRoadGlow)
 function trackRoad(event) {
   if (event.pointerType === 'touch') return
-  const next = roadFromEvent(event)
+  const point = cellFromEvent(event)
+  const x = Math.floor(point.x), y = Math.floor(point.y)
+  const next = roadAt(x, y) ? { x, y } : null
+  const currentId = next && `${x},${y}`
+  const traversed = new Set()
+  const distance = previousPointer ? Math.max(Math.abs(point.x - previousPointer.x), Math.abs(point.y - previousPointer.y)) : 0
+  const steps = Math.max(1, Math.ceil(distance * 4))
+  for (let step = 0; step <= steps; step++) {
+    const fraction = step / steps
+    const cellX = Math.floor((previousPointer?.x ?? point.x) + (point.x - (previousPointer?.x ?? point.x)) * fraction)
+    const cellY = Math.floor((previousPointer?.y ?? point.y) + (point.y - (previousPointer?.y ?? point.y)) * fraction)
+    const id = lightRoad(cellX, cellY)
+    if (id) traversed.add(id)
+  }
+  const oldId = hoveredRoad.value && `${hoveredRoad.value.x},${hoveredRoad.value.y}`
+  if (oldId && oldId !== currentId) traversed.add(oldId)
+  for (const id of traversed) if (id !== currentId) fadeRoad(id)
   if (next?.x !== hoveredRoad.value?.x || next?.y !== hoveredRoad.value?.y) hoveredRoad.value = next
+  previousPointer = point
+}
+function leaveRoad() {
+  if (hoveredRoad.value) fadeRoad(`${hoveredRoad.value.x},${hoveredRoad.value.y}`)
+  hoveredRoad.value = null
+  previousPointer = null
 }
 function chooseRoad(event) {
   const road = roadFromEvent(event)
@@ -42,9 +102,8 @@ function chooseRoad(event) {
 </script>
 
 <template>
-<svg class="town-art" :class="{ 'town-art--paused': paused || motionUnavailable, 'town-art--animated': !!config, 'town-art--road-hover': !!hoveredRoad }" :viewBox="'0 0 ' + mapSize.width + ' ' + mapSize.height" preserveAspectRatio="none" role="img" :aria-label="t('map.townAria')" @click="chooseRoad" @pointermove="trackRoad" @pointerleave="hoveredRoad = null">
+<svg class="town-art" :class="{ 'town-art--paused': paused || motionUnavailable, 'town-art--animated': !!config, 'town-art--road-hover': !!hoveredRoad }" :viewBox="'0 0 ' + mapSize.width + ' ' + mapSize.height" preserveAspectRatio="none" role="img" :aria-label="t('map.townAria')" @click="chooseRoad" @pointermove="trackRoad" @pointerleave="leaveRoad">
     <defs>
-      <linearGradient id="town-road-border" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f9db83"/><stop offset=".55" stop-color="#df9c3f"/><stop offset="1" stop-color="#f4c966"/></linearGradient>
       <pattern id="town-grid" :width="map.cellSize" :height="map.cellSize" patternUnits="userSpaceOnUse"><path :d="'M ' + map.cellSize + ' 0 H 0 V ' + map.cellSize" fill="none" stroke="#675d44" stroke-width="1" opacity=".22" /></pattern>
       <pattern id="bridge-planks" width="8" height="40" patternUnits="userSpaceOnUse"><path d="M0 0V40" stroke="#5f472d" stroke-width="1.5" opacity=".65" /></pattern>
       <clipPath v-for="building in map.buildings" :id="'town-building-clip-' + building.id" :key="building.id" clipPathUnits="userSpaceOnUse"><path :d="buildingOutline(building, map.cellSize)" /></clipPath>
@@ -96,14 +155,18 @@ function chooseRoad(event) {
       </g>
     </g>
     <MapAmbience v-if="config" :map="map" :paused="paused || motionUnavailable" :raining="raining" />
-    <TransitionGroup name="town-road-glow" tag="g"><rect v-if="hoveredRoad" :key="`${hoveredRoad.x},${hoveredRoad.y}`" class="town-road-highlight" :x="hoveredRoad.x * map.cellSize + 2" :y="hoveredRoad.y * map.cellSize + 2" :width="map.cellSize - 4" :height="map.cellSize - 4" rx="2" /></TransitionGroup>
+    <TransitionGroup name="town-footsteps" tag="g"><g v-for="road in glowingRoads" :key="road.id" class="town-road-footsteps" :transform="`translate(${road.x * map.cellSize} ${road.y * map.cellSize}) scale(${map.cellSize / 40})`">
+      <path d="M11 28c-2-1-2.5-3.3-1.4-5.3l3.5-6.6c1.1-2 3.6-2.7 5.3-1.4 1.6 1.1 1.9 3.2 1 5.2l-3.2 6.5c-1 2.1-3.1 2.7-5.2 1.6ZM22 22c-2-1-2.5-3.3-1.4-5.3l3.5-6.6c1.1-2 3.6-2.7 5.3-1.4 1.6 1.1 1.9 3.2 1 5.2l-3.2 6.5c-1 2.1-3.1 2.7-5.2 1.6Z" />
+      <path class="town-road-footsteps-detail" d="m12 21 5 2m6-8 5 2" />
+    </g></TransitionGroup>
   </svg>
 </template>
 
 <style>
 .town-art .town-vegetation{transform-origin:0px 12px;animation:town-plant-sway var(--sway-time,8s) ease-in-out var(--sway-delay,0s) infinite alternate}.town-water-ripple{animation:town-water-breathe 5.7s ease-in-out var(--water-delay,0s) infinite alternate}.town-art--paused *{animation-play-state:paused!important}@keyframes town-plant-sway{0%{transform:rotate(calc(var(--sway-angle,1deg) * -.65))}65%{transform:rotate(var(--sway-angle,1deg))}100%{transform:rotate(calc(var(--sway-angle,1deg) * .25))}}@keyframes town-water-breathe{from{opacity:.45;transform:translateX(-1px)}to{opacity:.85;transform:translateX(1px)}}@media(prefers-reduced-motion:reduce){.town-art .town-vegetation,.town-water-ripple{animation:none!important}}
-.town-art--road-hover{cursor:pointer}.town-road-highlight{fill:#e7ad3b18;stroke:url(#town-road-border);stroke-width:2.5;filter:drop-shadow(0 0 3px #e8b34b);pointer-events:none}
-.town-road-glow-enter-active,.town-road-glow-leave-active{transition:opacity .28s ease-in-out,filter .28s ease-in-out}
-.town-road-glow-enter-from,.town-road-glow-leave-to{opacity:0;filter:drop-shadow(0 0 0 #e8b34b)}
-@media(prefers-reduced-motion:reduce){.town-road-glow-enter-active,.town-road-glow-leave-active{transition:none}}
+.town-art--road-hover{cursor:pointer}.town-road-footsteps{fill:#825535;stroke:#f2dcaa;stroke-width:1.1;stroke-linejoin:round;filter:drop-shadow(0 1px 1px #35291d99);pointer-events:none}
+.town-road-footsteps-detail{fill:none;stroke:#d0a067;stroke-width:1}
+.town-footsteps-enter-active{transition:opacity .2s ease-in-out}.town-footsteps-leave-active{transition:opacity .45s ease-in-out}
+.town-footsteps-enter-from,.town-footsteps-leave-to{opacity:0}
+@media(prefers-reduced-motion:reduce){.town-footsteps-enter-active,.town-footsteps-leave-active{transition:none}}
 </style>

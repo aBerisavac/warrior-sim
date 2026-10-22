@@ -8,7 +8,7 @@ const { t } = useI18n()
 </script>
 <template>
   <header class="game-toolbar">
-    <div class="game-toolbar-place"><div class="game-toolbar-title"><strong>{{ mapName }}</strong><span v-if="town" class="game-toolbar-chapter">{{ t('app.chapter') }}</span></div><small>{{ t('sidebar.day', { day }) }} · {{ clock }}</small></div>
+    <div class="game-toolbar-place"><div class="game-toolbar-title"><strong>{{ mapName }}</strong><span v-if="town" class="game-toolbar-chapter">{{ t('app.chapter') }} · {{ t('app.chapterTitle') }}</span></div><small>{{ t('sidebar.day', { day }) }} · {{ clock }}</small></div>
     <nav :aria-label="t('interface.toolbar')">
       <CircleIcon icon="☷" size="job" :disabled="busy || !isUnlocked(completedQuests, 'hud', 'journal')" :aria-label="t('interface.journal')" :title="t('interface.journal')" @click="emit('modal', 'journal')" />
       <CircleIcon icon="skills" size="job" :disabled="busy || !isUnlocked(completedQuests, 'hud', 'pawn')" :aria-label="t('sidebar.skillTree')" :title="t('sidebar.skillTree')" @click="emit('modal', 'skills')" />
