@@ -9,7 +9,7 @@ export const workshopLessons = Object.fromEntries([
   exchange('fuel', ['father', 'thought']),
   exchange('crucible', ['father']),
   exchange('bellows', ['father', 'player']),
-  exchange('melting', ['father', 'thought']),
+  exchange('melting', ['father', 'player', 'thought']),
   exchange('pour', ['father', 'player']),
   exchange('ruined', ['father', 'thought']),
   exchange('residue', ['father']),

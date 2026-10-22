@@ -65,8 +65,8 @@
   {
     "id": "crucible",
     "icon": "♜",
-    "x": 65,
-    "y": 55,
+    "x": 71,
+    "y": 51,
     "action": "inspect"
   },
   {

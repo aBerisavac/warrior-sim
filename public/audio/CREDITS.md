@@ -20,6 +20,13 @@ Original filenames retained: impactMetal_medium_000.ogg, impactMetal_medium_001.
 Used for hammering, moving/stacking wood, dishes, and footsteps.
 Original licence: Kenney-Impact-License.txt.
 
+## VishwaJai — Blacksmith's Hammer
+
+https://opengameart.org/content/blacksmiths-hammer
+
+Original: blacksmithhammer_0.mp3. Local: blacksmith-hammer-hot.mp3.
+A recorded hammer strike on an anvil, used for hot-metal strikes. CC0 1.0; attribution is optional.
+
 ## TinyWorlds — Forest Ambience
 
 https://opengameart.org/content/forest-ambience
@@ -74,7 +81,7 @@ Bad, good, and neutral encounter stings are original procedural musical cues gen
 ## Market ambience
 
 - `market-crowd.mp3`: **Outdoor Market #2**, Joseph SARDIN / BigSoundBank, CC0. Source: https://bigsoundbank.com/outdoor-market-2-s3378.html . Original recording of market stalls and conversation, used quietly beneath game audio.
-- `market-watch-out.wav`, `market-coming-through.wav`: original short English callouts rendered locally using Windows System.Speech (Microsoft Zira). No third-party voice samples downloaded.
+- `market-human-1.mp3`, `market-human-2.mp3`, `market-human-3.mp3`: short excerpts from **Crowd Shouting/Speaking Ambience** by StarNinjas, CC0. Human voices recorded by the creator and siblings; faded and compressed for passing market sounds. https://opengameart.org/content/crowd-shoutingspeaking-ambience . The earlier synthetic callouts have been removed from public assets.
 - Cart wheel rattle: original procedural audio in `src/audio.js`.
 - `horse-trot.ogg`: **Horse Trotting**, EZduzziteh, CC0. Source: https://opengameart.org/content/horse-trotting .
 
@@ -91,3 +98,9 @@ Playback uses lower gain, slight pitch/volume variation, and no immediate repeat
 Source/licence: https://bigsoundbank.com/footsteps-on-gravels-4-s3216.html
 Download: https://bigsoundbank.com/UPLOAD/mp3/3216.mp3
 The decoded recording has a short overlap at the loop seam. Playback fades with movement and smoothly varies speed and volume over 2–4-second intervals. Replaces the individual road-footstep samples above, which remain unused assets.
+
+## Weather and wildlife
+
+- `rain-window.mp3`: **Rain on Window Loop** by alxl, CC0. Converted from WAV to MP3. https://opengameart.org/content/rain-on-window-loop . Played at different gains indoors, at the market, and outdoors.
+- `eagle-screech.mp3`: **Eagle Screech 03** by SFXMint, CC0. https://sfxmint.com/sounds/eagle-screech-03 .
+- Matching MP3 versions of active Ogg clips were transcoded from the same credited recordings for browsers without Ogg support, including iOS Chrome.

@@ -20,12 +20,12 @@
     "K": "rocky ground"
   },
   "terrain": [
-    "SSSKKMMMMMMMMMMMMMMMRMMMMMMMMMMMKKKKKK..",
-    "SSSSKMMMMMMMMMMMMMMMRMMMMMMMMMMMMKKK....",
-    "SSSSKKKMMMMMMMMMMMMMRMMMMMMMMMMMKKKK....",
-    "SSSSSSKKMMMMMMMMMMMMRMMMKMKKKKKKKK......",
-    "SSSSSSSSMMMMMMMMMMMMRMMMMKKKKKKK........",
-    "SSSSFF.............MRMRMMM..............",
+    "FFSKKMMMMMMMMMMMMMMMRMMMMMMMMMMMKKKKKK..",
+    "FFFFKMMMMMMMMMMMMMMMRMMMMMMMMMMMMKKK....",
+    "FFFFKKKMMMMMMMMMMMMMRMMMMMMMMMMMKKKK....",
+    "SFSSSFKKMMMMMMMMMMMMRMMMKMKKKKKKKK......",
+    "SFFSSFFFMMMMMMMMMMMMRMMMMKKKKKKK........",
+    "SSFSFF.............MRMRMMM..............",
     "SFFFFFWWWWWWWWWWWWWWRRR.M...............",
     "SFFFFFW............GGG..................",
     "SFFFFFW.HHH........GGGWWWWWWWWWWW...PPP.",
@@ -2206,7 +2206,7 @@
     "K": null
   },
   "cellImages": [],
-  "revision": 11,
+  "revision": 12,
   "secondsPerCell": 1,
   "id": "briarwick-town",
   "ambience": {
@@ -2222,11 +2222,11 @@
         "maxActive": 1
       },
       "mole": {
-        "chancePerSecond": 0.03,
+        "chancePerSecond": 0.024,
         "maxActive": 2
       },
       "fish": {
-        "chancePerSecond": 0.1,
+        "chancePerSecond": 0.025,
         "maxActive": 20
       }
     },

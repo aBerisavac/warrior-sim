@@ -100,11 +100,12 @@ export function wildlifePose(event, age, cellSize = 40) {
 
 
 // Fish and moles roll once per free habitat tile each second; the other animals roll per region.
-export function spawnWildlife(map, active, random = Math.random, nextId = 0) {
+export function spawnWildlife(map, active, random = Math.random, nextId = 0, raining = false) {
   const config = map.ambience?.wildlife || WILDLIFE_DEFAULTS
   const spawned = []
   for (const kind of Object.keys(WILDLIFE_TILE)) {
     const rule = config[kind] || WILDLIFE_DEFAULTS[kind]
+    const chance = Math.min(1, rule.chancePerSecond * (raining ? kind === 'fish' ? 2 : ['mole', 'squirrel'].includes(kind) ? 1 / 3 : 1 : 1))
     const cap = kind === 'squirrel' ? Math.min(3, rule.maxActive) : rule.maxActive
     if (active.filter(event => event.kind === kind).length + spawned.filter(event => event.kind === kind).length >= cap) continue
     if (kind === 'fish' || kind === 'mole') {
@@ -112,13 +113,13 @@ export function spawnWildlife(map, active, random = Math.random, nextId = 0) {
       for (const cell of wildlifeCells(map, kind)) {
         if (occupied.size >= cap) break
         const key = `${cell.x},${cell.y}`
-        if (occupied.has(key) || random() >= rule.chancePerSecond) continue
+        if (occupied.has(key) || random() >= chance) continue
         const event = createWildlifeEvent(map, kind, random, nextId++, cell)
         if (event) { spawned.push(event); occupied.add(key) }
       }
       continue
     }
-    if (random() >= rule.chancePerSecond) continue
+    if (random() >= chance) continue
     const event = createWildlifeEvent(map, kind, random, nextId++)
     if (event) spawned.push(event)
   }

@@ -3,7 +3,7 @@ import { advanceTravelClock } from './travel-clock'
 import { canSleep, sleepNeedPercent, updateHunger, eatItem, nextMorningMinutes } from './needs'
 import { DISHES_PAY, MERCHANT_TIP } from './currency'
 import { canStartDailyJob, canResumeDailyJob, startDailyJob, endDailyJob } from './daily-jobs'
-import { computed, onBeforeUnmount, onMounted, reactive, ref, toRaw, watch, watchEffect } from 'vue'
+import { computed, onBeforeUnmount, onMounted, provide, reactive, ref, toRaw, watch, watchEffect } from 'vue'
 import { useI18n } from 'vue-i18n'
 import GameToolbar from './components/GameToolbar.vue'
 import MapLoadingScreen from './components/MapLoadingScreen.vue'
@@ -20,9 +20,12 @@ import { tickWorkshop, queueWorkshopLoad } from './workshop'
 import { canEnterSmithy, robPlayer } from './errand'
 import GameModal from './components/GameModal.vue'
 import AudioSettings from './components/AudioSettings.vue'
+import CharacterSetup from './components/CharacterSetup.vue'
+import MapWeather from './components/MapWeather.vue'
+import { weatherAt } from './weather'
 import { encounterCue, createAudioEngine, readAudioSettings, AUDIO_SETTINGS_KEY, sceneSounds, useGameAudio } from './audio'
 import TutorialCloud from './components/TutorialCloud.vue'
-import { dayNumber, formatTime, initialState, places, readSave, SAVE_KEY, staminaCap } from './game'
+import { dayNumber, formatTime, initialState, places, readSave, restoreSave, SAVE_KEY, staminaCap } from './game'
 import { hasQuest, isUnlocked, questById, QUEST, stageFromQuests } from './progression'
 import { placePoint, pointAtDistance, routeFromPoint, travelMinutesFromPoint, mapGrid } from './routes'
 import { hasRequiredItems, items } from './inventory'
@@ -31,7 +34,9 @@ import { eventForTravelTick } from './travel-events'
 import { preloadMapAssets } from './map-loading'
 
 const { t } = useI18n()
+const mapEditingAvailable = import.meta.env.DEV
 const game = reactive(readSave())
+provide('playerIdentity', computed(() => ({ playerName: game.playerName, avatarSrc: game.avatarSrc })))
 const returningPlayer = (() => { try { const saved = JSON.parse(localStorage.getItem(SAVE_KEY)); return saved?.version >= 1 && saved?.version <= 12 && places.some(place => place.id === saved.location) } catch { return false } })()
 const audioSettings = reactive(readAudioSettings(localStorage))
 const audio = createAudioEngine({ settings: audioSettings })
@@ -41,7 +46,7 @@ watch(audioSettings, settings => {
   audio.configure(settings)
   try { localStorage.setItem(AUDIO_SETTINGS_KEY, JSON.stringify(settings)) } catch { /* Keep settings usable if storage is full. */ }
 }, { deep: true })
-function unlockAudio(event) { if (event.isTrusted && (event.type === 'pointerdown' || !event.ctrlKey && !event.altKey && !event.metaKey)) void audio.unlock() }
+function unlockAudio(event) { if (event.isTrusted && (event.type !== 'keydown' || !event.ctrlKey && !event.altKey && !event.metaKey)) void audio.unlock() }
 function interfaceSound(event) { if (event.target.closest?.('button:not(:disabled)') && !event.target.closest('[data-audio-ui="off"]')) audio.play('click') }
 function audioVisibility() { refreshAudioScene(); audio.visibilityChanged() }
 const tradeAgreement = ref(null)
@@ -65,10 +70,10 @@ async function showMapLoading(id, firstVisit = false) {
 watch(mapView, id => { void showMapLoading(id) }, { flush: 'sync' })
 const editingMap = ref(false)
 const gameFrame = ref(null)
+const importInput = ref(null)
 const townMap = ref(null)
 const gameHeader = ref(null)
 const gameFooter = ref(null)
-const expandedGame = ref(false)
 const fullscreenGame = ref(false)
 const mobileGame = ref(false)
 const displayError = ref('')
@@ -83,7 +88,6 @@ function fitGameSquare() {
 }
 function syncFullscreen() { fullscreenGame.value = document.fullscreenElement === gameFrame.value }
 function handleDisplayKey(event) {
-  if (event.key === 'Escape' && !document.fullscreenElement && !mobileGame.value) expandedGame.value = false
   if (event.key.toLowerCase() === 'r' && !event.repeat && mapView.value === 'forge' && (!modal.value || modal.value === 'workshop') && game.workshop.working && ['melting', 'molten', 'pouring'].includes(game.workshop.crucible.stage) && !['INPUT', 'SELECT', 'TEXTAREA'].includes(event.target.tagName)) { event.preventDefault(); workshopCommand('pour') }
 }
 async function toggleGameFullscreen() {
@@ -95,10 +99,10 @@ async function toggleGameFullscreen() {
   } catch { displayError.value = t('map.fullscreenUnavailable') }
 }
 const modal = ref(null)
-function refreshAudioScene() {
-  audio.setScene(sceneSounds({ mapView: mapView.value, location: game.location, traveling: !!game.travel, walking: mapView.value === 'town' && !!game.travel && (typeof document === 'undefined' || !document.hidden) && !modal.value && !settingsOpen.value, woodcutting: modal.value === 'wood', fuel: game.workshop.fuel }))
+function refreshAudioScene(weatherKind = weatherAt(game.minutes, game.weatherSeed).kind) {
+  audio.setScene(sceneSounds({ mapView: mapView.value, location: game.location, traveling: !!game.travel, walking: mapView.value === 'town' && !!game.travel && (typeof document === 'undefined' || !document.hidden) && !modal.value && !settingsOpen.value, woodcutting: modal.value === 'wood', fuel: game.workshop.fuel, raining: weatherKind === 'rain' }))
 }
-watch([mapView, () => game.location, () => !!game.travel, () => game.workshop.fuel > 0, modal, settingsOpen], refreshAudioScene, { immediate: true })
+watch([mapView, () => game.location, () => !!game.travel, () => game.workshop.fuel > 0, () => weatherAt(game.minutes, game.weatherSeed).kind, modal, settingsOpen], () => refreshAudioScene(), { immediate: true })
 watch(modal, (value, old) => {
   if (value === 'trade' && old !== 'trade') { tradeAgreement.value = null; tradeFeedback.value = null }
   if (value === 'inventory') audio.play('inventory'); else if (['journal', 'objective'].includes(value)) audio.play('page')
@@ -206,7 +210,7 @@ let lastTravelTick
 let marketPassing = 18 + Math.random() * 15, marketCallout = 55 + Math.random() * 40
 let workshopTimer
 let lastWorkshopTick
-let workshopMinutes = 0
+let idleClockSeconds = 0
 const selectedPlace = computed(() => places.find((place) => place.id === game.selected) || places[0])
 const currentPlace = computed(() => places.find((place) => place.id === game.location) || places[0])
 const pawnPosition = computed(() => game.travel?.position || placePoint(game.location))
@@ -216,25 +220,34 @@ const day = computed(() => dayNumber(game.minutes))
 const clock = computed(() => formatTime(game.minutes))
 const sleepNeed = computed(() => Math.floor(sleepNeedPercent(game)))
 const moodKey = computed(() => game.reputation <= -3 ? 'refuses' : game.reputation < 0 ? 'irritated' : game.reputation > 1 ? 'friendly' : 'neutral')
+let importPending = false
 
 watch(() => game.minutes, () => { refreshMerchantStock(game); updateHunger(game) }, { immediate: true, flush: 'sync' })
-watch(game, () => localStorage.setItem(SAVE_KEY, JSON.stringify(game)), { deep: true })
+watch(game, () => { if (!importPending) localStorage.setItem(SAVE_KEY, JSON.stringify(game)) }, { deep: true })
 watchEffect(() => { document.title = t('app.title') + ' — ' + t('map.townName') })
 
 function scheduleIntro() {
   clearTimeout(introTimer)
-  if (game.stage !== 'intro') return
+  if (game.stage !== 'intro' || !game.profileChosen) return
   introTimer = setTimeout(() => {
     if (game.stage !== 'intro') return
     completeQuest(QUEST.FATHER_CALLED)
     note('events.fatherCall')
   }, 3000)
 }
+function finishCharacterSetup(identity) {
+  game.playerName = identity.playerName
+  game.avatarSrc = identity.avatarSrc
+  game.profileChosen = true
+  scheduleIntro()
+}
 onMounted(() => {
   mobileQuery = window.matchMedia('(max-width: 570px)')
   syncMobileGame()
   mobileQuery.addEventListener('change', syncMobileGame)
   document.addEventListener('pointerdown', unlockAudio, true)
+  document.addEventListener('touchend', unlockAudio, true)
+  document.addEventListener('click', unlockAudio, true)
   document.addEventListener('keydown', unlockAudio, true)
   document.addEventListener('click', interfaceSound)
   document.addEventListener('visibilitychange', audioVisibility)
@@ -253,23 +266,25 @@ onMounted(() => {
   travelTimer = requestAnimationFrame(animateTravel)
   lastWorkshopTick = performance.now()
   workshopTimer = setInterval(() => {
-    const now = performance.now(), dt = Math.min(.25, (now - lastWorkshopTick) / 1000)
+    const now = performance.now(), realDt = Math.max(0, (now - lastWorkshopTick) / 1000), dt = Math.min(.25, realDt)
     lastWorkshopTick = now
+    if (!game.travel) {
+      idleClockSeconds += realDt * 5
+      while (idleClockSeconds >= 60) { game.minutes += 1; idleClockSeconds -= 60 }
+    }
     if (mapView.value === 'town' && game.location === 'market' && !game.travel && !settingsOpen.value) {
       marketPassing -= dt; marketCallout -= dt
       if (marketPassing <= 0) { audio.play('marketHorse'); audio.play('marketCart'); marketPassing = 30 + Math.random() * 35 }
       if (marketCallout <= 0) { audio.play('marketCallout', { rate: 1 }); marketCallout = 60 + Math.random() * 45 }
     }
     if (!forgeLesson.value || mapView.value !== 'forge') tickWorkshop(game, dt)
-    if (!forgeLesson.value && mapView.value === 'forge' && (modal.value === 'workshop' || game.workshop.fuel > 0 || game.workshop.blade)) {
-      workshopMinutes += dt
-      if (workshopMinutes >= 5) { game.minutes += 1; workshopMinutes -= 5 }
-    }
   }, 200)
 })
 onBeforeUnmount(() => {
   mobileQuery?.removeEventListener('change', syncMobileGame)
   document.removeEventListener('pointerdown', unlockAudio, true)
+  document.removeEventListener('touchend', unlockAudio, true)
+  document.removeEventListener('click', unlockAudio, true)
   document.removeEventListener('keydown', unlockAudio, true)
   document.removeEventListener('click', interfaceSound)
   document.removeEventListener('visibilitychange', audioVisibility)
@@ -547,7 +562,9 @@ function eat(instanceId) {
 function sleep() {
   if (game.workshop.working) return
   if (game.travel || game.location !== 'smithy' || !isUnlocked(game.completedQuests, 'hud', 'sleep') || !canSleep(game)) return
-  const nextMorning = nextMorningMinutes(game.minutes)
+  const nextMorning = nextMorningMinutes(game.minutes, sleepNeedPercent(game))
+  // Resolve the new day's forecast before jumping the clock, including long sleeps.
+  const wakeWeather = weatherAt(nextMorning, game.weatherSeed)
   game.minutes = nextMorning
   game.awakeSince = nextMorning
   game.health = Math.min(100, game.health + 12)
@@ -560,6 +577,7 @@ function sleep() {
     note('events.rested')
   }
   modal.value = draftToday ? 'event' : null
+  refreshAudioScene(wakeWeather.kind)
 }
 
 function acceptFatherErrand() {
@@ -570,7 +588,7 @@ function acceptFatherErrand() {
 
 function reset() {
   Object.assign(game, initialState())
-  scheduleIntro()
+  idleClockSeconds = 0
   mapView.value = 'town'
   tradeFeedback.value = null
   townMenu.value = null
@@ -578,22 +596,65 @@ function reset() {
   tavernReply.value = null
   modal.value = null
 }
+function exportSave() {
+  displayError.value = ''
+  try {
+    const blob = new Blob([JSON.stringify(game, null, 2) + '\n'], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `briarwick-save-day-${dayNumber(game.minutes)}.json`
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    setTimeout(() => URL.revokeObjectURL(url), 30000)
+  } catch {
+    displayError.value = t('interface.exportFailed')
+  }
+}
+function openImportPicker() {
+  displayError.value = ''
+  importInput.value?.click()
+}
+async function importSaveFile(event) {
+  const file = event.target.files?.[0]
+  event.target.value = ''
+  if (!file) return
+  displayError.value = ''
+  if (file.size > 10 * 1024 * 1024) { displayError.value = t('interface.importTooLarge'); return }
+  try {
+    const text = await file.text()
+    let parsed
+    try { parsed = JSON.parse(text) }
+    catch { displayError.value = t('interface.importInvalid'); return }
+    const imported = restoreSave(parsed)
+    if (!imported) { displayError.value = t('interface.importInvalid'); return }
+    importPending = true
+    localStorage.setItem(SAVE_KEY, JSON.stringify(imported))
+    window.location.reload()
+  } catch {
+    importPending = false
+    displayError.value = t('interface.importFailed')
+  }
+}
 </script>
 
 <template>
   <main class="game-shell">
     <MapLoadingScreen v-if="loadingMap" :map-id="loadingMap" :returning="returningPlayer" :first-visit="loadingFirstVisit" :completed="loadingProgress.completed" :total="loadingProgress.total" />
-    <section ref="gameFrame" class="map-frame game-window" :class="{ 'map-frame--expanded': expandedGame || mobileGame, 'map-frame--fullscreen': fullscreenGame }" :aria-label="t('app.title')">
+    <section ref="gameFrame" class="map-frame game-window map-frame--expanded" :class="{ 'map-frame--fullscreen': fullscreenGame }" :aria-label="t('app.title')">
       <div id="game-animation-layer" class="game-animation-layer" aria-hidden="true"></div>
       <div ref="gameHeader" class="game-header">
-        <GameToolbar :map-name="t(mapView === 'town' ? 'map.townName' : 'map.forgeName')" :day="day" :clock="clock" :expanded="expandedGame || mobileGame" :fullscreen="fullscreenGame" :mobile="mobileGame" :muted="audioSettings.muted" :busy="!!forgeLesson || !!modal || settingsOpen || editingMap" :completed-quests="game.completedQuests" :can-edit="mapView === 'town'" :editing="editingMap" @modal="openHomeModal" @expand="expandedGame = !expandedGame" @fullscreen="toggleGameFullscreen" @mute="audioSettings.muted = !audioSettings.muted" @settings="settingsOpen = !settingsOpen" @editor="editingMap = !editingMap" />
+        <GameToolbar :map-name="t(mapView === 'town' ? 'map.townName' : 'map.forgeName')" :town="mapView === 'town'" :day="day" :clock="clock" :fullscreen="fullscreenGame" :mobile="mobileGame" :muted="audioSettings.muted" :busy="!!forgeLesson || !!modal || settingsOpen || editingMap || !game.profileChosen" :completed-quests="game.completedQuests" :can-edit="mapEditingAvailable && mapView === 'town'" :editing="editingMap" @modal="openHomeModal" @fullscreen="toggleGameFullscreen" @mute="audioSettings.muted = !audioSettings.muted" @settings="settingsOpen = !settingsOpen" @editor="editingMap = !editingMap" @export="exportSave" @import="openImportPicker" />
+        <input ref="importInput" type="file" accept=".json,application/json" hidden :aria-label="t('interface.importSave')" @change="importSaveFile" />
       </div>
       <div class="map-canvas">
         <span v-if="displayError" class="game-display-error" role="status">{{ displayError }}</span>
         <MapEditor v-if="editingMap && mapView === 'town'" @close="editingMap = false" />
         <template v-else>
-            <TownMap v-if="mapView === 'town'" ref="townMap" :ambience-paused="settingsOpen" :smithy-entry-locked="!canEnterSmithy(game)" :current-location="game.location" :pawn-position="pawnPosition" :travel="game.travel" :building-tiers="game.buildingTiers" :dialogue-blocked="!!tutorialQuest && !cloudReady" :selected-id="game.selected" :tutorial-stage="tutorialStage" :completed-quests="game.completedQuests" @menu="townMenu = $event" @select="selectPlace" @action="handleAction" @job="handleJob" />
-            <ForgeMap v-else ref="forgeMap" :guiding="!!forgeLesson || !!tutorialQuest" :occupied="!!modal" :paused="settingsOpen" :dialogue-blocked="!!forgeLesson || !!tutorialQuest && !cloudReady" :completed-quests="game.completedQuests" :workshop="game.workshop" :storehouse="game.storehouse" :inventory="game.inventory" :feedback="workshopFeedback" @command="workshopCommand" @station="openWorkshop" @town="leaveForge()" @modal="openHomeModal" />
+            <TownMap v-if="mapView === 'town'" ref="townMap" :avatar-src="game.avatarSrc" :ambience-paused="settingsOpen" :raining="weatherAt(game.minutes, game.weatherSeed).kind === 'rain'" :smithy-entry-locked="!canEnterSmithy(game)" :current-location="game.location" :pawn-position="pawnPosition" :travel="game.travel" :building-tiers="game.buildingTiers" :dialogue-blocked="!!tutorialQuest && !cloudReady" :selected-id="game.selected" :tutorial-stage="tutorialStage" :completed-quests="game.completedQuests" @menu="townMenu = $event" @select="selectPlace" @action="handleAction" @job="handleJob" />
+            <ForgeMap v-else ref="forgeMap" :avatar-src="game.avatarSrc" :guiding="!!forgeLesson || !!tutorialQuest" :occupied="!!modal" :paused="settingsOpen" :dialogue-blocked="!!forgeLesson || !!tutorialQuest && !cloudReady" :completed-quests="game.completedQuests" :workshop="game.workshop" :storehouse="game.storehouse" :inventory="game.inventory" :feedback="workshopFeedback" @command="workshopCommand" @station="openWorkshop" @town="leaveForge()" @modal="openHomeModal" />
+            <MapWeather :minutes="game.minutes" :seed="game.weatherSeed" :outdoor="mapView === 'town'" />
             <button v-if="tutorialQuest" class="cloud-toggle" type="button" :aria-label="t(cloudVisible ? 'map.hideCloud' : 'map.showCloud')" :title="t(cloudVisible ? 'map.hideCloud' : 'map.showCloud')" @click="cloudVisible = !cloudVisible">{{ cloudVisible ? '−' : '+' }}</button>
             <TutorialCloud :hidden="!cloudVisible" :quest="tutorialQuest" :marker-open="townMenu === 'smithy'" @ready="cloudReady = $event" @accept="acceptFatherErrand" />
             <button class="inventory-map-button" type="button" :disabled="!!forgeLesson || !!modal || (!!tutorialQuest && !cloudReady)" :aria-label="t('inventory.open')" :title="t('inventory.open')" @click="modal = 'inventory'"><svg viewBox="0 0 84 60" aria-hidden="true"><path d="M42 2 81 30 42 58 3 30Z" fill="#394535" stroke="#c3aa70" stroke-width="2" /><image href="/images/items/leather_backpack.svg" x="23" y="10" width="38" height="40" /></svg></button>
@@ -604,11 +665,12 @@ function reset() {
               :trade-agreement="tradeAgreement" :stamina="stamina" :sleep-need="sleepNeed"
               :mood-key="moodKey" :trade-feedback="tradeFeedback" :tavern-reply="tavernReply"
               @eat="eat" @rest="rest" @equip="game.equipment = $event" @market-notice-read="readMarketNotice" @close="closeModal" @modal="modal = $event" @reset="reset" @trade-offer="makeTradeOffer" @trade-confirm="confirmTrade" @tip="tip"
-              @update:skip-woodcutting-intro="game.skipWoodcuttingIntro = $event" @work="work" @wood-finished="finishWoodcutting" @tavern-answer="answerInnkeeper" @forge="forge" @sleep="sleep" />        </template>
-        <AudioSettings v-if="settingsOpen" :settings="audioSettings" :status="audio.status" @change="Object.assign(audioSettings, $event)" @preview="audio.preview($event)" @close="settingsOpen = false" />
+              @update:skip-woodcutting-intro="game.skipWoodcuttingIntro = $event" @work="work" @wood-finished="finishWoodcutting" @tavern-answer="answerInnkeeper" @forge="forge" @sleep="sleep" />            <CharacterSetup v-if="!game.profileChosen && !loadingMap" @complete="finishCharacterSetup" />
+        </template>
+        <Teleport to="body" :disabled="!mobileGame"><AudioSettings v-if="settingsOpen" :settings="audioSettings" :status="audio.status" @change="Object.assign(audioSettings, $event)" @enable="audio.unlock()" @preview="audio.preview($event)" @close="settingsOpen = false" /></Teleport>
       </div>
       <footer ref="gameFooter" class="game-footer">
-        <MapHud :at-home="game.location === 'smithy' && !game.workshop.working" :busy="!!forgeLesson || !!modal && modal !== 'workshop' || settingsOpen" :health="game.health" :stamina="stamina" :sleep-need="sleepNeed" :coins="game.coins" :hunger="Math.round(game.hunger)" :completed-quests="game.completedQuests" :traveling="!!game.travel" @modal="openHomeModal" />
+        <MapHud :avatar-src="game.avatarSrc" :player-name="game.playerName" :at-home="game.location === 'smithy' && !game.workshop.working" :busy="!!forgeLesson || !!modal && modal !== 'workshop' || settingsOpen || !game.profileChosen" :health="game.health" :stamina="stamina" :sleep-need="sleepNeed" :coins="game.coins" :hunger="Math.round(game.hunger)" :completed-quests="game.completedQuests" :traveling="!!game.travel" @modal="openHomeModal" />
         <span class="game-location-caption"><i class="location-dot"></i>{{ game.travel ? t('map.onRoad', { place: t('places.' + game.travel.destinationId + '.name') }) : t('places.' + currentPlace.id + '.name') }}</span>
       </footer>
     </section>

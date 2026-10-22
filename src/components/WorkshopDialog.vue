@@ -3,6 +3,9 @@ import WeaponDesigner from './WeaponDesigner.vue'
 import WeaponPreview from './WeaponPreview.vue'
 import DaggerAssembly from './DaggerAssembly.vue'
 import DaggerSharpening from './DaggerSharpening.vue'
+import ButtonProgressRing from './ButtonProgressRing.vue'
+import HammerBlank from './HammerBlank.vue'
+import { playSound } from '../audio'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { items, itemQuantity, carriedWeight } from '../inventory'
@@ -20,15 +23,30 @@ const cmd = (action, params = {}) => emit('command', action, params)
 const sources = computed(() => [{ id: 'bag', entries: props.game.inventory }, { id: 'storehouse', entries: props.game.storehouse }])
 const working = computed(() => b.value?.stage === 'hammering' && !b.value.heating && bladeWorking(b.value))
 let timer, previous
-function stop() {
+const pendingStrikes = new Set()
+function stop(releasedPower) {
   const h = holding.value; holding.value = null
-  if (h?.type === 'hammer') cmd('strike', { cell: h.cell, power: power.value })
+  if (h?.type === 'hammer') {
+    const strength = Number.isFinite(releasedPower) ? releasedPower : power.value
+    const hot = working.value
+    const strikeTimer = setTimeout(() => {
+      pendingStrikes.delete(strikeTimer)
+      if (hot) cmd('strike', { cell: h.cell, power: strength })
+      else playSound('hammerCold', { scale: .85, rate: .68 })
+    }, 468)
+    pendingStrikes.add(strikeTimer)
+  }
   if (h?.type === 'quench') cmd('quenchEnd')
   power.value = 0
 }
 function cancel() {
   if (holding.value?.type === 'quench' && b.value?.quenching) stop()
   else { holding.value = null; power.value = 0 }
+}
+function abortHammer() {
+  for (const strikeTimer of pendingStrikes) clearTimeout(strikeTimer)
+  pendingStrikes.clear()
+  cancel()
 }
 function trapFocus(event) {
   if (props.embedded) return
@@ -39,8 +57,8 @@ function trapFocus(event) {
   else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus() }
 }
 function beginHammer(event, index) {
-  if (!working.value || holding.value) return
-  event.currentTarget.setPointerCapture(event.pointerId)
+  if (b.value?.stage !== 'hammering' || holding.value) return
+  if (event.pointerId !== undefined) event.currentTarget.setPointerCapture(event.pointerId)
   power.value = 0; holding.value = { type: 'hammer', cell: index }
 }
 function beginQuench(event) {
@@ -59,16 +77,17 @@ onMounted(() => {
     if (holding.value?.type === 'quench') cmd('quenchTick', { seconds: dt, medium: props.station })
   }, 40)
 })
-onBeforeUnmount(() => { cancel(); clearInterval(timer); window.removeEventListener('blur', cancel) })
+onBeforeUnmount(() => { cancel(); clearInterval(timer); for (const strikeTimer of pendingStrikes) clearTimeout(strikeTimer); window.removeEventListener('blur', cancel) })
 </script>
 <template>
   <div class="workshop-overlay" :inert="paused" :class="{ 'workshop-overlay--embedded': embedded }" @keydown.esc.stop="emit('close')">
-    <section ref="dialog" class="workshop-dialog" :class="{ 'workshop-dialog--assembly': station === 'workbench' && b && ['quenched', 'assembled'].includes(b.stage) || station === 'grinder' && b?.stage === 'assembled', 'workshop-dialog--designer': station === 'design', 'workshop-dialog--minigame': !!b && ['anvil', 'water', 'oil', 'grinder', 'workbench'].includes(station) }" :role="embedded ? 'region' : 'dialog'" :aria-modal="embedded ? undefined : true" :aria-label="t('forgeHouse.station.' + station)" @keydown="trapFocus">
+    <section ref="dialog" class="workshop-dialog" :class="{ 'workshop-dialog--assembly': station === 'workbench' && b && ['quenched', 'assembled'].includes(b.stage) || station === 'grinder' && b?.stage === 'assembled', 'workshop-dialog--designer': station === 'design', 'workshop-dialog--minigame': !!b && ['anvil', 'water', 'oil', 'grinder', 'workbench'].includes(station), 'workshop-dialog--anvil': station === 'anvil' }" :role="embedded ? 'region' : 'dialog'" :aria-modal="embedded ? undefined : true" :aria-label="t('forgeHouse.station.' + station)" @keydown="trapFocus">
       <header><div><small>{{ t('workshop.title') }}</small><h2>{{ t('forgeHouse.station.' + station) }}</h2></div><button :aria-label="t('workshop.close')" @click="emit('close')">×</button></header>
       <nav v-if="!embedded" :aria-label="t('workshop.title')"><button v-for="tab in tabs" :key="tab" :class="{ active: station === tab }" @click="emit('station', tab)">{{ t('forgeHouse.station.' + tab) }}</button></nav>
-      <div v-if="!embedded" class="workshop-readings"><strong>{{ t('workshop.temperature', { temperature: Math.round(w.temperature) }) }}</strong><span>{{ t('workshop.fuel', { seconds: Math.ceil(w.fuel) }) }}</span><button @click="cmd('coal')" :disabled="!itemQuantity(game.inventory, 'coal') || w.fuel > COAL_BURN_SECONDS * 5">{{ t('workshop.coal') }}</button><button @click="cmd('bellows')" :disabled="!w.fuel">{{ t('workshop.bellows') }}</button></div>
+      <div v-if="!embedded" class="workshop-readings"><strong>{{ t('workshop.temperature', { temperature: Math.round(w.temperature) }) }}</strong><span>{{ t('workshop.fuel', { seconds: Math.ceil(w.fuel) }) }}</span><button class="timed-action" :class="{ 'timed-action--loading': w.loading?.action === 'coal' }" @click="cmd('coal', { from: itemQuantity(game.inventory, 'coal') ? 'bag' : 'storehouse' })" :disabled="!!w.loading || !itemQuantity([...game.inventory, ...game.storehouse], 'coal') || w.fuel > COAL_BURN_SECONDS * 5">{{ t('workshop.coal') }}<ButtonProgressRing v-if="w.loading?.action === 'coal'" :duration="w.loading.duration" :remaining="w.loading.remaining" /></button><button @click="cmd('bellows')" :disabled="!w.fuel">{{ t('workshop.bellows') }}</button></div>
       <p v-if="feedback" class="workshop-feedback" role="status">{{ t('workshop.' + feedback) }}</p>
-      <p v-if="b && station !== 'design'" class="working-range">{{ t('workshop.workingRange', { min: bladeMetal(b).workMin, max: bladeMetal(b).workMax, quench: bladeMetal(b).quench + 50 }) }}</p><div v-if="w.loading" class="workshop-loading" role="status">{{ t('workshop.loading', { item: t('items.' + (w.loading.action === 'coal' || w.loading.action === 'loadCarbon' ? 'coal' : w.loading.params.itemId) + '.name'), seconds: w.loading.remaining.toFixed(1) }) }}<progress :max="w.loading.duration" :value="w.loading.duration - w.loading.remaining" /></div>
+      <p v-if="b && station !== 'design'" class="working-range">{{ t('workshop.workingRange', { min: bladeMetal(b).workMin, max: bladeMetal(b).workMax, quench: bladeMetal(b).quench + 50 }) }}</p>
+      <output v-if="w.loading" class="loading-announcement" role="status">{{ t('workshop.loading', { item: t('items.' + (w.loading.action === 'coal' || w.loading.action === 'loadCarbon' ? 'coal' : w.loading.params.itemId) + '.name'), seconds: Math.ceil(w.loading.remaining) }) }}</output>
       <div v-if="b?.stage === 'ruined'" class="workshop-feedback"><p>{{ t('workshop.bladeRuined') }}</p><button @click="cmd('discardBlade')">{{ t('workshop.discardBlade') }}</button></div><div class="workshop-body" :inert="!!w.loading" :aria-busy="!!w.loading">
         <WeaponDesigner v-if="station === 'design'" :game="game" @command="(action, params) => cmd(action, params)"/><template v-if="station === 'reference'">
           <p>{{ t('workshop.referenceIntro') }}</p><article v-for="metal in ['iron', 'copper']" :key="metal"><h3>{{ t('items.' + metal + '_ore.name') }}</h3><p>{{ t('workshop.reference.' + metal) }}</p></article><h3>{{ t('workshop.processTitle') }}</h3><p>{{ t('workshop.reference.process') }}</p><p>{{ t('workshop.thermalHelp') }}</p>
@@ -79,7 +98,7 @@ onBeforeUnmount(() => { cancel(); clearInterval(timer); window.removeEventListen
         </template>
         <template v-else-if="station === 'crucible'">
           <p>{{ c.design || w.activeDesign ? t('workshop.customRecipe') : t('workshop.recipe') }} · {{ t('workshop.source') }}</p><h3>{{ t('workshop.' + c.stage) }}</h3><p>{{ t('workshop.metalHeat', { temperature: Math.round(c.temperature) }) }} · {{ t('workshop.crucibleHeat', { temperature: Math.round(c.vesselTemperature ?? c.temperature) }) }}</p><p>{{ t('workshop.customCharge', { count: c.count, carbon: c.carbon, ore: recipe.oreCount, required: recipe.carbon }) }}</p>
-          <template v-if="['empty', 'loaded'].includes(c.stage)"><div class="workshop-storage"><section v-for="source in sources" :key="source.id"><h3>{{ t('workshop.' + source.id) }}</h3><div v-for="ore in ['iron_ore', 'copper_ore']" :key="ore" class="workshop-item"><img :src="items[ore].imageSrc" alt=""/><span>{{ t(items[ore].nameKey) }} ×{{ itemQuantity(source.entries, ore) }}</span><button :aria-label="t('workshop.load')" :disabled="!itemQuantity(source.entries, ore) || c.count >= recipe.oreCount || !!recipe.ore && recipe.ore !== ore || !!c.ore && c.ore !== ore" @click="cmd('loadOre', { from: source.id, itemId: ore })">+</button></div><button :disabled="c.carbon >= recipe.carbon || !itemQuantity(source.entries, 'coal')" @click="cmd('loadCarbon', { from: source.id })">{{ t('workshop.carbon') }}</button></section></div><button :disabled="c.count !== recipe.oreCount || c.carbon !== recipe.carbon || !w.fuel" @click="cmd('smelt')">{{ t('workshop.smelt') }}</button><button :disabled="c.stage !== 'loaded'" @click="cmd('unload')">{{ t('workshop.unload') }}</button></template>
+          <template v-if="['empty', 'loaded'].includes(c.stage)"><div class="workshop-storage"><section v-for="source in sources" :key="source.id"><h3>{{ t('workshop.' + source.id) }}</h3><div v-for="material in ['iron_ore', 'copper_ore', 'coal']" :key="material" class="workshop-item"><img :src="items[material].imageSrc" alt=""/><span>{{ t(items[material].nameKey) }} ×{{ itemQuantity(source.entries, material) }}</span><button class="timed-action" :class="{ 'timed-action--loading': w.loading?.action === (material === 'coal' ? 'loadCarbon' : 'loadOre') && w.loading.params.from === source.id && (material === 'coal' || w.loading.params.itemId === material) }" :aria-label="t(material === 'coal' ? 'workshop.carbon' : 'workshop.load')" :disabled="!itemQuantity(source.entries, material) || (material === 'coal' ? c.carbon >= recipe.carbon : c.count >= recipe.oreCount || !!recipe.ore && recipe.ore !== material || !!c.ore && c.ore !== material)" @click="cmd(material === 'coal' ? 'loadCarbon' : 'loadOre', { from: source.id, itemId: material })">+<ButtonProgressRing v-if="w.loading?.action === (material === 'coal' ? 'loadCarbon' : 'loadOre') && w.loading.params.from === source.id && (material === 'coal' || w.loading.params.itemId === material)" :duration="w.loading.duration" :remaining="w.loading.remaining" /></button></div></section></div><button :disabled="c.count !== recipe.oreCount || c.carbon !== recipe.carbon || !w.fuel" @click="cmd('smelt')">{{ t('workshop.smelt') }}</button><button :disabled="c.stage !== 'loaded'" @click="cmd('unload')">{{ t('workshop.unload') }}</button></template>
           <template v-else-if="c.stage === 'residue'"><p>{{ t('workshop.residueHelp') }}</p><button :disabled="c.onForge || !w.fuel" @click="cmd('reheatResidue')">{{ t('workshop.reheatResidue') }}</button><button :disabled="c.melt < 99 || c.temperature < (c.ore === 'iron_ore' ? 1538 : 1085)" @click="cmd('dumpResidue')">{{ t('workshop.dumpResidue') }}</button></template>
           <template v-else><label>{{ t('workshop.reduction', { progress: Math.round(c.reduction) }) }}<progress max="100" :value="c.reduction"/></label><label>{{ t('workshop.melt', { progress: Math.round(c.melt) }) }}<progress max="100" :value="c.melt"/></label><button :disabled="!['melting', 'molten', 'pouring'].includes(c.stage) || !!w.mould && !w.pour" @click="cmd('pour')">{{ t('workshop.pour') }}</button></template>
         </template>
@@ -89,13 +108,20 @@ onBeforeUnmount(() => { cancel(); clearInterval(timer); window.removeEventListen
           <div v-for="ingot in w.rack" :key="ingot.id" class="workshop-item"><img :src="items[ingot.itemId].imageSrc" alt=""/><span>{{ t(items[ingot.itemId].nameKey) }}</span><button :disabled="!!b || !ingot.design && ingot.itemId !== 'iron_ingot'" @click="cmd('heatIngot', { id: ingot.id })">{{ t('workshop.heatIngot') }}</button><button @click="cmd('takeIngot', { id: ingot.id })">{{ t('workshop.takeIngot') }}</button></div><p v-if="!w.rack.length">{{ t('workshop.rackEmpty') }}</p><button v-for="entry in game.inventory.filter(e => ['iron_ingot','copper_ingot'].includes(e.itemId))" :key="entry.id" @click="cmd('rackIngot', { itemId: entry.itemId, id: entry.id })">{{ t('workshop.rackIngot') }} · {{ entry.design?.name || t(items[entry.itemId].nameKey) }} ×{{ entry.units || 1 }}</button>
         </template>
         <template v-else-if="station === 'anvil'">
-          <template v-if="b?.stage === 'hammering'"><p>{{ t('workshop.hammerHelp') }}</p><div class="workshop-readings"><strong>{{ t('workshop.temperature', { temperature: Math.round(b.temperature) }) }}</strong><button @click="cmd('heat'); emit('station', 'furnace')">{{ t('workshop.heat') }}</button></div><template v-if="b.design"><WeaponPreview :design="b.design" :highlight="holding?.cell % b.design.sections.length"/><nav><button v-for="page in b.design.ingots" :key="page" :class="{ active: hammerPage === page - 1 }" @click="hammerPage = page - 1">{{ t('design.workRegion', { n: page }) }}</button></nav></template><div class="hammer-grid" :style="b.design ? { gridTemplateColumns: 'repeat(3, 1fr)' } : {}"><button v-for="i in hammerCells" :key="i" :disabled="!working" :style="{ background: `hsl(${15 + scoreWork(b.work[i]) * .18} 35% ${28 + Math.max(0, b.temperature - 500) / 30}%)` }" :aria-label="t('workshop.cell', { cell: i + 1, quality: Math.round(scoreWork(b.work[i])) })" @pointerdown.prevent="beginHammer($event, i)" @pointerup="stop" @pointercancel="cancel" @lostpointercapture="cancel">{{ Math.round(scoreWork(b.work[i])) }}%<span v-if="b.work[i] >= 100">{{ b.work[i] >= 200 ? '×' : '↓' }}</span></button><span v-if="holding?.type === 'hammer'" class="hammer-sprite" :style="{ transform: `translateY(${-power * 35}px) rotate(${-power * 35}deg)` }">⚒</span></div><label>{{ t('workshop.power') }}<progress :value="power" max="1"/></label><button :disabled="!b.work.every(v => v > 0) || !!holding" @click="cmd('shapeDone')">{{ t('workshop.shapeDone') }}</button></template><p v-else>{{ t(b ? 'workshop.nextQuench' : 'workshop.noBlade') }}</p>
+          <template v-if="b?.stage === 'hammering'">
+            <p>{{ t('workshop.hammerHelp') }}</p>
+            <div class="workshop-readings"><strong>{{ t('workshop.temperature', { temperature: Math.round(b.temperature) }) }}</strong><button @click="cmd('heat'); emit('station', 'furnace')">{{ t('workshop.heat') }}</button></div>
+            <template v-if="b.design"><WeaponPreview :design="b.design" :highlight="holding?.cell % b.design.sections.length"/><nav><button v-for="page in b.design.ingots" :key="page" :class="{ active: hammerPage === page - 1 }" @click="hammerPage = page - 1">{{ t('design.workRegion', { n: page }) }}</button></nav></template>
+            <HammerBlank v-if="b.design" :blade="b" :page="hammerPage" :working="b.stage === 'hammering'" :striking="holding?.type === 'hammer'" :power="power" @begin="beginHammer" @stop="stop" @cancel="cancel" @abort="abortHammer" />
+            <div v-else class="hammer-grid"><button v-for="i in hammerCells" :key="i" :disabled="b.stage !== 'hammering'" :style="{ background: `hsl(${15 + scoreWork(b.work[i]) * .18} 35% ${28 + Math.max(0, b.temperature - 500) / 30}%)` }" :aria-label="t('workshop.cell', { cell: i + 1, quality: Math.round(scoreWork(b.work[i])) })" @pointerdown.prevent="beginHammer($event, i)" @pointerup="stop" @pointercancel="cancel" @lostpointercapture="cancel">{{ Math.round(scoreWork(b.work[i])) }}%<span v-if="b.work[i] >= 100">{{ b.work[i] >= 200 ? '×' : '↓' }}</span></button><span v-if="holding?.type === 'hammer'" class="hammer-sprite" :style="{ transform: `translateY(${-power * 35}px) rotate(${-power * 35}deg)` }">⚒</span></div>
+            <label>{{ t('workshop.power') }}<progress :value="power" max="1"/></label><button :disabled="!b.work.every(v => v > 0) || !!holding" @click="cmd('shapeDone')">{{ t('workshop.shapeDone') }}</button>
+          </template><p v-else>{{ t(b ? 'workshop.nextQuench' : 'workshop.noBlade') }}</p>
         </template>
         <template v-else-if="station === 'water' || station === 'oil'">
           <p>{{ t('workshop.quenchHelp') }}</p><template v-if="b && ['shaped', 'quenched'].includes(b.stage)"><strong>{{ t('workshop.temperature', { temperature: Math.round(b.temperature) }) }}</strong><button @click="cmd('heat'); emit('station', 'furnace')">{{ t('workshop.recoverQuench') }}</button><div class="quench-scene" :class="{ dipping: holding?.type === 'quench' }"><div class="quench-blade"></div><button class="quench-barrel" :disabled="!holding && (!bladeQuenchable(b))" @pointerdown.prevent="beginQuench" @pointerup="stop" @pointercancel="cancel" @lostpointercapture="cancel">{{ t('workshop.quench') }}</button></div><progress :value="scoreWork(b.quenchWork)" max="100"/><p>{{ t('workshop.quenchScore', { quality: Math.round(holding ? scoreWork(b.quenchWork) : b.quench) }) }}</p><p v-if="b.stage === 'quenched'">{{ t('workshop.nextAssembly') }}</p></template><p v-else>{{ t(b ? 'workshop.nextQuench' : 'workshop.noBlade') }}</p>
         </template>
         <template v-else-if="station === 'workbench'">
-          <DaggerAssembly v-if="b && ['quenched', 'assembled'].includes(b.stage)" :blade="b" :inventory="game.inventory" :paused="paused" @command="(action, params) => cmd(action, params)" @busy="emit('assembly-busy', $event)" /><p v-else>{{ t(b ? 'workshop.nextQuench' : 'workshop.noBlade') }}</p>
+          <DaggerAssembly v-if="b && ['quenched', 'assembled'].includes(b.stage)" :blade="b" :inventory="game.inventory" :storehouse="game.storehouse" :paused="paused" @command="(action, params) => cmd(action, params)" @busy="emit('assembly-busy', $event)" /><p v-else>{{ t(b ? 'workshop.nextQuench' : 'workshop.noBlade') }}</p>
           <div v-for="entry in game.inventory.filter(e => ['dagger', 'custom_weapon'].includes(e.itemId))" :key="entry.id" class="workshop-item"><img :src="items.dagger.imageSrc" alt=""/><span>{{ t(items.dagger.nameKey) }}</span><button :disabled="!!b" @click="cmd('regrind', { id: entry.id }); emit('station', 'grinder')">{{ t('workshop.regrind') }}</button></div>
         </template>
         <template v-else-if="station === 'grinder'">
@@ -120,7 +146,8 @@ onBeforeUnmount(() => { cancel(); clearInterval(timer); window.removeEventListen
 
 <style scoped>.workshop-dialog--minigame{container-type:size}.workshop-dialog--minigame .quench-scene{height:clamp(76px,24cqh,160px)}.workshop-dialog--minigame .workshop-body>p{line-height:1.35;margin:4px 0}.workshop-dialog--minigame footer small{line-height:1.2}.workshop-dialog--minigame footer small:nth-of-type(1){display:none}</style>
 
-<style scoped>.workshop-loading{flex:none;font-size:11px;padding:5px;color:#ead5a0}.workshop-loading progress{display:block;width:100%;height:8px;accent-color:#c5a566;margin-top:4px}</style>
+<style scoped>.loading-announcement{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.workshop-dialog .timed-action{position:relative}.workshop-dialog .timed-action--loading:disabled{opacity:1}</style>
+<style scoped>.hammer-grid{gap:0}.hammer-grid button{border-radius:0;border-right-width:0}.hammer-grid button:nth-child(8n){border-right-width:1px}</style>
 
 <style scoped>.workshop-overlay .workshop-dialog.workshop-dialog--designer{position:absolute;inset:8px;width:auto;max-height:none;transform:none}.workshop-dialog--designer .workshop-body{overflow:auto}</style>
 <style scoped>.working-range{font-size:10px;margin:2px 0 4px;flex:none;color:#cab481}.workshop-dialog--minigame .weapon-preview{height:clamp(40px,12cqh,95px)}</style>
@@ -130,6 +157,7 @@ onBeforeUnmount(() => { cancel(); clearInterval(timer); window.removeEventListen
 
 <style scoped>.workshop-overlay .workshop-dialog.workshop-dialog--minigame,.workshop-overlay .workshop-dialog.workshop-dialog--designer{background:#25362b}</style>
 <style scoped>
+.workshop-dialog--anvil.workshop-dialog--minigame .workshop-body{overflow:hidden}
 @media(max-width:570px){
   .workshop-overlay--embedded:has(.workshop-dialog--minigame,.workshop-dialog--designer){position:fixed;inset:0;width:100vw;height:100dvh;z-index:60;pointer-events:auto}
   .workshop-overlay--embedded .workshop-dialog.workshop-dialog--minigame,

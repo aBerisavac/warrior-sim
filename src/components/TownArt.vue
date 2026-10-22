@@ -7,7 +7,7 @@ import { buildingOutline } from '../town-grid'
 import { structureImage } from '../map-upgrades'
 import { decorationVariant } from '../map-decorations'
 const { t } = useI18n()
-const props = defineProps({ ambienceEnabled: { type: Boolean, default: true }, paused: Boolean, map: { type: Object, required: true }, tiers: { type: Object, default: () => ({}) }, markedEntrances: { type: Array, default: () => [] } })
+const props = defineProps({ ambienceEnabled: { type: Boolean, default: true }, paused: Boolean, raining: Boolean, map: { type: Object, required: true }, tiers: { type: Object, default: () => ({}) }, markedEntrances: { type: Array, default: () => [] } })
 const motionUnavailable = ref(false)
 let media
 function updateMotion() { motionUnavailable.value = document.hidden || !!media?.matches }
@@ -18,6 +18,7 @@ const motionStyle = decor => config.value ? vegetationMotion(props.map, decor) :
 const tileMotionStyle = (x, y) => ({ '--water-delay': -ambienceSeed(props.map, x, y, 'water') * 12 + 's' })
 const artFor = (structure) => structureImage(structure, props.tiers)
 const mapSize = computed(() => ({ width: props.map.columns * props.map.cellSize, height: props.map.rows * props.map.cellSize }))
+const wallNeighbor = (x, y) => props.map.terrain[y]?.[x] === 'W' || props.map.gates?.some(gate => x >= gate.x && x < gate.x + (gate.width ?? 1) && y >= gate.y && y < gate.y + (gate.height ?? 1))
 </script>
 
 <template>
@@ -39,7 +40,7 @@ const mapSize = computed(() => ({ width: props.map.columns * props.map.cellSize,
         <template v-else-if="tile === '~' || tile === 'P'"><path :class="{ 'town-water-ripple': config?.water }" :style="tileMotionStyle(x, y)" d="M4 11q7-5 14 0t16 0M3 28q7-5 14 0t17 0" fill="none" stroke="#b6d1bc" stroke-width="2" opacity=".75" /><path v-if="tile === 'P'" d="M27 29a7 7 0 1 1-7-7l7 7-7-1" fill="#74977a" stroke="#58775e" stroke-width="1" /></template>
         <template v-else-if="tile === 'B'"><rect x="0" y="8" width="40" height="24" fill="#9f7950" stroke="#694f35" stroke-width="2" /><rect x="0" y="8" width="40" height="24" fill="url(#bridge-planks)" /><path d="M0 5h40M0 35h40" stroke="#624931" stroke-width="3" /></template>
         <template v-else-if="tile === 'D'"><rect x="0" y="6" width="40" height="28" fill="#997047" stroke="#463d32" stroke-width="3" /><rect x="0" y="6" width="40" height="28" fill="url(#bridge-planks)" /><path d="M0 4h40M0 36h40" stroke="#554634" stroke-width="4" /><circle cx="5" cy="20" r="2" fill="#d2be8a" /><circle cx="35" cy="20" r="2" fill="#d2be8a" /></template>
-        <template v-else-if="tile === 'W'"><rect x="5" y="5" width="30" height="30" rx="2" fill="#806a4d" stroke="#5e4d3b" stroke-width="2" /><path d="M13 6v28m14-28v28" stroke="#b0976d" stroke-width="2" /></template>
+        <template v-else-if="tile === 'W'"><g fill="#806a4d" stroke="none"><rect x="8" y="8" width="24" height="24"/><rect v-if="wallNeighbor(x - 1, y)" x="0" y="8" width="9" height="24"/><rect v-if="wallNeighbor(x + 1, y)" x="31" y="8" width="9" height="24"/><rect v-if="wallNeighbor(x, y - 1)" x="8" y="0" width="24" height="9"/><rect v-if="wallNeighbor(x, y + 1)" x="8" y="31" width="24" height="9"/></g><path v-if="wallNeighbor(x - 1, y) || wallNeighbor(x + 1, y)" d="M4 11h32M4 29h32" stroke="#b0976d" stroke-width="1.5" opacity=".75"/><path v-else d="M11 4v32m18-32v32" stroke="#b0976d" stroke-width="1.5" opacity=".75"/></template>
         <image v-if="map.tileImages?.[tile]" :href="map.tileImages[tile]" width="40" height="40" preserveAspectRatio="xMidYMid slice" />
       </g>
     </g>
@@ -73,7 +74,7 @@ const mapSize = computed(() => ({ width: props.map.columns * props.map.cellSize,
       <template v-else-if="decor.type === 'grass'"><path :d="decorationVariant(decor) === 2 ? 'M-10 11-14-4m4 15L-4-8M2 11l1-17m7 17 5-12' : decorationVariant(decor) === 3 ? 'M-12 11-9-9m-2 20L-2-2M4 11l7-18m-7 18L0-5' : 'M-10 11-8-3m-2 14 7-8M3 11l2-17m4 17 5-8'" fill="none" stroke="#6f8e5e" stroke-width="2.5" stroke-linecap="round" /></template>
       </g>
     </g>
-    <MapAmbience v-if="config" :map="map" :paused="paused || motionUnavailable" />
+    <MapAmbience v-if="config" :map="map" :paused="paused || motionUnavailable" :raining="raining" />
   </svg>
 </template>
 

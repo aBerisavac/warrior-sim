@@ -27,7 +27,7 @@ export function canStartBlacksmithing(game) {
   const sources = [...game.inventory, ...game.storehouse]
   return ['iron', 'copper'].some(m => itemQuantity(sources, METALS[m].ore) >= METALS[m].orePerUnit)
     && itemQuantity(sources, 'coal') >= (w.fuel > 0 ? 1 : 2)
-    && (w.fuel > 0 || itemQuantity(game.inventory, 'coal') > 0)
+    && (w.fuel > 0 || itemQuantity(sources, 'coal') > 0)
 }
 export function designStartError(game) {
   const w = game.workshop
@@ -39,10 +39,10 @@ export function designStartError(game) {
   const inProgress = w.blade || w.mould || !['empty', 'loaded'].includes(w.crucible.stage) || w.rack.some(i => i.design) || game.inventory.some(i => i.design && JSON.stringify(i.design) === JSON.stringify(design))
   if (w.blade?.stage === 'ruined' || w.mould?.ruined || w.crucible.stage === 'residue') return null
   const neededFittings = recipe.fittings.slice(w.blade?.parts || 0)
-  if (neededFittings.some(id => !itemQuantity(game.inventory, id))) return 'designMaterials'
+  if (neededFittings.some(id => !itemQuantity([...game.inventory, ...game.storehouse], id))) return 'designMaterials'
   if (inProgress) return null
   const entries = [...game.inventory, ...game.storehouse]
-  if (itemQuantity(entries, recipe.ore) + w.crucible.count < recipe.oreCount || itemQuantity(entries, 'coal') + w.crucible.carbon < recipe.carbon + Math.max(0, recipe.fuel - Math.ceil(w.fuel / COAL_BURN_SECONDS)) || !w.fuel && !itemQuantity(game.inventory, 'coal')) return 'designMaterials'
+  if (itemQuantity(entries, recipe.ore) + w.crucible.count < recipe.oreCount || itemQuantity(entries, 'coal') + w.crucible.carbon < recipe.carbon + Math.max(0, recipe.fuel - Math.ceil(w.fuel / COAL_BURN_SECONDS))) return 'designMaterials'
   return null
 }
 export function workshopRecipe(game) {
@@ -59,7 +59,7 @@ export const pouringTemperature = ore => meltingPoint(ore) + 100
 export const readyToPour = c => c.melt >= 99.99 && c.temperature >= pouringTemperature(c.ore) && (c.vesselTemperature ?? c.temperature) >= pouringTemperature(c.ore)
 export const readyForAnvil = b => b.temperature >= (b.heating ? bladeMetal(b).target : bladeMetal(b).target - 50) && b.temperature <= bladeMetal(b).workMax
 export const readyForQuench = b => b.temperature >= bladeMetal(b).quench && b.temperature <= bladeMetal(b).quench + 50
-export const pouringRate = height => .04 + Math.max(0, Math.min(1, height)) * .22
+export const pouringRate = height => .035 + Math.max(0, Math.min(1, height)) * .145
 export const castingQuality = (fill, spill) => Math.round(Math.max(0, 100 - Math.max(0, .98 - fill) * 1800 - Math.max(0, spill - .02) * 1800))
 function finishPour(w) {
   const p = w.pour, c = w.crucible, m = w.mould
@@ -155,8 +155,8 @@ export function tickWorkshop(game, seconds) {
   const c = w.crucible, thermalMass = Math.cbrt(c.mass || 1), meltMass = Math.max(1, c.mass || 1)
   if (['reducing', 'melting', 'molten', 'pouring', 'residue'].includes(c.stage)) {
     const vessel = c.vesselTemperature ?? c.temperature
-    c.vesselTemperature = c.onForge || ['reducing', 'melting', 'molten'].includes(c.stage) ? vessel + (w.temperature - vessel) * Math.min(1, dt * .07 / thermalMass) : AMBIENT_TEMPERATURE + (vessel - AMBIENT_TEMPERATURE) * Math.exp(-dt * .006 / thermalMass)
-    c.temperature += (c.vesselTemperature - c.temperature) * Math.min(1, dt * .07 / thermalMass)
+    c.vesselTemperature = c.onForge || ['reducing', 'melting', 'molten'].includes(c.stage) ? vessel + (w.temperature - vessel) * Math.min(1, dt * .07 / thermalMass) : AMBIENT_TEMPERATURE + (vessel - AMBIENT_TEMPERATURE) * Math.exp(-dt * .0025 / thermalMass)
+    c.temperature += (c.vesselTemperature - c.temperature) * Math.min(1, dt * .035 / thermalMass)
   }
   if (['pouring', 'residue'].includes(c.stage)) {
     if (!c.onForge) c.temperature = AMBIENT_TEMPERATURE + (c.temperature - AMBIENT_TEMPERATURE) * Math.exp(-dt * .001 / thermalMass)
@@ -178,11 +178,11 @@ export function tickWorkshop(game, seconds) {
   }
   if (w.pour && w.mould) {
     const p = w.pour, m = w.mould
-    m.temperature = AMBIENT_TEMPERATURE + (m.temperature - AMBIENT_TEMPERATURE) * Math.exp(-dt * .006 / thermalMass)
+    m.temperature = AMBIENT_TEMPERATURE + (m.temperature - AMBIENT_TEMPERATURE) * Math.exp(-dt * .0025 / thermalMass)
     if (m.fill > 0 && m.temperature < meltingPoint(c.ore) - 90) { m.ruined = true; finishPour(w) }
     else if (p.holding) {
       const amount = Math.min(c.remaining, c.remaining * c.melt / 100, pouringRate(p.height) * dt / Math.sqrt(c.units || 1))
-      const spill = amount * Math.max(0, p.height - .72) * 2
+      const spill = amount * Math.max(0, p.height - .78) * 1.25
       const caught = amount - spill
       if (caught > 0) m.temperature = (m.temperature * m.fill + c.temperature * caught) / (m.fill + caught)
       m.fill = Math.min(1, m.fill + caught); p.spilled += spill
@@ -192,8 +192,8 @@ export function tickWorkshop(game, seconds) {
       m.heatDamage = Math.max(m.heatDamage, c.heatDamage)
       if (c.remaining <= .000001) finishPour(w)
     }
-  } else if (w.mould) { w.mould.remaining = Math.max(0, w.mould.remaining - dt); w.mould.temperature = 25 + (w.mould.temperature - 25) * Math.exp(-dt * .2) }
-  for (const ingot of w.rack) ingot.temperature = Math.max(20, ingot.temperature - dt * 3)
+  } else if (w.mould) { w.mould.remaining = Math.max(0, w.mould.remaining - dt); w.mould.temperature = 25 + (w.mould.temperature - 25) * Math.exp(-dt * .09) }
+  for (const ingot of w.rack) ingot.temperature = Math.max(20, ingot.temperature - dt * 1.5)
   if (w.blade) {
     const b = w.blade
     b.temperature = b.heating ? b.temperature + (w.temperature - b.temperature) * Math.min(1, dt * .045 / Math.cbrt(b.mass || 1)) : Math.max(20, b.temperature - dt * 2 / Math.cbrt(b.mass || 1))
@@ -256,8 +256,12 @@ export function workshopAction(game, action, p = {}) {
     entry.quantity--
     game.inventory = game.inventory.filter(e => e.quantity > 0); game.storehouse = game.storehouse.filter(e => e.quantity > 0)
   } else if (action === 'coal') {
-    if (w.fuel > COAL_BURN_SECONDS * 5 || !itemQuantity(game.inventory, 'coal')) return fail('coalNeeded')
-    game.inventory = consumeItems(game.inventory, [{ itemId: 'coal', quantity: 1 }]); w.fuel += COAL_BURN_SECONDS
+    const from = p.from === 'storehouse' ? 'storehouse' : 'bag'
+    const source = from === 'storehouse' ? game.storehouse : game.inventory
+    if (w.fuel > COAL_BURN_SECONDS * 5 || !itemQuantity(source, 'coal')) return fail('coalNeeded')
+    if (from === 'storehouse') game.storehouse = consumeItems(source, [{ itemId: 'coal', quantity: 1 }])
+    else game.inventory = consumeItems(source, [{ itemId: 'coal', quantity: 1 }])
+    w.fuel += COAL_BURN_SECONDS
   } else if (action === 'bellows') {
     if (!w.fuel) return fail('coalNeeded')
     if (w.bellowsRecovery > 0) return fail('bellowsRecovering')
@@ -362,8 +366,11 @@ export function workshopAction(game, action, p = {}) {
   } else if (action === 'assemble') {
     if (!b || b.stage !== 'quenched' || b.parts >= DAGGER_FITTINGS.length) return fail('notReady')
     const itemId = b.design ? [b.design.guard, b.design.handle, b.design.pommel][b.parts] : DAGGER_FITTINGS[b.parts]
-    if (!itemQuantity(game.inventory, itemId)) return fail('partsNeeded')
-    game.inventory = consumeItems(game.inventory, [{ itemId, quantity: 1 }])
+    const from = p.from === 'storehouse' ? 'storehouse' : 'bag'
+    const source = from === 'storehouse' ? game.storehouse : game.inventory
+    if (!itemQuantity(source, itemId)) return fail('partsNeeded')
+    if (from === 'storehouse') game.storehouse = consumeItems(source, [{ itemId, quantity: 1 }])
+    else game.inventory = consumeItems(source, [{ itemId, quantity: 1 }])
     b.assembly[b.parts++] = Math.min(b.assemblyCeiling ?? 100, Number.isFinite(p.offsetPx) ? assemblyPixelAccuracy(p.offsetPx) : assemblyAccuracy(p.position))
     if (b.parts === DAGGER_FITTINGS.length) b.stage = 'assembled'
   } else if (action === 'grind') {

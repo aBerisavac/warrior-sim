@@ -1,5 +1,6 @@
 import definitions from './data/merchants.json'
 import { items, carriedWeight, CARRY_CAPACITY_KG } from './inventory'
+import { designRecipe } from './weapon-design'
 export const MARKET_MERCHANT = 'market_smith_supplies'
 export const INN_MERCHANT = 'oswin_inn'
 export const merchantAt = placeId => definitions.find(m => m.placeId === placeId)?.id || MARKET_MERCHANT
@@ -8,7 +9,20 @@ export function buyUnitPrice(itemId, merchantId = MARKET_MERCHANT) {
   const item = items[itemId], merchant = definitions.find(m => m.id === merchantId)
   return item ? Math.max(1, Math.round(item.basePrice * (merchant?.buyModifiers?.[item.category] ?? 1))) : 0
 }
-export function saleUnitPrice(itemId, merchantId = MARKET_MERCHANT) {
+export function craftedMaterialCost(entry) {
+  if (!entry?.craft || !['dagger', 'custom_weapon'].includes(entry.itemId)) return null
+  const recipe = designRecipe(entry.craft.design) || { ore: 'iron_ore', oreCount: 4, carbon: 1, fuel: 1, fittings: ['dagger_guard', 'dagger_handle', 'dagger_pommel'] }
+  return recipe.oreCount * buyUnitPrice(recipe.ore) + (recipe.carbon + recipe.fuel) * buyUnitPrice('coal')
+    + recipe.fittings.reduce((total, itemId) => total + buyUnitPrice(itemId), 0)
+}
+export function saleUnitPrice(itemOrId, merchantId = MARKET_MERCHANT) {
+  const entry = typeof itemOrId === 'string' ? null : itemOrId
+  const itemId = entry?.itemId || itemOrId
+  const materials = craftedMaterialCost(entry)
+  if (materials !== null) {
+    const quality = Number.isFinite(entry.craft.quality) ? Math.max(0, Math.min(100, entry.craft.quality)) : 100
+    return Math.round(materials * 1.2 * quality / 100)
+  }
   const item = items[itemId], merchant = definitions.find(m => m.id === merchantId)
   return item ? Math.floor(item.basePrice * .5 * (merchant?.sellModifiers?.[item.category] ?? 1)) : 0
 }
@@ -49,7 +63,7 @@ export function quoteTrade(state, merchantId, draft) {
     const owned = inventory.find(item => item.id === entry.instanceId)
     if (!owned || !items[owned.itemId] || owned.quantity < entry.quantity) return fail('itemsChanged')
     if (Object.values(state.equipment).includes(owned.id)) return fail('equippedItem')
-    selling += saleUnitPrice(owned.itemId, merchantId) * entry.quantity
+    selling += saleUnitPrice(owned, merchantId) * entry.quantity
     owned.quantity -= entry.quantity
   }
   used.clear()

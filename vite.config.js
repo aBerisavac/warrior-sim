@@ -47,4 +47,7 @@ function mapEditorSave() {
   }
 }
 
-export default defineConfig({ plugins: [vue(), mapEditorSave()] })
+export default defineConfig({
+  plugins: [vue(), mapEditorSave()],
+  build: { sourcemap: false, minify: 'esbuild', cssMinify: true },
+})

@@ -29,7 +29,7 @@ const quote = computed(() => quoteTrade(props.game, props.merchantId, draft.valu
 const agreed = computed(() => (props.agreement?.merchantId || MARKET_MERCHANT) === props.merchantId && props.agreement?.fingerprint === offerFingerprint(draft.value))
 const buyRows = computed(() => draft.value.buy.map(entry => ({ ...entry, key: entry.itemId, max: stock.value.find(item => item.itemId === entry.itemId)?.quantity || 0 })))
 const sellRows = computed(() => draft.value.sell.map(entry => ({ ...entry, key: entry.instanceId, itemId: props.game.inventory.find(item => item.id === entry.instanceId)?.itemId, max: props.game.inventory.find(item => item.id === entry.instanceId)?.quantity || 0 })))
-const playerRows = computed(() => props.game.inventory.map(entry => ({ key: entry.id, itemId: entry.itemId, quantity: entry.quantity - (sell.value[entry.id] || 0), price: saleUnitPrice(entry.itemId, props.merchantId), equipped: equipped(entry.id), blocked: equipped(entry.id) || !!buy.value[entry.itemId] })))
+const playerRows = computed(() => props.game.inventory.map(entry => ({ key: entry.id, itemId: entry.itemId, quantity: entry.quantity - (sell.value[entry.id] || 0), price: saleUnitPrice(entry, props.merchantId), equipped: equipped(entry.id), blocked: equipped(entry.id) || !!buy.value[entry.itemId] })))
 const merchantRows = computed(() => stock.value.map(entry => ({ key: entry.itemId, itemId: entry.itemId, quantity: entry.quantity - (buy.value[entry.itemId] || 0), price: buyUnitPrice(entry.itemId, props.merchantId), blocked: sellingType(entry.itemId) })))
 function clear() { buy.value = {}; sell.value = {}; percent.value = 100 }
 watch(() => props.feedback, value => { if (value?.key === 'events.tradeCompleted') clear() })

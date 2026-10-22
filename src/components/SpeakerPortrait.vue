@@ -1,15 +1,18 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, inject } from 'vue'
 import { useI18n } from 'vue-i18n'
 import characters from '../data/characters.json'
 const props = defineProps({ speaker: { type: String, default: 'player' }, compact: Boolean, thought: Boolean })
 const { t } = useI18n()
 const character = computed(() => characters[props.speaker] || characters.player)
+const playerIdentity = inject('playerIdentity', null)
+const portrait = computed(() => props.speaker === 'player' ? playerIdentity?.value?.avatarSrc || character.value.portraitSrc : character.value.portraitSrc)
+const name = computed(() => props.speaker === 'player' ? playerIdentity?.value?.playerName || t(character.value.nameKey) : t(character.value.nameKey))
 </script>
 <template>
   <span class="speaker-identity" :class="{ 'speaker-identity--compact': compact }">
-    <img :src="character.portraitSrc" :alt="compact ? t(character.nameKey) : ''" />
-    <span v-if="!compact" class="speaker-name">{{ t(character.nameKey) }}<small v-if="thought">{{ t('speakers.thought') }}</small></span>
+    <img :src="portrait" :alt="compact ? name : ''" />
+    <span v-if="!compact" class="speaker-name">{{ name }}<small v-if="thought">{{ t('speakers.thought') }}</small></span>
   </span>
 </template>
 <style scoped>

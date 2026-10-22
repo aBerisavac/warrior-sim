@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { designPaths, METALS } from '../weapon-design'
 import { itemQuantity, items } from '../inventory'
 import { ASSEMBLY_TRAVEL_PX, ASSEMBLY_START_OFFSET_PX, DAGGER_FITTINGS } from '../workshop'
-const props = defineProps({ blade: Object, inventory: Array, paused: Boolean })
+const props = defineProps({ blade: Object, inventory: Array, storehouse: { type: Array, default: () => [] }, paused: Boolean })
 const emit = defineEmits(['command', 'busy'])
 const { t } = useI18n()
 const scene = ref(null), phase = ref('aiming'), droppedPart = ref(0), landing = ref(.5)
@@ -14,11 +14,11 @@ const position = computed(() => .5 + offset.value / artWidth.value)
 const fittings = computed(() => props.blade.design ? [props.blade.design.guard, props.blade.design.handle, props.blade.design.pommel] : DAGGER_FITTINGS)
 const part = computed(() => fittings.value[props.blade.parts])
 const canAim = computed(() => !props.paused && phase.value === 'aiming' && props.blade.stage === 'quenched' && props.blade.parts < 3)
-const ready = computed(() => canAim.value && itemQuantity(props.inventory, part.value) > 0)
+const ready = computed(() => canAim.value && itemQuantity([...props.inventory, ...props.storehouse], part.value) > 0)
 const contactHeight = index => [156, 125, 94][index] ?? 94
 const successKey = index => ['workshop.guardSuccess', 'workshop.handleSuccess', 'workshop.pommelSuccess'][index]
 const visiblePart = computed(() => phase.value === 'aiming' ? props.blade.parts : droppedPart.value)
-let impactTimer, settleTimer, resizeObserver, dragId = null, nativeTouchId = null, lastX = 0, mounted = false, inputKind = 'mouse', lastMotion = null
+let fetchTimer, impactTimer, settleTimer, resizeObserver, dragId = null, nativeTouchId = null, lastX = 0, mounted = false, inputKind = 'mouse', lastMotion = null
 const locked = () => !!scene.value && typeof document !== 'undefined' && document.pointerLockElement === scene.value
 function measure() {
   if (!scene.value) return
@@ -109,26 +109,32 @@ function nudge(direction) {
 }
 function drop() {
   if (!canAim.value) return
-  if (!ready.value) { dropError.value = true; emit('command', 'assemble', { position: position.value, offsetPx: offset.value }); return }
+  const from = itemQuantity(props.inventory, part.value) ? 'bag' : 'storehouse'
+  if (!ready.value) { dropError.value = true; emit('command', 'assemble', { from, position: position.value, offsetPx: offset.value }); return }
   dropError.value = false
   measure(); const impactOffset = offset.value
   droppedPart.value = props.blade.parts; landing.value = position.value
-  phase.value = 'falling'; releaseDrag(); unlock(); emit('busy', true)
-  impactTimer = setTimeout(() => {
-    impactTimer = null
-    emit('command', 'assemble', { position: landing.value, offsetPx: impactOffset })
-    if (props.blade.parts !== droppedPart.value + 1) { cancel(); return }
-    phase.value = 'contact'
-    settleTimer = setTimeout(() => {
-      settleTimer = null; phase.value = 'aiming'; resetAim(); emit('busy', false)
-      nextTick(() => { if (mounted && ready.value && inputKind === 'mouse' && scene.value?.matches?.(':hover')) requestCapture() })
-    }, 1000)
-  }, 700)
+  phase.value = from === 'storehouse' ? 'fetching' : 'falling'; releaseDrag(); unlock(); emit('busy', true)
+  const startFall = () => {
+    phase.value = 'falling'
+    impactTimer = setTimeout(() => {
+      impactTimer = null
+      emit('command', 'assemble', { from, position: landing.value, offsetPx: impactOffset })
+      if (props.blade.parts !== droppedPart.value + 1) { cancel(); return }
+      phase.value = 'contact'
+      settleTimer = setTimeout(() => {
+        settleTimer = null; phase.value = 'aiming'; resetAim(); emit('busy', false)
+        nextTick(() => { if (mounted && ready.value && inputKind === 'mouse' && scene.value?.matches?.(':hover')) requestCapture() })
+      }, 1000)
+    }, 700)
+  }
+  if (from === 'storehouse') fetchTimer = setTimeout(() => { fetchTimer = null; startFall() }, 3000)
+  else startFall()
 }
 function cancel() {
   nativeTouchId = null; releaseDrag(); unlock(); inside.value = false
-  clearTimeout(impactTimer); clearTimeout(settleTimer)
-  impactTimer = null; settleTimer = null; phase.value = 'aiming'; emit('busy', false)
+  clearTimeout(fetchTimer); clearTimeout(impactTimer); clearTimeout(settleTimer)
+  fetchTimer = null; impactTimer = null; settleTimer = null; phase.value = 'aiming'; emit('busy', false)
 }
 function blur() { if (phase.value === 'aiming') { releaseDrag(); unlock(); inside.value = false } }
 function startTouch(event) {
@@ -173,6 +179,7 @@ onBeforeUnmount(() => {
     <p v-if="ready && captureState === 'blocked'" class="assembly-capture-hint" role="status">{{ t('workshop.assemblyCapture') }}</p>
     <p v-else-if="ready && captureState === 'unsupported'" class="assembly-capture-hint" role="status">{{ t('workshop.assemblyNoCapture') }}</p>
     <p v-if="canAim && !ready" :class="{ 'assembly-drop-error': dropError }" role="status">{{ t('workshop.assemblyMissing', { item: t(items[part].nameKey) }) }}</p>
+    <p v-if="phase === 'fetching' && !itemQuantity(inventory, fittings[droppedPart])" role="status">{{ t('workshop.assemblyFetching', { item: t(items[fittings[droppedPart]].nameKey) }) }}</p>
     <div ref="scene" class="assembly-arena" :class="{ 'assembly-arena--aiming': canAim, 'assembly-arena--contact': phase === 'contact' }" tabindex="0" :aria-label="t('workshop.assemblyAim')" @pointerenter="enter" @pointerleave="leave" @pointermove="move" @pointerdown.prevent="beginDrag" @pointerup.prevent="endDrag" @pointercancel="releaseDrag" @touchstart.prevent="startTouch" @touchmove.prevent="moveTouch" @touchend.prevent="endTouch" @touchcancel="cancelTouch" @lostpointercapture="lostCapture" @mousedown.prevent="mousePress" @click.prevent="mousePress" @auxclick.prevent="mousePress" @contextmenu.prevent @keydown.left.prevent="nudge(-1)" @keydown.right.prevent="nudge(1)" @keydown.enter.prevent="drop" @keydown.space.prevent="drop">
       <svg viewBox="0 0 300 250" aria-hidden="true">
         <ellipse cx="150" cy="241" rx="40" ry="4" fill="#101d18" opacity=".5"/>

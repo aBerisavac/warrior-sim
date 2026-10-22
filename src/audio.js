@@ -19,12 +19,13 @@ export function soundVolume(settings, id) {
   const cue = catalog[id], item = settings.sounds[id]
   return !cue || settings.muted || item?.muted ? 0 : settings.master * settings.groups[cue.group] * item.volume * cue.gain
 }
-export function sceneSounds({ mapView, location, traveling, walking, woodcutting, fuel }) {
-  if (woodcutting) return ['innMusic', 'birds']
-  if (mapView === 'forge') return fuel > 0 ? ['innMusic', 'fire'] : ['innMusic']
-  if (!traveling && location === 'market') return ['villageMusic', 'marketCrowd']
-  if (!traveling && location === 'tavern') return ['innMusic', 'fire']
-  return walking ? ['villageMusic', 'birds', 'footstep'] : ['villageMusic', 'birds']
+export function sceneSounds({ mapView, location, traveling, walking, woodcutting, fuel, raining }) {
+  const rain = raining ? mapView === 'forge' || location === 'tavern' || woodcutting ? ['rainIndoor'] : location === 'market' ? ['rainMarket'] : ['rainOutdoor'] : []
+  if (woodcutting) return ['innMusic', 'birds', ...rain]
+  if (mapView === 'forge') return [...(fuel > 0 ? ['innMusic', 'fire'] : ['innMusic']), ...rain]
+  if (!traveling && location === 'market') return ['villageMusic', 'marketCrowd', ...rain]
+  if (!traveling && location === 'tavern') return ['innMusic', 'fire', ...rain]
+  return walking ? ['villageMusic', 'birds', 'footstep', ...rain] : ['villageMusic', 'birds', ...rain]
 }
 
 export function seamlessLoop(context, buffer, overlapSeconds) {
@@ -45,10 +46,11 @@ export function seamlessLoop(context, buffer, overlapSeconds) {
 
 // One shared mixer. Browsers may require a user gesture before audible playback.
 export function createAudioEngine({ settings, makeContext, fetchAudio, isHidden } = {}) {
-  let config = normalizeAudioSettings(settings), context, desired = [], disposed = false, unlockPromise
+  let config = normalizeAudioSettings(settings), context, desired = [], disposed = false
   const buffers = new Map(), loops = new Map(), voices = new Set(), lastPlay = new Map(), lastSample = new Map(), holds = new Map()
   const status = reactive({ unlocked: false, unavailable: false, failed: [] })
   const hidden = () => isHidden ? isHidden() : typeof document !== 'undefined' && document.hidden
+  const oggSupported = typeof Audio === 'undefined' || !!new Audio().canPlayType('audio/ogg; codecs="vorbis"')
   function target(id, scale = 1) { return soundVolume(config, id) * scale }
   function gainTo(voice, value, seconds = .12) {
     if (!context) return
@@ -100,10 +102,18 @@ export function createAudioEngine({ settings, makeContext, fetchAudio, isHidden 
           }
           return result
         }
-        const response = await (fetchAudio || fetch)('/audio/' + filename)
-        if (!response.ok) throw new Error('audio file unavailable')
-        const decoded = await context.decodeAudioData(await response.arrayBuffer())
-        return seamlessLoop(context, decoded, cue.loopCrossfade)
+        const alternatives = filename.endsWith('.ogg')
+          ? oggSupported ? [filename, filename.replace(/\.ogg$/, '.mp3')] : [filename.replace(/\.ogg$/, '.mp3'), filename]
+          : [filename]
+        for (const file of alternatives) {
+          try {
+            const response = await (fetchAudio || fetch)('/audio/' + file)
+            if (!response.ok) continue
+            const decoded = await context.decodeAudioData(await response.arrayBuffer())
+            return seamlessLoop(context, decoded, cue.loopCrossfade)
+          } catch { /* Try the other supported format. */ }
+        }
+        throw new Error('audio file unavailable')
       })().catch(() => { buffers.delete(key); if (!status.failed.includes(id)) status.failed.push(id); return null })
       buffers.set(key, pending)
     }
@@ -169,6 +179,7 @@ export function createAudioEngine({ settings, makeContext, fetchAudio, isHidden 
   }
   function tryAutoplay() {
     if (disposed || status.unavailable) return
+    if (typeof navigator !== 'undefined' && /iP(?:hone|ad|od)/.test(navigator.userAgent)) return
     try {
       if (!ensureContext()) return
       if (context.state === 'running') { status.unlocked = true; void syncLoops() }
@@ -181,16 +192,12 @@ export function createAudioEngine({ settings, makeContext, fetchAudio, isHidden 
   }
   async function unlock() {
     if (disposed || status.unavailable) return
-    if (unlockPromise) return unlockPromise
-    unlockPromise = (async () => {
-      try {
-        if (!ensureContext()) return
-        if (context.state !== 'running' && context.state !== 'closed') await context.resume()
-        status.unlocked = context.state === 'running'
-        if (status.unlocked) void syncLoops()
-      } catch { status.unlocked = false }
-    })().finally(() => { unlockPromise = null })
-    return unlockPromise
+    try {
+      if (!ensureContext()) return
+      if (context.state !== 'running' && context.state !== 'closed') await context.resume()
+      status.unlocked = context.state === 'running'
+      if (status.unlocked) void syncLoops()
+    } catch { status.unlocked = false }
   }
   function play(id, { scale = 1, rate, duration } = {}) {
     if (!status.unlocked || disposed || !catalog[id] || target(id) <= 0) return

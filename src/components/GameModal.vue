@@ -88,7 +88,7 @@ const dialogueText = computed(() => {
   if (modal === 'wood') return t('modal.woodHelp')
   if (modal === 'dishes') return t('modal.dishesHelp')
   if (modal === 'forge') return t(!props.game.materials ? 'modal.forgeNeed' : props.game.dagger ? 'modal.forgeDone' : 'modal.forgeHelp')
-  if (modal === 'sleep') return [t(props.sleepNeed >= 60 ? 'modal.sleepThoughtExhausted' : props.sleepNeed >= 30 ? 'modal.sleepThoughtTired' : 'modal.sleepThoughtRest'), t(props.game.location === 'smithy' ? 'modal.sleepThoughtHome' : 'modal.sleepThoughtAway')].join(' ')
+  if (modal === 'sleep') return [t(props.sleepNeed >= 60 ? 'modal.sleepThoughtExhausted' : props.sleepNeed >= 30 ? 'modal.sleepThoughtTired' : canSleep(props.game) ? 'modal.sleepThoughtEvening' : 'modal.sleepThoughtRest'), t(props.game.location === 'smithy' ? 'modal.sleepThoughtHome' : 'modal.sleepThoughtAway')].join(' ')
   if (modal === 'workbench') return t('modal.workbenchHelp')
   return ''
 })

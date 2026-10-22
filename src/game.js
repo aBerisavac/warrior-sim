@@ -12,6 +12,11 @@ export const FORGE_COAL_CAPACITY = 6
 
 export const initialState = () => ({
   version: 12,
+  profileChosen: false,
+  playerName: '',
+  avatarSrc: '/images/profile/blacksmith.png',
+  weatherSeconds: 0,
+  weatherSeed: Math.floor(Math.random() * 0x7fffffff),
   leftHomeForErrand: false,
   workshop: newWorkshop(),
   storehouse: [{ id: 'store-coal', itemId: 'coal', quantity: 12 }],
@@ -72,14 +77,19 @@ export function dayNumber(minutes) {
   return Math.floor(minutes / (24 * 60)) + 1
 }
 
-export function readSave() {
+export function restoreSave(saved) {
   try {
-    const saved = JSON.parse(localStorage.getItem(SAVE_KEY))
+    if (!Number.isFinite(saved?.minutes) || saved.minutes < 0 || !Number.isFinite(saved.health) || saved.health < 0 || saved.health > 100 || saved.inventory !== undefined && !Array.isArray(saved.inventory)) return null
     if ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].includes(saved?.version) && places.some((place) => place.id === saved.location)) {
       const pristineOpening = saved.version < 3 && saved.stage === 'errand' && saved.location === 'smithy' && saved.minutes === 480 && saved.health === 100 && saved.coins === 12 && !saved.materials && !saved.dagger && (!saved.forgeCoal || saved.forgeCoal === 0)
       if (pristineOpening) return initialState()
       const completedQuests = migrateCompletedQuests(saved)
       const state = { ...initialState(), ...saved, version: 12, completedQuests }
+      state.profileChosen = saved.profileChosen !== false
+      state.playerName = typeof saved.playerName === 'string' ? saved.playerName.slice(0, 32) : ''
+      state.avatarSrc = typeof saved.avatarSrc === 'string' && saved.avatarSrc.startsWith('/images/profile/') ? saved.avatarSrc : '/images/profile/blacksmith.png'
+      state.weatherSeconds = Number.isFinite(saved.weatherSeconds) ? Math.max(0, saved.weatherSeconds) : 0
+      state.weatherSeed = Number.isInteger(saved.weatherSeed) ? saved.weatherSeed : state.weatherSeed
       state.leftHomeForErrand = saved.leftHomeForErrand === true || hasQuest(completedQuests, QUEST.IRON_ERRAND_ACCEPTED) && (saved.location !== 'smithy' || !!saved.travel || hasQuest(completedQuests, QUEST.BANDIT_AMBUSH_SURVIVED))
       state.workshop = normalizeWorkshop(saved.workshop)
       state.storehouse = saved.version >= 12 ? normalizeInventory(saved.storehouse || []).filter(e => items[e.itemId]?.category === 'materials') : (saved.coalStock > 0 ? [{ id: 'store-coal', itemId: 'coal', quantity: Math.floor(saved.coalStock) }] : [])
@@ -188,6 +198,11 @@ export function readSave() {
       if (!Array.isArray(state.journal)) state.journal = [state.event]
       return state
     }
-  } catch { /* Ignore broken local saves. */ }
-  return initialState()
+  } catch { /* Reject malformed saves without changing the current game. */ }
+  return null
+}
+
+export function readSave() {
+  try { return restoreSave(JSON.parse(localStorage.getItem(SAVE_KEY))) || initialState() }
+  catch { return initialState() }
 }

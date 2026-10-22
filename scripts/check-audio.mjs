@@ -36,6 +36,9 @@ try {
   const muted = normalizeAudioSettings({ ...settings, muted: true }); assert.equal(soundVolume(muted, 'hammer'), 0)
   assert.deepEqual(sceneSounds({ mapView: 'forge', fuel: 0 }), ['innMusic'])
   assert.deepEqual(sceneSounds({ mapView: 'forge', fuel: 1 }), ['innMusic', 'fire'])
+  assert.deepEqual(sceneSounds({ mapView: 'forge', fuel: 1, raining: true }), ['innMusic', 'fire', 'rainIndoor'])
+  assert.deepEqual(sceneSounds({ location: 'market', traveling: false, raining: true }), ['villageMusic', 'marketCrowd', 'rainMarket'])
+  assert.deepEqual(sceneSounds({ location: 'smithy', traveling: false, raining: true }), ['villageMusic', 'birds', 'rainOutdoor'])
   assert.deepEqual(sceneSounds({ location: 'tavern', traveling: false }), ['innMusic', 'fire'])
   assert.deepEqual(sceneSounds({ location: 'tavern', traveling: true }), ['villageMusic', 'birds'])
   assert.deepEqual(sceneSounds({ location: 'market', traveling: false }), ['villageMusic', 'marketCrowd'])
@@ -135,7 +138,7 @@ try {
   const { default: AudioSettings } = await server.ssrLoadModule('/src/components/AudioSettings.vue')
   const missing = []
   const html = await renderToString(createSSRApp({ render: () => h(AudioSettings, { settings, status: { unlocked: true, failed: [] } }) }).use(createI18n({ legacy: false, locale: 'en', messages: { en }, missing: (_, key) => missing.push(key) })))
-  assert(html.includes('role="tab"')); assert(html.includes('Mute all sound')); assert(html.includes('Individual sounds')); assert(html.includes('Hammer strikes')); assert.deepEqual(missing, [])
+  assert(html.includes('role="tab"')); assert(html.includes('Mute all sound')); assert(html.includes('Individual sounds')); assert(html.includes('Hot metal strike')); assert(html.includes('Cold metal thud')); assert.deepEqual(missing, [])
   // Drive real Vue typing/conversation components without a browser or audio device.
   const { default: Bubble } = await server.ssrLoadModule('/src/components/DialogueBubble.vue')
   const { default: Writer } = await server.ssrLoadModule('/src/components/TypewriterText.vue')

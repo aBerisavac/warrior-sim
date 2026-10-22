@@ -11,6 +11,8 @@ import { isUnlocked } from '../progression'
 
 const props = defineProps({
   ambiencePaused: Boolean,
+  raining: Boolean,
+  avatarSrc: { type: String, default: '/images/profile/blacksmith.png' },
   currentLocation: { type: String, required: true },
   selectedId: { type: String, required: true },
   tutorialStage: { type: String, default: null },
@@ -144,14 +146,14 @@ onBeforeUnmount(cancelMenuClose)
 </script>
 
 <template>
-<TownArt :paused="ambiencePaused" :map="mapGrid" :tiers="buildingTiers" :marked-entrances="places.filter((place) => place.actions.length).map((place) => place.id)" @click="clearMenus" />
+<TownArt :paused="ambiencePaused" :raining="raining" :map="mapGrid" :tiers="buildingTiers" :marked-entrances="places.filter((place) => place.actions.length).map((place) => place.id)" @click="clearMenus" />
   <svg v-if="travel" class="town-route" :viewBox="'0 0 ' + mapSize.width + ' ' + mapSize.height" preserveAspectRatio="none" aria-hidden="true">
     <polyline :points="travel.route.map((point) => point.x + ',' + point.y).join(' ')" />
   </svg>
-  <div ref="pawnWalker" class="pawn-walker" :style="{ left: pawnPosition.x / mapSize.width * 100 + '%', top: pawnPosition.y / mapSize.height * 100 + '%' }" aria-hidden="true"><img src="/images/profile/blacksmith.png" alt="" /></div>
+  <div ref="pawnWalker" class="pawn-walker" :style="{ left: pawnPosition.x / mapSize.width * 100 + '%', top: pawnPosition.y / mapSize.height * 100 + '%' }" aria-hidden="true"><img :src="avatarSrc" alt="" /></div>
   <div v-if="travel" class="travel-banner" role="status" aria-live="polite">
     <strong>{{ t('map.walkingTo', { place: t('places.' + travel.destinationId + '.name') }) }}</strong>
-    <span>{{ t('map.walkingTimeLeft', { seconds: Math.ceil((travel.totalMinutes - travel.elapsedMinutes) * (mapGrid.secondsPerCell || 2) - (travel.cellSeconds || 0)), minutes: travel.totalMinutes - travel.elapsedMinutes }) }}</span>
+    <span>{{ t('map.walkingTimeLeft', { minutes: travel.totalMinutes - travel.elapsedMinutes }) }}</span>
     <small>{{ t('map.rerouteHint') }}</small>
   </div>
 

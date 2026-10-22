@@ -57,7 +57,8 @@ export function tickForgePawn(pawn, seconds, speed = 18) {
   return !pawn.route.length
 }
 export function actionStation(action, params = {}, panel = 'crucible') {
-  if (['start', 'coal', 'bellows', 'coolForge', 'heat', 'removeHeat', 'heatIngot'].includes(action)) return action === 'bellows' ? 'bellows' : action === 'coolForge' ? 'water' : 'furnace'
+  if (action === 'start') return null
+  if (['coal', 'bellows', 'coolForge', 'heat', 'removeHeat', 'heatIngot'].includes(action)) return action === 'bellows' ? 'bellows' : action === 'coolForge' ? 'water' : 'furnace'
   if (['loadOre', 'loadCarbon', 'unload', 'smelt', 'pour', 'reheatResidue', 'dumpResidue'].includes(action)) return 'crucible'
   if (['collect', 'discardCasting'].includes(action)) return 'mould'
   if (['rackIngot', 'takeIngot'].includes(action)) return 'rack'

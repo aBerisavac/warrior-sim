@@ -2,7 +2,7 @@
   "app": {
     "title": "How to Become a General",
     "tagline": "A life before the legend",
-    "chapter": "CHAPTER I",
+    "chapter": "CHAPTER 1",
     "chapterName": "THE SMITH’S SON",
     "saved": "Saved locally",
     "smithSon": "The smith’s son",
@@ -18,6 +18,16 @@
     "forge": "Entering Father's forge",
     "preparing": "Preparing the map…",
     "progress": "{completed} of {total} assets ready"
+  },
+  "character": {
+    "title": "A face in the water",
+    "reflection": "I dip my head into the barrel outside Father's house by the forge. The water settles, and my reflection comes back to me. It has been so long since I looked closely that I almost fail to recognize myself.",
+    "continue": "Look closer",
+    "name": "My name",
+    "portrait": "My reflection",
+    "selectedPortrait": "Selected portrait",
+    "avatarNumber": "Portrait {n}",
+    "begin": "Begin the day"
   },
   "places": {
     "smithy": {
@@ -150,11 +160,9 @@
   "map": {
     "townEyebrow": "THE BEGINNING OF A KINGDOM",
     "forgeEyebrow": "YOUR FATHER’S WORKSHOP",
-    "expandWindow": "Expand game",
-    "restoreWindow": "Restore size",
     "enterFullscreen": "Fullscreen",
     "exitFullscreen": "Exit fullscreen",
-    "fullscreenUnavailable": "Fullscreen is unavailable in this browser. Use Expand game instead.",
+    "fullscreenUnavailable": "Fullscreen is unavailable in this browser.",
     "townName": "Briarwick",
     "forgeName": "The Blacksmith",
     "townDescription": "A small market town with room to become something greater.",
@@ -183,7 +191,7 @@
     "locked": "LOCKED",
     "tutorialOpen": "BLACKSMITH OPEN",
     "walkingTo": "Walking to {place}",
-    "walkingTimeLeft": "{seconds}s left · {minutes} game minutes remain",
+    "walkingTimeLeft": "{minutes} game minutes remain",
     "rerouteHint": "Choose Walk at another unlocked location to change course.",
     "onRoad": "On the road to {place}",
     "legendTitle": "Map legend",
@@ -266,12 +274,13 @@
     "forgeHelp": "Father has laid out the tools for my first dagger. I’ll start with the crucible, then work the iron at the anvil. I’ll need a guard, a handle and a pommel from the merchant before I can fit it together.",
     "forgeAction": "Enter workshop",
     "sleepTitle": "Rest or sleep",
-    "sleepHelp": "Sleep need: {need}%. Rest clears fatigue and heals 12 health. Injuries still carry over.",
+    "sleepHelp": "Sleep need: {need}%. Sleep restores 10% fatigue per hour and heals 12 health. Wake at 4 a.m. or later if more rest is needed. Injuries still carry over.",
     "sleepAction": "Sleep at home",
     "sleepAway": "Head home to your room by Father’s forge.",
     "sleepThoughtExhausted": "My eyes keep closing. I think I’ve done enough for today.",
     "sleepThoughtTired": "I’m starting to feel tired. A night’s sleep would do me good.",
     "sleepThoughtRest": "I’m not quite tired enough to sleep. I could sit for a while and let the day pass.",
+    "sleepThoughtEvening": "It's late enough to turn in. I can leave the rest for morning.",
     "sleepThoughtHome": "My bed is only a few steps from Father’s forge. Should I turn in until morning?",
     "sleepThoughtAway": "Perhaps I should head home, to Father’s house by the forge. My bed will be waiting. Or is there something I want to finish first?",
     "workbenchTitle": "Father’s workbench",
@@ -901,7 +910,7 @@
     "hunger": "Hunger",
     "hungerValue": "Hunger: {hunger}%",
     "foodRestore": "Reduces hunger by {amount}%",
-    "sleepThreshold": "I’m not tired enough to sleep yet. Sleep becomes available at 60% need.",
+    "sleepThreshold": "Sleep becomes available at 8 p.m. or at 60% sleep need.",
     "rest": "Rest and pass time",
     "restDuration": "Rest for",
     "hours": "{hours} h",
@@ -915,7 +924,7 @@
     "storehouse": "Storehouse",
     "materialsOnly": "Only materials can be stored here.",
     "capacity": "My bag cannot hold any more weight.",
-    "coalNeeded": "I need coal in my bag, and room in the fire.",
+    "coalNeeded": "I need coal in my bag or the storehouse, and room in the fire.",
     "notReady": "This is not ready yet.",
     "sameOre": "A charge needs four pieces of the same ore.",
     "chargeNeeded": "Load four ore and one coal, then light the forge.",
@@ -925,7 +934,7 @@
     "quenchHeat": "The metal is outside its quenching range.",
     "hammerNeeded": "Equip the crude hammer before working the blade.",
     "allCells": "Each cell needs at least one blow.",
-    "partsNeeded": "I need the next fitting in my bag: wooden guard, handle, then pommel.",
+    "partsNeeded": "I need the next fitting in my bag or the storehouse: wooden guard, handle, then pommel.",
     "coal": "Add coal",
     "bellows": "Work bellows",
     "fuel": "Fuel: {seconds}s",
@@ -1019,7 +1028,7 @@
     "stopForStorage": "End blacksmithing before opening the storehouse.",
     "bellowsRecovering": "Let the bellows refill for a moment.",
     "pouringTitle": "Pour the ingot",
-    "pouringHelp": "Hold the crucible and lift it to pour. Higher pours flow faster; lifting too high spills metal. Release to lower it and pause. Resume while the mould is still liquid. Aim to fill at least 95% before the metal hardens. A steady pour takes about 5–6 seconds.",
+    "pouringHelp": "Hold the crucible and lift it to pour. Higher pours flow faster; lifting too high spills metal. Release to lower it and pause. Resume while the mould is still liquid. Aim to fill at least 95% before the metal hardens. A steady pour takes about 8–10 seconds.",
     "crucibleHeat": "Crucible: {temperature}°C",
     "mouldHeat": "Mould metal: {temperature}°C",
     "mouldFill": "Mould filled: {percent}%",
@@ -1050,7 +1059,8 @@
     "assemblyAim": "Enter to capture the mouse. Move left/right, then left- or right-click to drop. Touch: drag and release inside. Keyboard: arrows to aim, Enter or Space to drop. Esc releases capture.",
     "assemblyCapture": "Mouse capture was blocked. You can still move inside the frame and click to drop.",
     "assemblyNoCapture": "This browser cannot capture the mouse. Move and click inside the frame to fit the part.",
-    "assemblyMissing": "I need a {item} in my bag before I can fit it.",
+    "assemblyMissing": "I need a {item} in my bag or the storehouse before I can fit it.",
+    "assemblyFetching": "Fetching {item} from the storehouse…",
     "assemblyCeiling": "Assembly quality ceiling: {quality}%",
     "bladeDepth": "Lowering: {depth}%",
     "grindContacts": "Cells in contact: {count}",
@@ -1082,7 +1092,8 @@
     "unmute": "Unmute all sound",
     "muted": "All sound is muted. Your volume levels are kept for when you unmute.",
     "saved": "Sound preferences are saved automatically.",
-    "startHint": "Click or press a key to enable sound.",
+    "startHint": "Tap, click, or press a key to enable sound.",
+    "enable": "Enable sound",
     "unavailable": "Audio is unavailable in this browser.",
     "individual": "Individual sounds",
     "previewNamed": "Preview {sound}",
@@ -1112,7 +1123,8 @@
       "axeHit": "Axe impact",
       "logMove": "Moving logs",
       "logStack": "Stacking firewood",
-      "hammer": "Hammer strikes",
+      "hammer": "Hot metal strike",
+      "hammerCold": "Cold metal thud",
       "bellows": "Bellows",
       "steam": "Quenching steam",
       "grind": "Grinding wheel",
@@ -1133,6 +1145,10 @@
       "encounterGood": "Good encounter",
       "encounterNeutral": "Neutral encounter",
       "marketCrowd": "Market chatter and haggling",
+      "rainOutdoor": "Rain outdoors",
+      "rainMarket": "Rain at the market",
+      "rainIndoor": "Rain on the roof",
+      "eagle": "Eagle call",
       "marketHorse": "Passing horses",
       "marketCart": "Wooden cart wheels",
       "marketCallout": "Occasional market calls"
@@ -1169,11 +1185,12 @@
       "Steady hands, watch the colour, don’t fight the fire. I might have heard that once or twice in this house."
     ],
     "melting": [
-      "The metal is melting. Iron’s melting point is about 1,538 degrees, but do not lift it at the first sign of liquid. Wait for a fully molten charge, with both the metal and crucible at least 100 degrees hotter—about 1,638 for iron. We need that stored heat for carrying and pouring.",
-      "I had been about to lift it. Best give it a little longer, as though that was my plan all along."
+      "Easy, son. It's nearing the melting point, but don't lift the crucible yet. Wait until the whole charge is liquid and the vessel has heat to spare.",
+      "Yeah, yeah. I know.",
+      "I was reaching for it, though. I'll give it more time."
     ],
     "pour": [
-      "The charge is fully liquid, and both it and the crucible have at least a hundred degrees in reserve above melting. Lift it now and carry it to the mould. Hold and raise it to pour; a moderate height takes five or six seconds. Keep the casting liquid and get at least ninety-five percent into the mould. Watch both temperatures as you work.",
+      "The charge is fully liquid, and both it and the crucible have at least a hundred degrees in reserve above melting. Lift it now and carry it to the mould. Hold and raise it to pour; a moderate height takes eight to ten seconds. Keep the casting liquid and get at least ninety-five percent into the mould. Watch both temperatures as you work.",
       "I’ve seen you do this without spilling a drop. You could have made it look a little harder, for my sake."
     ],
     "ruined": [
@@ -1308,6 +1325,12 @@
   "interface": {
     "toolbar": "Game toolbar",
     "journal": "Journal & objectives",
-    "skillsPending": "Skill training is not available yet."
+    "skillsPending": "Skill training is not available yet.",
+    "exportSave": "Export save",
+    "exportFailed": "Could not export the save. Please try again.",
+    "importSave": "Import save",
+    "importInvalid": "That file is not a valid Briarwick save.",
+    "importTooLarge": "That save file is too large.",
+    "importFailed": "Could not import the save. Your current game is unchanged."
   }
 }

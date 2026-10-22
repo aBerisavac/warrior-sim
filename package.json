@@ -13,6 +13,7 @@
     "check:workshop": "node scripts/check-workshop.mjs",
     "check:audio": "node scripts/check-audio.mjs",
     "check:ambience": "node scripts/check-ambience.mjs",
+    "check:weather": "node scripts/check-weather.mjs",
     "check:weapons": "node scripts/check-weapons.mjs"
   },
   "dependencies": {
@@ -21,6 +22,8 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.0",
+    "@vue/compiler-sfc": "^3.5.44",
+    "@vue/server-renderer": "^3.5.44",
     "vite": "^7.0.0"
   }
 }

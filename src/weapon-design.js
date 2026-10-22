@@ -104,9 +104,9 @@ export function designRequirements(game, raw) {
   if (!recipe || designIssues(raw).errors.length) return { valid: false, missing: [] }
   const quantity = (entries, id) => entries.reduce((n, e) => n + (e.itemId === id ? e.quantity : 0), 0)
   const all = [...game.inventory, ...game.storehouse]
-  const requirements = [{ itemId: recipe.ore, quantity: recipe.oreCount, source: 'combined' }, { itemId: 'coal', quantity: recipe.carbon + Math.max(0, recipe.fuel - Math.ceil(game.workshop.fuel / 480)), source: 'combined' }, ...recipe.fittings.map(itemId => ({ itemId, quantity: 1, source: 'bag' }))]
+  const requirements = [{ itemId: recipe.ore, quantity: recipe.oreCount, source: 'combined' }, { itemId: 'coal', quantity: recipe.carbon + Math.max(0, recipe.fuel - Math.ceil(game.workshop.fuel / 480)), source: 'combined' }, ...recipe.fittings.map(itemId => ({ itemId, quantity: 1, source: 'combined' }))]
   const missing = requirements.filter(r => quantity(r.source === 'bag' ? game.inventory : all, r.itemId) < r.quantity)
-  if (game.workshop.fuel <= 0 && !quantity(game.inventory, 'coal') && !missing.some(r => r.itemId === 'coal')) missing.push({ itemId: 'coal', quantity: 1, source: 'bag' })
+  if (game.workshop.fuel <= 0 && !quantity(all, 'coal') && !missing.some(r => r.itemId === 'coal')) missing.push({ itemId: 'coal', quantity: 1, source: 'combined' })
   return { valid: !missing.length, missing, requirements }
 }
 export function weaponHands(raw) { const d = normalizeDesign(raw); return d && (d.length + item(d.handle).component.length > 95 || item(d.handle).component.length > 25) ? 2 : 1 }

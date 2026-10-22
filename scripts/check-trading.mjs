@@ -14,7 +14,7 @@ try {
   const en = JSON.parse(readFileSync(new URL('../src/i18n/en.json', import.meta.url), 'utf8'))
   const render = (component, props) => renderToString(createSSRApp({ render: () => h(component, props) }).use(createI18n({ legacy: false, locale: 'en', messages: { en } })))
   const html = await render(TradingPanel, { game: initialState(), ready: true, agreement: null, feedback: null })
-  for (const name of ['Copper ore', 'Copper ingot', 'Iron ore', 'Iron ingot', 'Coal', 'My belongings', 'Merchant’s goods', 'Incoming', 'Make exchange offer']) assert(html.includes(name), name)
+  for (const name of ['Copper ore', 'Copper ingot', 'Iron ore', 'Iron ingot', 'Coal', 'My belongings', 'Merchant’s goods', 'Current inventory', 'Make exchange offer']) assert(html.includes(name), name)
   assert(/id="basket-offer"[^>]*value="100"/.test(html), 'Haggling starts at the asking price')
   assert(html.includes('Iron ore 0/4'))
   assert(html.includes('Coal 0/4')); assert(html.includes('Wooden pommel 0/1')); assert(html.includes('Wooden dagger pommel'))
@@ -23,12 +23,23 @@ try {
   const column = await render(TradeInventoryColumn, { title: 'My belongings', side: 'player', rows: [], pending: [{ key: 'iron_ore', itemId: 'iron_ore', quantity: 4, max: 12 }], disabled: false })
   assert(column.includes('value="4"'))
   assert(column.includes('Undo transfer of one Iron ore'))
-  assert(column.indexOf('Iron ore') < column.indexOf('Current inventory'), 'Pending items are above current inventory')
+  assert(column.indexOf('Current inventory') < column.indexOf('Iron ore'), 'Pending items appear within current inventory')
   const inn = initialState(); inn.location = 'tavern'
   assert.equal(merchants.buyUnitPrice('bread', merchants.MARKET_MERCHANT), 6)
   assert.equal(merchants.buyUnitPrice('bread', merchants.INN_MERCHANT), 3)
   assert.equal(merchants.buyUnitPrice('iron_ore', merchants.MARKET_MERCHANT), 17)
   assert(merchants.saleUnitPrice('iron_ore', merchants.INN_MERCHANT) < merchants.saleUnitPrice('iron_ore', merchants.MARKET_MERCHANT))
+  const crafted = initialState()
+  const dagger = { id: 'crafted-test', itemId: 'dagger', quantity: 1, craft: { quality: 80 } }
+  crafted.inventory.push(dagger)
+  assert.equal(merchants.craftedMaterialCost(dagger), 92)
+  assert.equal(merchants.saleUnitPrice(dagger), 88, 'Crafted price is material cost plus 20%, scaled by total quality')
+  const craftedDraft = { buy: [], sell: [{ instanceId: dagger.id, quantity: 1 }], percent: 100 }
+  const craftedQuote = merchants.quoteTrade(crafted, merchants.MARKET_MERCHANT, craftedDraft)
+  assert.equal(craftedQuote.selling, 88)
+  assert.equal(merchants.executeTrade(crafted, merchants.MARKET_MERCHANT, craftedDraft, { merchantId: merchants.MARKET_MERCHANT, fingerprint: merchants.offerFingerprint(craftedDraft), net: craftedQuote.net }).error, null)
+  assert.equal(crafted.coins, 208)
+  assert.equal(crafted.merchantInventories[merchants.MARKET_MERCHANT].find(entry => entry.itemId === 'dagger').lots[0].craft.quality, 80)
   const foodDraft = { buy: [{ itemId: 'bread', quantity: 2 }, { itemId: 'ale', quantity: 1 }, { itemId: 'stew', quantity: 1 }], sell: [], percent: 100 }
   const foodQuote = merchants.quoteTrade(inn, merchants.INN_MERCHANT, foodDraft)
   assert.equal(foodQuote.buying, 18)

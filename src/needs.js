@@ -2,7 +2,7 @@ import { items } from './inventory'
 export const HUNGER_PER_HOUR = 4
 export const SLEEP_THRESHOLD = 60
 export function sleepNeedPercent(state) { return Math.min(100, Math.max(0, (state.minutes - state.awakeSince) / 2880 * 100)) }
-export function canSleep(state) { return sleepNeedPercent(state) >= SLEEP_THRESHOLD }
+export function canSleep(state) { return sleepNeedPercent(state) >= SLEEP_THRESHOLD || ((state.minutes % 1440 + 1440) % 1440) >= 20 * 60 }
 export function updateHunger(state) {
   const elapsed = Math.max(0, state.minutes - state.hungerUpdatedAt)
   state.hunger = Math.max(0, Math.min(100, state.hunger + elapsed / 60 * HUNGER_PER_HOUR))
@@ -18,7 +18,9 @@ export function eatItem(state, instanceId) {
   state.inventory = state.inventory.filter(item => item.quantity > 0)
   return true
 }
-export function nextMorningMinutes(minutes) {
-  const morning = Math.floor(minutes / 1440) * 1440 + 7 * 60
-  return morning > minutes ? morning : morning + 1440
+export function nextMorningMinutes(minutes, sleepNeed = 0) {
+  const morning = Math.floor(minutes / 1440) * 1440 + 4 * 60
+  const nextMorning = morning > minutes ? morning : morning + 1440
+  // Sleeping restores ten percentage points of fatigue per hour.
+  return Math.max(nextMorning, minutes + Math.ceil(Math.max(0, sleepNeed) / 10 * 60))
 }

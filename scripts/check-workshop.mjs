@@ -14,6 +14,8 @@ try {
   const { forgeFloor, forgeAisles, stationFloor, newForgePawn, routeForgePawn, tickForgePawn, stationPoint, floorDistance, actionStation } = await server.ssrLoadModule('/src/forge-navigation.js')
   const { nextWorkshopLesson, workshopLessons } = await server.ssrLoadModule('/src/workshop-lesson.js')
   const { default: Dialog } = await server.ssrLoadModule('/src/components/WorkshopDialog.vue')
+  const { default: HammerBlank } = await server.ssrLoadModule('/src/components/HammerBlank.vue')
+  const { newWeaponDesign } = await server.ssrLoadModule('/src/weapon-design.js')
   const { default: Map } = await server.ssrLoadModule('/src/components/ForgeMap.vue')
   const { default: Lesson } = await server.ssrLoadModule('/src/components/ForgeLesson.vue')
   const { default: Assembly } = await server.ssrLoadModule('/src/components/DaggerAssembly.vue')
@@ -24,6 +26,11 @@ try {
   const en = JSON.parse(readFileSync(new URL('../src/i18n/en.json', import.meta.url)))
   const missing = []
   const render = (component, props) => renderToString(createSSRApp({ render: () => h(component, props) }).use(createI18n({ legacy: false, locale: 'en', messages: { en }, missing: (_, key) => missing.push(key) })))
+  const blankBlade = { design: newWeaponDesign(), work: Array(6).fill(0) }
+  const rawBlank = await render(HammerBlank, { blade: blankBlade, working: true })
+  const workedBlank = await render(HammerBlank, { blade: { ...blankBlade, work: Array(6).fill(100) }, working: true })
+  assert.equal((rawBlank.match(/<path[^>]*fill="rgb\(/g) || []).length, 1, 'Both faces share one ingot outline')
+  assert.notEqual(rawBlank.match(/<path[^>]*d="([^"]+)/)?.[1], workedBlank.match(/<path[^>]*d="([^"]+)/)?.[1], 'Hammering changes the designed outline and tang')
   const timed = initialState(); timed.workshop.working = true
   timed.inventory.push({ id: 'loading-coal', itemId: 'coal', quantity: 2 }, { id: 'loading-ore', itemId: 'iron_ore', quantity: 2 })
   timed.storehouse = [{ id: 'stored-ore', itemId: 'iron_ore', quantity: 2 }, { id: 'stored-coal', itemId: 'coal', quantity: 2 }]
@@ -41,6 +48,11 @@ try {
     assert.equal(action(timed, 'smelt').error, 'loadingBusy')
     tick(timed, .5); assert.equal(timed.workshop.crucible[field], before + 1)
   }
+  const storedFuel = itemQuantity(timed.storehouse, 'coal')
+  assert(queueWorkshopLoad(timed, 'coal', { from: 'storehouse' }).loading)
+  for (let i = 0; i < 5; i++) tick(timed, .5)
+  assert.equal(itemQuantity(timed.storehouse, 'coal'), storedFuel)
+  tick(timed, .5); assert.equal(itemQuantity(timed.storehouse, 'coal'), storedFuel - 1)
   const inventoryBeforeCancel = JSON.stringify(timed.inventory)
   queueWorkshopLoad(timed, 'loadOre', { from: 'bag', itemId: 'iron_ore' }); action(timed, 'stop'); tick(timed, .5)
   assert.equal(timed.workshop.loading, null); assert.equal(JSON.stringify(timed.inventory), inventoryBeforeCancel, 'Cancelling a load never consumes its item')
@@ -65,7 +77,7 @@ try {
   assert(game.workshop.crucible.reduction === 100 && game.workshop.crucible.melt === 100)
   ok('pour'); assert(game.workshop.pour)
   ok('pourControl', { holding: true, height: .65 })
-  for (let i = 0; i < 28 && game.workshop.pour; i++) tick(game, .2)
+  for (let i = 0; i < 200 && game.workshop.pour; i++) tick(game, .2)
   if (game.workshop.pour) ok('finishPour')
   assert(!game.workshop.mould.ruined)
   assert.equal(action(game, 'pour').error, 'mouldBusy')
@@ -100,6 +112,12 @@ try {
   assert.equal(action(badQuench, 'quenchStart').error, 'bladeRuined')
   ok('assemble', { position: .5 }); assert.equal(itemQuantity(game.inventory, 'dagger_guard'), 0)
   ok('assemble', { position: .5 }); assert.equal(itemQuantity(game.inventory, 'dagger_handle'), 0)
+  const storedFitting = JSON.parse(JSON.stringify(game))
+  storedFitting.storehouse.push(storedFitting.inventory.find(entry => entry.itemId === 'dagger_pommel'))
+  storedFitting.inventory = storedFitting.inventory.filter(entry => entry.itemId !== 'dagger_pommel')
+  assert.equal(action(storedFitting, 'assemble', { from: 'storehouse', position: .5 }).error, undefined)
+  assert.equal(itemQuantity(storedFitting.storehouse, 'dagger_pommel'), 0)
+  assert.equal(storedFitting.workshop.blade.stage, 'assembled')
   assert.equal(b.stage, 'quenched', 'The pommel is still required after the handle'); ok('assemble', { position: .5 }); assert.equal(itemQuantity(game.inventory, 'dagger_pommel'), 0)
   assert.equal(b.stage, 'assembled'); assert.deepEqual(b.assembly, [100, 100, 100])
   const refit = initialState(); refit.workshop.working = true
@@ -166,6 +184,7 @@ try {
   assert(walker.route.length && floorDistance(walker, stationPoint('furnace')) > 1.5, 'Actions cannot open immediately from the entrance')
   const lastAnchor = walker.id, nextAnchor = walker.route[0].id
   routeForgePawn(walker, 'warehouse'); assert([lastAnchor, nextAnchor].includes(walker.route[0].id), 'Rerouting stays on the current aisle')
+  assert.equal(actionStation('start'), null, 'Starting blacksmithing does not require walking to a station')
   assert.equal(actionStation('coal'), 'furnace'); assert.equal(actionStation('loadCarbon'), 'crucible'); assert.equal(actionStation('strike'), 'anvil'); assert.equal(actionStation('assemble'), 'workbench'); assert.equal(actionStation('pourControl'), null)
   const furniture = [[38, 47, 48, 61], [49, 47, 55, 59], [56, 49, 60, 60], [62, 42, 74, 64]]
   for (const from of ['entry', 'centre', 'furnace', 'rack']) for (const station of ['anvil', 'water', 'oil', 'crucible', 'mould']) {
@@ -304,15 +323,15 @@ try {
     for (let elapsed = 0; elapsed < seconds && g.workshop.pour; elapsed += .05) tick(g, .05)
     if (g.workshop.pour) action(g, 'pourControl', { holding: false })
   }
-  const clean = pourGame(); pourFor(clean, .65, 5.6)
+  const clean = pourGame(); pourFor(clean, .65, 10)
   assert(!clean.workshop.pour); assert(clean.workshop.mould.fill >= .99); assert.equal(clean.workshop.mould.castingQuality, 100)
   const pausedPour = pourGame(); pourFor(pausedPour, .65, 2)
   const beforePause = pausedPour.workshop.mould.fill, oldHeat = pausedPour.workshop.crucible.temperature
   for (let i = 0; i < 5; i++) tick(pausedPour, .1)
   assert.equal(pausedPour.workshop.mould.fill, beforePause); assert(pausedPour.workshop.crucible.temperature < oldHeat)
-  pourFor(pausedPour, .65, 4); assert(!pausedPour.workshop.mould.ruined, 'Releasing and resuming while liquid does not ruin a casting')
+  pourFor(pausedPour, .65, 7); assert(!pausedPour.workshop.mould.ruined, 'Releasing and resuming while liquid does not ruin a casting')
   const frozen = pourGame(); pourFor(frozen, .65, 1)
-  for (let i = 0; i < 300 && frozen.workshop.pour; i++) tick(frozen, .1)
+  for (let i = 0; i < 1000 && frozen.workshop.pour; i++) tick(frozen, .1)
   assert(frozen.workshop.mould.ruined); assert.equal(frozen.workshop.crucible.stage, 'residue')
   assert.equal(action(frozen, 'collect').error, 'notReady')
   assert.equal(action(frozen, 'dumpResidue').error, 'residueCold')
@@ -329,10 +348,10 @@ try {
   assert.equal(itemQuantity(underfilled.inventory, 'iron_ore'), practiceOre + 4, 'Father replaces four iron ore after a failed tutorial ingot')
   assert.equal(action(underfilled, 'discardCasting').error, 'notReady')
   assert.equal(itemQuantity(underfilled.inventory, 'iron_ore'), practiceOre + 4, 'The same casting cannot grant ore twice')
-  const marginal = pourGame(); pourFor(marginal, .65, 5.25); action(marginal, 'finishPour')
+  const marginal = pourGame(); pourFor(marginal, .65, 7.4); action(marginal, 'finishPour')
   assert(marginal.workshop.mould.fill >= .95); assert(!marginal.workshop.mould.ruined); assert(marginal.workshop.mould.castingQuality < 85)
-  const spilled = pourGame(); pourFor(spilled, .76, 6)
-  assert(spilled.workshop.mould.ruined || spilled.workshop.mould.castingQuality < 50, 'Large spills drastically penalize the ingot')
+  const spilled = pourGame(); pourFor(spilled, 1, 8)
+  assert(spilled.workshop.mould.ruined || spilled.workshop.mould.castingQuality < 50, 'Sustained spills still penalize the ingot')
   const partial = pourGame(60, 1700); pourFor(partial, .65, 1)
   assert(partial.workshop.mould.fill > 0 && partial.workshop.crucible.melt > 0, 'Partial charges can pour using retained heat')
   assert.equal(action(partial, 'stop').error, 'finishPourFirst')

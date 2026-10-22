@@ -75,12 +75,18 @@
     "credit": "Kenney Impact Sounds"
   },
   "hammer": {
+    "file": "blacksmith-hammer-hot.mp3",
+    "group": "forge",
+    "gain": 0.8,
+    "credit": "VishwaJai — Blacksmith's Hammer, CC0"
+  },
+  "hammerCold": {
     "files": [
       "impactMetal_medium_000.ogg",
       "impactMetal_medium_001.ogg"
     ],
     "group": "forge",
-    "gain": 0.6,
+    "gain": 0.75,
     "credit": "Kenney Impact Sounds"
   },
   "bellows": {
@@ -236,14 +242,20 @@
     "loop": true,
     "credit": "Joseph SARDIN \u2014 BigSoundBank (CC0)"
   },
+  "rainOutdoor": { "file": "rain-window.mp3", "group": "ambience", "gain": 0.48, "loop": true, "credit": "alxl — OpenGameArt (CC0)" },
+  "rainMarket": { "file": "rain-window.mp3", "group": "ambience", "gain": 0.39, "loop": true, "credit": "alxl — OpenGameArt (CC0)" },
+  "rainIndoor": { "file": "rain-window.mp3", "group": "ambience", "gain": 0.22, "loop": true, "credit": "alxl — OpenGameArt (CC0)" },
+  "eagle": { "file": "eagle-screech.mp3", "group": "ambience", "gain": 0.36, "credit": "SFXMint (CC0)" },
   "marketCallout": {
     "files": [
-      "market-watch-out.wav",
-      "market-coming-through.wav"
+      "market-human-1.mp3",
+      "market-human-2.mp3",
+      "market-human-3.mp3"
     ],
     "group": "ambience",
-    "gain": 0.32,
-    "credit": "Original dialogue, synthesized locally with Windows System.Speech"
+    "gain": 0.27,
+    "avoidRepeat": true,
+    "credit": "StarNinjas — OpenGameArt (CC0)"
   },
   "marketCart": {
     "synthesis": "cart",

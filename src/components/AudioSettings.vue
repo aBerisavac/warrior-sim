@@ -3,7 +3,7 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { audioGroups, audioCatalog } from '../audio'
 const props = defineProps({ settings: Object, status: Object })
-const emit = defineEmits(['change', 'close', 'preview'])
+const emit = defineEmits(['change', 'close', 'preview', 'enable'])
 const { t } = useI18n()
 const panel = ref(null)
 let previousFocus
@@ -30,6 +30,7 @@ onBeforeUnmount(() => previousFocus?.focus?.())
       <div id="audio-sound-panel" role="tabpanel" aria-labelledby="audio-sound-tab" class="audio-settings-body">
         <button class="audio-master-toggle" type="button" :aria-pressed="settings.muted" @click="update('muted', !settings.muted)"><span aria-hidden="true">{{ settings.muted ? '♩̸' : '♫' }}</span>{{ t(settings.muted ? 'audio.unmute' : 'audio.mute') }}</button>
         <p class="audio-state" role="status">{{ t(status.unavailable ? 'audio.unavailable' : !status.unlocked ? 'audio.startHint' : settings.muted ? 'audio.muted' : 'audio.saved') }}</p>
+        <button v-if="!status.unlocked && !status.unavailable" type="button" class="audio-enable" @click="emit('enable')">{{ t('audio.enable') }}</button>
         <label class="audio-master-volume"><span>{{ t('audio.master') }}</span><input type="range" min="0" max="100" :value="percent(settings.master)" @input="update('master', Number($event.target.value) / 100)"/><output>{{ percent(settings.master) }}%</output></label>
         <div class="audio-volume-list"><div v-for="id in audioGroups" :key="id" class="audio-volume-row"><label :for="'audio-group-' + id">{{ t('audio.groups.' + id) }}</label><input :id="'audio-group-' + id" type="range" min="0" max="100" :value="percent(settings.groups[id])" @input="group(id, $event)"/><output>{{ percent(settings.groups[id]) }}%</output><button type="button" :aria-label="t('audio.previewNamed', { sound: t('audio.groups.' + id) })" :disabled="settings.muted" @click="emit('preview', examples[id])">▷</button></div></div>
         <details><summary>{{ t('audio.individual') }}</summary><div v-for="(cue, id) in audioCatalog" :key="id" class="audio-volume-row audio-volume-row--specific"><button type="button" class="audio-cue-toggle" :aria-pressed="settings.sounds[id].muted" :aria-label="t(settings.sounds[id].muted ? 'audio.enableNamed' : 'audio.disableNamed', { sound: t('audio.sounds.' + id) })" @click="sound(id, 'muted', !settings.sounds[id].muted)">{{ settings.sounds[id].muted ? '○' : '●' }}</button><label :for="'audio-cue-' + id">{{ t('audio.sounds.' + id) }}</label><input :id="'audio-cue-' + id" type="range" min="0" max="100" :value="percent(settings.sounds[id].volume)" @input="sound(id, 'volume', Number($event.target.value) / 100)"/><output>{{ percent(settings.sounds[id].volume) }}%</output><button type="button" :disabled="settings.muted || settings.sounds[id].muted" :aria-label="t('audio.previewNamed', { sound: t('audio.sounds.' + id) })" @click="emit('preview', id)">▷</button></div></details>
@@ -44,3 +45,4 @@ onBeforeUnmount(() => previousFocus?.focus?.())
 </style>
 
 <style scoped>.audio-settings header{position:sticky;top:0;z-index:20;background:#28382b;flex:none}.audio-settings button:hover:not(:disabled){background:#dec18a;color:#203428}</style>
+<style scoped>.audio-enable{width:100%;margin-bottom:7px}.audio-settings-body{-webkit-overflow-scrolling:touch}@media(max-width:570px){.audio-settings-scrim{position:fixed;inset:0;width:100%;height:100dvh;padding:calc(env(safe-area-inset-top) + 8px) 8px calc(env(safe-area-inset-bottom) + 8px);z-index:1000;align-items:stretch}.audio-settings{width:100%;height:100%;max-height:none;min-height:0;margin:0}.audio-settings-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain}}</style>

@@ -3,7 +3,7 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { ambienceFor, birdPose, dustPatches, groundAccents, vegetationMotion } from '../map-ambience'
 import { playSound } from '../audio'
 import { spawnWildlife, wildlifePose } from '../wildlife'
-const props = defineProps({ map: Object, paused: Boolean })
+const props = defineProps({ map: Object, paused: Boolean, raining: Boolean })
 const config = computed(() => ambienceFor(props.map))
 const accents = computed(() => groundAccents(props.map))
 const patches = computed(() => dustPatches(props.map))
@@ -25,7 +25,8 @@ function animate(now) {
     wildlife.value = wildlife.value.filter(event => seconds.value - event.startedAt < event.duration)
     while (lastWildlifeTick < Math.floor(seconds.value)) {
       lastWildlifeTick++
-      const newEvents = spawnWildlife(props.map, wildlife.value)
+      const newEvents = spawnWildlife(props.map, wildlife.value, Math.random, nextWildlifeId, props.raining)
+      if (newEvents.some(event => event.kind === 'eagle')) playSound('eagle', { duration: 2 })
       wildlife.value.push(...newEvents.map(event => ({ ...event, id: nextWildlifeId++, startedAt: seconds.value, scratchPlayed: false })))
     }
   }

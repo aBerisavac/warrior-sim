@@ -8,13 +8,13 @@ export const MAP_LOADING = {
   town: {
     titleKey: 'loading.town', returnKey: 'loading.townReturn', arrivalKey: 'loading.townArrival',
     characters: ['player', 'father', 'merchant', 'innkeeper', 'notice'],
-    sounds: ['villageMusic', 'innMusic', 'birds', 'marketCrowd', 'marketCallout', 'marketHorse', 'footstep', 'door'],
+    sounds: ['villageMusic', 'innMusic', 'birds', 'marketCrowd', 'marketCallout', 'marketHorse', 'footstep', 'door', 'rainOutdoor', 'eagle'],
   },
   forge: {
     titleKey: 'loading.forge',
     images: ['/images/interior/Medieval Blacksmith’s Forge and Shop.png'],
     characters: ['player', 'father'],
-    sounds: ['innMusic', 'fire', 'coal', 'metal', 'pour', 'hammer', 'door'],
+    sounds: ['innMusic', 'fire', 'coal', 'metal', 'pour', 'hammer', 'door', 'rainIndoor'],
   },
 }
 
@@ -34,8 +34,8 @@ export function mapAssetUrls(mapId, tiers = {}, map = townMap) {
   }
   for (const id of config.sounds) {
     const cue = audioCatalog[id]
-    if (cue?.file) urls.push('/audio/' + cue.file)
-    for (const file of cue?.files || []) urls.push('/audio/' + file)
+    if (cue?.file) urls.push('/audio/' + (cue.file.endsWith('.ogg') ? cue.file.replace(/\.ogg$/, '.mp3') : cue.file))
+    for (const file of cue?.files || []) urls.push('/audio/' + (file.endsWith('.ogg') ? file.replace(/\.ogg$/, '.mp3') : file))
   }
   return [...new Set(urls.filter(Boolean))]
 }

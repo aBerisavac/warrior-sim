@@ -180,6 +180,9 @@ try {
 
   let saved
   globalThis.localStorage = { getItem: () => JSON.stringify(saved) }
+  assert.equal(game.restoreSave({ version: 99, location: 'smithy' }), null, 'Unsupported imported saves are rejected')
+  assert.equal(game.restoreSave({ version: 12, location: 'unknown' }), null, 'Imported saves need a known location')
+  assert.equal(game.restoreSave({ version: 12, location: 'smithy', inventory: {} }), null, 'Malformed imported saves are rejected')
   saved = { ...game.initialState(), version: 3, stage: 'robbed' }
   delete saved.completedQuests
   let loaded = game.readSave()
@@ -205,13 +208,12 @@ try {
   assert.deepEqual(loaded.travel.position, halfway)
   saved.mapRevision -= 1
   loaded = game.readSave()
-  assert.deepEqual(loaded.travel.position, halfway, 'Existing routes stay in place when the town outskirts change')
+  assert.equal(loaded.travel, null, 'A changed map safely cancels an outdated route')
   saved.mapRevision -= 1
   saved.travel.route = marketRoute.points.map(point => ({ x: point.x - 5 * routes.mapGrid.cellSize, y: point.y - 5 * routes.mapGrid.cellSize }))
   saved.travel.position = { x: halfway.x - 5 * routes.mapGrid.cellSize, y: halfway.y - 5 * routes.mapGrid.cellSize }
   loaded = game.readSave()
-  assert.deepEqual(loaded.travel.position, halfway, 'Travel position follows the shifted town layout')
-  assert.deepEqual(loaded.travel.route, marketRoute.points, 'Travel route follows the shifted town layout')
+  assert.equal(loaded.travel, null, 'An obsolete route is not restored across incompatible map revisions')
   saved.mapRevision -= 1
   loaded = game.readSave()
   assert.equal(loaded.travel, null, 'A changed town map invalidates saved travel')
@@ -389,8 +391,10 @@ try {
   assert(!needs.canSleep(hungry))
   hungry.minutes += 1
   assert(needs.canSleep(hungry))
-  assert.equal(needs.nextMorningMinutes(2 * 60), 7 * 60)
-  assert.equal(needs.nextMorningMinutes(8 * 60), 1440 + 7 * 60)
+  assert.equal(needs.nextMorningMinutes(2 * 60), 4 * 60)
+  assert.equal(needs.nextMorningMinutes(8 * 60), 1440 + 4 * 60)
+  assert.equal(needs.nextMorningMinutes(20 * 60, 100), 1440 + 6 * 60, 'Full fatigue takes ten hours to clear')
+  assert(needs.canSleep({ minutes: 20 * 60, awakeSince: 20 * 60 }), 'Sleep is available after 8 p.m.')
   const supplies = game.initialState().merchantInventories[merchantId]
   assert.equal(supplies.find(entry => entry.itemId === 'bread').quantity, 16 * 4 * 3 * 3)
   saved = { ...game.initialState(), version: 10, inventory: starterItems.filter(entry => entry.itemId !== 'bread') }

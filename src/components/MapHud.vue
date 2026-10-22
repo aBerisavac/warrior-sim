@@ -5,6 +5,8 @@ import StatusRing from '../StatusRing.vue'
 import { isUnlocked } from '../progression'
 defineProps({
   busy: { type: Boolean, default: false },
+  avatarSrc: { type: String, default: '/images/profile/blacksmith.png' },
+  playerName: { type: String, default: '' },
   health: { type: Number, required: true },
   stamina: { type: Number, required: true },
   sleepNeed: { type: Number, required: true },
@@ -21,8 +23,8 @@ const { t } = useI18n()
 <template>
   <div class="map-hud">
     <button class="hud-pawn" :disabled="busy || !isUnlocked(completedQuests, 'hud', 'pawn')" @click="emit('modal', 'pawn')" :aria-label="t('hud.openPawn')">
-      <span class="hud-avatar"><img src="/images/profile/blacksmith.png" alt="" /></span>
-      <span class="hud-pawn-copy"><b>{{ t('app.chapterName') }}</b><small><CurrencyAmount :amount="coins" /></small></span>
+      <span class="hud-avatar"><img :src="avatarSrc" alt="" /></span>
+      <span class="hud-pawn-copy"><b>{{ playerName || t('app.chapterName') }}</b><small><CurrencyAmount :amount="coins" /></small></span>
     </button>
     <div class="hud-vitals">
       <StatusRing :percent="health" :label="t('sidebar.health')" glyph="♥" tone="health-ring" />

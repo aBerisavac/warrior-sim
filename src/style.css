@@ -9,6 +9,7 @@
 .hud-avatar{display:grid;place-items:center;width:42px;height:42px;border:2px solid #bea678;border-radius:50%;background:#52664e;color:#f4e5ba;font:25px Georgia,serif}
 .hud-pawn-copy b,.hud-pawn-copy small{display:block}.hud-pawn-copy b{font-size:9px;letter-spacing:1px}.hud-pawn-copy small{font-size:11px;color:#dec487;margin-top:5px}
 .hud-vitals{display:flex;align-items:center;justify-content:center;gap:8px;flex:1}.hud-ring{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;width:65px;min-width:65px;padding:0;border:0;background:none;color:#e9e4ce;text-align:center}.hud-ring svg{width:46px;height:46px}.ring-track{fill:none;stroke:#70806d;stroke-width:4;opacity:.7}.ring-progress{fill:none;stroke-width:4.8;stroke-linecap:round}.health-ring{stroke:#ce8270}.stamina-ring{stroke:#d4be7a}.sleep-ring{stroke:#9eb9ca}.ring-glyph{position:absolute;top:0;left:50%;right:auto;transform:translateX(-50%);color:#eee4ca}.ring-label{font-size:9px;font-weight:700;line-height:1.1}.hud-ring strong{font-size:9px;color:#d8cda8;line-height:1.3}.ring-button{cursor:pointer}.ring-button:hover svg{filter:drop-shadow(0 0 5px #cad5dc)}
+.stamina-burnt-track{stroke:url(#stamina-burnt-gradient);opacity:1}
 .hud-tools{display:flex;gap:5px}.hud-tools button{display:flex;flex-direction:column;align-items:center;justify-content:center;width:58px;min-width:58px;height:58px;background:#374736;border:1px solid #819071;color:#e8debd;border-radius:3px}.hud-tools button:hover,.hud-pawn:hover{background:#53634a}.hud-tools b{font:23px Georgia,serif}.hud-tools span{font-size:8px;letter-spacing:.3px}
 .map-node{position:absolute;z-index:4;width:0;height:0}.map-node.menu-open{z-index:8}.map-node .map-pin{position:absolute;left:0;top:0;transform:translate(-50%,-50%)}.radial-actions{position:absolute;left:0;top:0;z-index:9}.radial-actions button{position:absolute}.radial-actions button:hover:not(:disabled){background:#af7953}.radial-actions button:disabled{opacity:.48;cursor:not-allowed}.radial-info{left:-98px;top:-85px}.radial-walk{left:34px;top:-85px}.radial-enter,.radial-trade,.radial-wood,.radial-dishes{left:-32px;top:54px}
 .forge-art{width:100%;height:100%;display:block}.interior-back{position:absolute;left:16px;top:16px;z-index:3;padding:8px 11px;background:#263b2f;color:#f4e3b4;border:1px solid #d8c08b;font-size:11px;font-weight:700}.interior-back:hover{background:#53694e}
@@ -265,10 +266,9 @@
 .map-legend-item--locked .circle-icon{background:#687268;border-color:#a7ad9b}
 .map-legend-name{flex:1;min-width:0}
 .map-legend-current{color:#e6c987;font-size:10px}
-/* Each expanded action carries its own opaque halo; the map stays visible between actions. */
-.map-node .radial-actions > .circle-icon{box-shadow:0 0 0 5px #25342ded,0 0 0 6px #e3bf87d9,0 6px 14px #111910bf}
-.map-node .job-orbit .circle-icon{box-shadow:0 0 0 3px #25342ded,0 0 0 4px #e3bf87d9,0 5px 11px #111910bf}
-.map-node .radial-actions > .circle-icon:hover:not(:disabled),.map-node .radial-actions > .circle-icon:focus-visible{box-shadow:0 0 0 5px #26392df5,0 0 0 7px #f3d9a8,0 7px 16px #111910d9}
+/* A soft halo fades into the map behind enabled expanded actions. */
+.map-node .radial-actions > .circle-icon:not(:disabled),.map-node .job-orbit .circle-icon:not(:disabled){box-shadow:0 0 7px 5px #19271ab0,0 0 17px 12px #17251b55}
+.map-node .radial-actions > .circle-icon:hover:not(:disabled),.map-node .radial-actions > .circle-icon:focus-visible,.map-node .job-orbit .circle-icon:hover:not(:disabled),.map-node .job-orbit .circle-icon:focus-visible{box-shadow:0 0 9px 6px #19271abd,0 0 20px 14px #17251b55;border-color:#bca774}
 
 /* Disabled map actions do not need the active action halo. */
 .map-node .radial-actions > .circle-icon:disabled,.map-node .job-orbit .circle-icon:disabled{box-shadow:none}
@@ -716,3 +716,10 @@ q{quotes:"“" "”" "‘" "’"}
 }
 
 .game-window .ring-label{font-size:8px}.game-window .map-hud .hud-ring>.ring-glyph{width:38px;height:38px}@media(max-width:570px){.game-window .map-hud .hud-ring>.ring-glyph{width:34px;height:34px}}
+.trade-inventory-column,.map-modal--trade .trade-inventory-column,.game-window .map-modal--trade .trade-inventory-column{grid-template-rows:auto auto minmax(0,1fr)}
+.trade-inventory-column .trade-inventory-list{grid-row:3}
+
+.game-window .map-stamp{top:18px;right:17px;bottom:auto}
+
+/* Keep hovered child actions distinct without adding a gold focus ring. */
+.map-node .radial-actions > .circle-icon:hover:not(:disabled),.map-node .radial-actions > .circle-icon:focus-visible,.map-node .job-orbit .circle-icon:hover:not(:disabled),.map-node .job-orbit .circle-icon:focus-visible{border-color:#bca774;box-shadow:0 0 9px 6px #19271abd,0 0 20px 14px #17251b55}
