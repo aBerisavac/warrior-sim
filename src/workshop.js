@@ -20,6 +20,7 @@ export const assemblyAccuracy = position => Math.max(0, 100 - Math.abs(clampAsse
 export const bellowsBoost = temperature => 190 * Math.exp(-Math.max(0, temperature - AMBIENT_TEMPERATURE) / 800)
 export function canStartBlacksmithing(game) {
   const w = game.workshop
+  if (w.crucible.stage === 'residue') return true
   if (customUnlocked(game)) return !designStartError(game)
   if (w.blade || w.mould || w.crucible.stage !== 'empty') return true
   if (game.completedQuests.includes('iron_errand_accepted') && !game.completedQuests.includes('iron_stock_bought') && !hasRequiredItems(game.inventory, questById('iron_stock_bought').requiredItems)) return false
@@ -31,6 +32,7 @@ export function canStartBlacksmithing(game) {
 }
 export function designStartError(game) {
   const w = game.workshop
+  if (w.crucible.stage === 'residue') return null
   if (!customUnlocked(game) || w.blade?.sourceId || w.blade && !w.blade.design) return null
   const design = w.activeDesign || w.design
   if (!design) return 'designRequired'
@@ -215,11 +217,29 @@ export function workshopAction(game, action, p = {}) {
   if (w.pour && !['pourControl', 'finishPour', 'pour'].includes(action)) return fail('finishPourFirst')
   if (action === 'saveDesign') {
     if (!customUnlocked(game)) return fail('designLockedTutorial')
-    if (w.activeDesign || w.blade || w.mould || c.stage !== 'empty') return fail('designLocked')
+    if (w.design || w.activeDesign || w.blade || w.mould || w.rack.length || c.stage !== 'empty') return fail('designLocked')
     const design = normalizeDesign(p.design)
     if (!design || designIssues(design).errors.length) return fail('invalidDesign')
     w.design = design
+    if (w.working) w.activeDesign = JSON.parse(JSON.stringify(design))
     return { designSaved: true }
+  }
+  if (action === 'clearDesign') {
+    if (!customUnlocked(game) || !w.design) return fail('notReady')
+    if (w.pour) return fail('finishPourFirst')
+    w.loading = null
+    w.blade = null
+    w.mould = null
+    w.rack = []
+    if (c.stage !== 'empty') {
+      c.stage = 'residue'
+      c.onForge = false
+      c.remaining = Math.max(c.remaining || 0, .01)
+      c.melt = Math.min(c.melt || 0, 100)
+    }
+    w.design = null
+    w.activeDesign = null
+    return { designCleared: true }
   }
   if (action === 'discardBlade') {
     if (b?.stage !== 'ruined') return fail('notReady')
@@ -231,7 +251,7 @@ export function workshopAction(game, action, p = {}) {
     const designError = designStartError(game)
     if (designError) return fail(designError)
     if (!canStartBlacksmithing(game)) return fail('noSupplies')
-    if (customUnlocked(game) && !w.activeDesign && !w.blade?.sourceId && !w.blade) w.activeDesign = JSON.parse(JSON.stringify(w.design))
+    if (customUnlocked(game) && w.design && !w.activeDesign && !w.blade?.sourceId && !w.blade) w.activeDesign = JSON.parse(JSON.stringify(w.design))
     w.working = true
     return {}
   }
@@ -244,7 +264,7 @@ export function workshopAction(game, action, p = {}) {
   if (!w.working && action === 'regrind' && !w.activeDesign && !w.mould && c.stage === 'empty' && game.inventory.some(e => e.id === p.id && ['dagger','custom_weapon'].includes(e.itemId))) w.working = true
   if (!w.working && action !== 'transfer') return fail('startFirst')
   if (w.working && action === 'transfer') return fail('stopForStorage')
-  if (customUnlocked(game) && !w.activeDesign && !b && !['transfer','regrind'].includes(action)) return fail('designRequired')
+  if (customUnlocked(game) && !w.activeDesign && !b && !['transfer','regrind'].includes(action) && !(c.stage === 'residue' && ['coal','bellows','coolForge','reheatResidue','dumpResidue'].includes(action))) return fail('designRequired')
   if (action === 'transfer') {
     const from = p.from === 'storehouse' ? game.storehouse : game.inventory
     const to = p.from === 'storehouse' ? game.inventory : game.storehouse
@@ -396,7 +416,7 @@ export function workshopAction(game, action, p = {}) {
     if (!entry) return fail('notReady')
     entry.craft = { ...(b.design ? { design: JSON.parse(JSON.stringify(b.design)), mass: b.mass } : {}), assemblyCeiling: b.assemblyCeiling ?? 100, work: [...b.work], quench: b.quench, assembly: [...b.assembly], sharpness: [...b.sharpness], heatDamage: b.heatDamage || 0, castingQuality: b.castingQuality ?? 100, quality: bladeQuality(b) }
     if (!b.sourceId) game.inventory.push(entry)
-    w.blade = null; w.activeDesign = null
+    w.blade = null; w.activeDesign = null; w.design = null
     return { finished: true }
   } else if (action === 'regrind') {
     const entry = game.inventory.find(e => e.id === p.id && ['dagger', 'custom_weapon'].includes(e.itemId))

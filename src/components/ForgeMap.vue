@@ -16,6 +16,8 @@ const b = computed(() => props.workshop.blade), c = computed(() => props.worksho
 const recipe = computed(() => workshopRecipe({ workshop: props.workshop, completedQuests: props.completedQuests }))
 const custom = computed(() => props.completedQuests.includes('dagger_forged'))
 const quenching = ref(null)
+const openStation = ref(null)
+let menuCloseTimer
 const player = reactive(newForgePawn('entry')), father = reactive(newForgePawn('fatherNook'))
 let arrival = null, idleTime = 0, idleIndex = 0
 const idleStations = ['idle', 'workbench', 'grinder', 'furnace', 'rack', 'idle']
@@ -33,7 +35,7 @@ function approach(station, callback) {
 defineExpose({ approach, isNear })
 const cmd = (action, params = {}) => emit('command', action, params)
 const unlocked = id => !props.dialogueBlocked && isUnlocked(props.completedQuests, 'forgeStations', id)
-const visibleStations = computed(() => stations.filter(s => props.workshop.working ? !['warehouse', 'sonBed', 'door', 'water', 'oil'].includes(s.id) : ['warehouse', 'sonBed', 'door'].includes(s.id)))
+const visibleStations = computed(() => stations.filter(s => props.workshop.working ? !['warehouse', 'sonBed', 'door'].includes(s.id) : ['warehouse', 'sonBed', 'door', 'workbench'].includes(s.id)))
 const hasCharge = computed(() => {
   const all = [...props.inventory, ...props.storehouse]
   return [['iron_ore', 4], ['copper_ore', 6]].some(([id, n]) => itemQuantity(all, id) >= n) && itemQuantity(all, 'coal') > 0
@@ -88,16 +90,41 @@ const actions = computed(() => [
   { id: 'dumpResidue', station: 'crucible', icon: '×', x: 66, y: 68, key: 'dumpResidue', disabled: c.value.stage !== 'residue' || c.value.melt < 99 || c.value.temperature < (c.value.ore === 'iron_ore' ? 1538 : 1085) },
   { id: 'shapeDone', station: 'anvil', icon: '✓', x: 43, y: 58, key: 'shapeDone', disabled: b.value?.stage !== 'hammering' || !b.value.work.every(v => v > 0) }
 ])
+function stationOptions(station) {
+  const options = station.id === 'bellows' ? [] : [{ id: 'inspect', icon: 'i', key: 'inspect', disabled: false }]
+  if (station.id === 'anvil') options.push({ id: 'forge', icon: '⚒', key: 'anvil', disabled: b.value?.stage !== 'hammering' })
+  if (station.id === 'mould' && props.workshop.mould) options.push({ id: props.workshop.mould.ruined ? 'discardCasting' : 'collect', icon: props.workshop.mould.ruined ? '×' : '✓', key: props.workshop.mould.ruined ? 'discardCasting' : 'collect', disabled: !props.workshop.mould.ruined && props.workshop.mould.remaining > 0 })
+  if (station.id === 'bellows') options.push({ id: 'bellows', icon: '≋', key: 'bellows', disabled: !available('bellows') })
+  if (station.id === 'rack') options.push(...props.workshop.rack.map(ingot => ({ id: 'heatIngot:' + ingot.id, icon: '▱', key: 'heatIngot', ingotId: ingot.id, disabled: !!b.value || !ingot.design && ingot.itemId !== 'iron_ingot' })))
+  if (['water', 'oil'].includes(station.id)) options.push({ id: 'quench', icon: '↓', key: 'quench', disabled: !b.value || !bladeQuenchable(b.value) })
+  return [...options, ...actions.value.filter(a => a.station === station.id && (props.workshop.working || ['reference','design','maintenance'].includes(a.id)))]
+}
+function openMenu(id) { clearTimeout(menuCloseTimer); openStation.value = id }
+function cancelMenuClose() { clearTimeout(menuCloseTimer) }
+function scheduleClose() { clearTimeout(menuCloseTimer); menuCloseTimer = setTimeout(() => { openStation.value = null }, 520) }
+function optionLabel(option, station) {
+  if (option.id === 'inspect') return t('forgeHouse.station.' + station.id)
+  if (option.ingotId) {
+    const ingot = props.workshop.rack.find(entry => entry.id === option.ingotId)
+    return t('workshop.heatIngot') + (ingot ? ' · ' + t(items[ingot.itemId].nameKey) : '')
+  }
+  return t('workshop.' + option.key)
+}
+function chooseOption(option, station) {
+  if (option.disabled || props.workshop.loading || props.workshop.pour && station.id !== 'crucible') return
+  if (option.id !== 'coal') openStation.value = null
+  if (option.id === 'inspect') emit('station', station.id)
+  else if (option.id === 'forge') { if (b.value?.heating) cmd('anvil'); emit('station', 'anvil') }
+  else if (option.id === 'quench') emit('station', station.id)
+  else if (option.ingotId) cmd('heatIngot', { id: option.ingotId })
+  else if (['collect','discardCasting','bellows'].includes(option.id)) cmd(option.id)
+  else action(option)
+}
 function activate(s) {
   if (!unlocked(s.id)) return
   if (s.id === 'door') emit('town')
   else if (s.id === 'sonBed') emit('modal', 'sleep')
-  else if (s.id === 'bellows') cmd('bellows')
-  else if (s.id === 'crucible' && props.workshop.pour) cmd('pour')
-  else if (s.id === 'mould' && props.workshop.mould?.ruined) cmd('discardCasting')
-  else if (s.id === 'mould' && props.workshop.mould?.remaining === 0) cmd('collect')
-  else if (s.id === 'anvil' && b.value?.stage === 'hammering') { if (b.value.heating) cmd('anvil'); emit('station', 'anvil') }
-  else emit('station', s.id)
+  else openMenu(s.id)
 }
 function action(a) { if (a.id === 'maintenance') emit('station', 'workbench'); else if (['reference','design','maintenance'].includes(a.id)) emit('station', a.id); else cmd(a.id, a.id === 'coal' ? { from: itemQuantity(props.inventory, 'coal') ? 'bag' : 'storehouse' } : {}) }
 function beginQuench(event, medium) {
@@ -124,25 +151,27 @@ onMounted(() => {
     if (quenching.value) cmd('quenchTick', { medium: quenching.value, seconds: dt })
   }, 40)
 })
-onBeforeUnmount(() => { endQuench(); clearInterval(timer); window.removeEventListener('blur', endQuench) })
+onBeforeUnmount(() => { endQuench(); clearInterval(timer); clearTimeout(menuCloseTimer); window.removeEventListener('blur', endQuench) })
 </script>
 <template>
   <div class="workshop-map"><div class="workshop-scene">
     <img class="workshop-interior" src="/images/interior/Medieval Blacksmith’s Forge and Shop.png" alt=""/>
     <div v-for="(actor, id) in { player, father }" :key="id" class="forge-person" :class="{ 'forge-person--walking': actor.route.length && (id === 'player' || !guiding && !occupied) }" :style="{ left: actor.x + '%', top: actor.y + '%' }" :title="t(characters[id].nameKey)"><img :src="id === 'player' ? avatarSrc : characters[id].portraitSrc" :alt="t(characters[id].nameKey)"/></div>
     <span v-if="player.route.length" class="forge-walking" role="status">{{ t('workshop.walkingToStation') }}</span>
-    <CircleIcon v-for="s in visibleStations" :key="s.id" size="forge" :icon="s.icon" class="forge-hotspot" :class="{ 'forge-action-ready': nextActions.includes(s.id) }" :style="{ left: s.x + '%', top: s.y + '%' }" :aria-label="t(s.id === 'mould' && workshop.mould?.ruined ? 'workshop.discardCasting' : 'forgeHouse.actions.' + s.id)" :title="t(s.id === 'mould' && workshop.mould?.ruined ? 'workshop.discardCasting' : 'forgeHouse.actions.' + s.id)" :disabled="!!workshop.loading || !unlocked(s.id) || !available(s.id)" @click="activate(s)"/>
-    <button v-for="a in actions.filter(a => workshop.working || ['reference','design','maintenance'].includes(a.id))" :key="a.id" class="forge-map-action" :class="{ 'forge-action-ready': nextActions.includes(a.id), 'forge-map-action--loading': a.id === workshop.loading?.action }" :style="{ left: a.x + '%', top: a.y + '%' }" :disabled="!!workshop.loading || !!workshop.pour || !unlocked(a.station) || a.disabled" :aria-label="t('workshop.' + a.key)" :title="t('workshop.' + a.key)" @click="action(a)">{{ a.icon }}<ButtonProgressRing v-if="a.id === workshop.loading?.action" :duration="workshop.loading.duration" :remaining="workshop.loading.remaining" /></button>
-    <button v-for="medium in workshop.working ? ['water', 'oil'] : []" :key="medium" class="forge-map-action forge-quench-action" :class="{ 'forge-action-ready': quenching === medium || nextActions.includes(medium) }" :style="{ left: (medium === 'water' ? 52 : 58) + '%', top: '46%' }" :disabled="!unlocked(medium) || !!workshop.loading" :title="t('workshop.quench') + ' · ' + t('forgeHouse.station.' + medium)" :aria-label="t('workshop.quench') + ' · ' + t('forgeHouse.station.' + medium)" @pointerdown="beginQuench($event, medium)" @pointerup="endQuench" @pointercancel="endQuench" @lostpointercapture="endQuench" @keydown.space.prevent="!$event.repeat && beginQuench($event, medium)" @keyup.space.prevent="endQuench">{{ medium === 'water' ? '≈↓' : '◇↓' }}</button>
+    <div v-for="s in visibleStations" :key="s.id" class="forge-station-node" :class="{ 'forge-station-node--open': openStation === s.id }" :style="{ left: s.x + '%', top: s.y + '%' }" @pointerenter="!['door','sonBed'].includes(s.id) && unlocked(s.id) && $event.pointerType !== 'touch' && openMenu(s.id)" @pointerleave="$event.pointerType !== 'touch' && scheduleClose()" @focusin="!['door','sonBed'].includes(s.id) && unlocked(s.id) && openMenu(s.id)" @keydown.esc.stop="openStation = null">
+      <CircleIcon size="forge" :icon="s.icon" class="forge-hotspot" :class="{ 'forge-action-ready': nextActions.includes(s.id) || stationOptions(s).some(a => nextActions.includes(a.id)) }" :aria-label="t('forgeHouse.actions.' + s.id)" :title="t('forgeHouse.actions.' + s.id)" :aria-expanded="openStation === s.id" :disabled="!!workshop.loading || !unlocked(s.id) || !!workshop.pour && s.id !== 'crucible'" @click="activate(s)"/>
+      <Transition name="forge-radial"><div v-if="openStation === s.id && !['door','sonBed'].includes(s.id)" class="forge-station-actions" @pointerenter="cancelMenuClose">
+        <CircleIcon v-for="(option, index) in stationOptions(s)" :key="option.id" size="job" :icon="option.icon" class="forge-station-option" :class="{ 'forge-action-ready': nextActions.includes(option.id), 'forge-map-action--loading': option.id === workshop.loading?.action }" :style="{ '--dx': `${(index - (stationOptions(s).length - 1) / 2) * 28}px`, '--dy': `${-37 - (stationOptions(s).length - 1 - Math.abs(index - (stationOptions(s).length - 1) / 2) * 2) * 3}px` }" :title="optionLabel(option, s)" :aria-label="optionLabel(option, s)" :disabled="!!workshop.loading || !!workshop.pour && s.id !== 'crucible' || option.disabled" @click="option.id !== 'quench' && chooseOption(option, s)" @pointerdown="option.id === 'quench' && beginQuench($event, s.id)" @pointerup="option.id === 'quench' && endQuench()" @pointercancel="option.id === 'quench' && endQuench()" @lostpointercapture="option.id === 'quench' && endQuench()" @keydown.space.prevent="option.id === 'quench' && !$event.repeat && beginQuench($event, s.id)" @keyup.space.prevent="option.id === 'quench' && endQuench()"><ButtonProgressRing v-if="option.id === workshop.loading?.action" :duration="workshop.loading.duration" :remaining="workshop.loading.remaining" /></CircleIcon>
+      </div></Transition>
+    </div>
     <output v-if="workshop.loading" class="loading-announcement" role="status">{{ t('workshop.loading', { item: t('items.' + (workshop.loading.action === 'coal' || workshop.loading.action === 'loadCarbon' ? 'coal' : workshop.loading.params.itemId) + '.name'), seconds: Math.ceil(workshop.loading.remaining) }) }}</output>
     <button v-if="!workshop.working" class="smithing-start" :disabled="!unlocked('furnace')" @click="cmd('start')">{{ t('workshop.start') }}</button>
     <button v-else class="smithing-stop" :disabled="dialogueBlocked || !!workshop.loading || !!workshop.pour" @click="endQuench(); cmd('stop')">{{ t('workshop.stop') }}</button>
     <output class="forge-temperature" :title="t('workshop.fuel', { seconds: Math.ceil(workshop.fuel) })">{{ t('workshop.temperature', { temperature: Math.round(workshop.temperature) }) }}<small>{{ t('workshop.fuel', { seconds: Math.ceil(workshop.fuel) }) }}</small></output>
-    <button v-if="workshop.working && ['molten', 'pouring'].includes(c.stage)" class="molten-indicator" :class="{ 'forge-action-ready': nextActions.includes('pour') }" @click="cmd('pour')" :disabled="!!workshop.mould && !workshop.pour">{{ t('workshop.pour') }}</button>
-    <output v-else-if="workshop.working && ['reducing', 'melting'].includes(c.stage)" class="crucible-reading">{{ t('workshop.' + c.stage) }} {{ Math.round(c.stage === 'reducing' ? c.reduction : c.melt) }}%</output>
+    <output v-if="workshop.working && ['reducing', 'melting'].includes(c.stage)" class="crucible-reading">{{ t('workshop.' + c.stage) }} {{ Math.round(c.stage === 'reducing' ? c.reduction : c.melt) }}%</output>
     <output v-if="workshop.working && !['empty', 'loaded'].includes(c.stage)" class="crucible-temperatures">{{ t('workshop.metalHeat', { temperature: Math.round(c.temperature) }) }}<br/>{{ t('workshop.crucibleHeat', { temperature: Math.round(c.vesselTemperature ?? c.temperature) }) }}</output>
     <output v-if="workshop.mould" class="mould-reading">{{ workshop.mould.ruined ? t('workshop.ruinedCasting') : t('workshop.cooling', { seconds: Math.ceil(workshop.mould.remaining) }) }}</output>
-    <div class="workshop-rack-art"><button v-for="ingot in workshop.rack" :key="ingot.id" :title="t('workshop.heatIngot') + ' · ' + t(items[ingot.itemId].nameKey)" :aria-label="t('workshop.heatIngot') + ' · ' + t(items[ingot.itemId].nameKey)" :disabled="!workshop.working || !!b || !ingot.design && ingot.itemId !== 'iron_ingot' || !unlocked('rack')" @click="cmd('heatIngot', { id: ingot.id })"><img :src="items[ingot.itemId].imageSrc" alt=""/></button></div>
+    <div class="workshop-rack-art" aria-hidden="true"><img v-for="ingot in workshop.rack" :key="ingot.id" :src="items[ingot.itemId].imageSrc" alt=""/></div>
     <output v-if="b" class="blade-heat-indicator">{{ t('workshop.ingotHeat', { temperature: Math.round(b.temperature) }) }}</output>
     <output v-if="quenching" class="quench-reading">{{ t('workshop.quenchScore', { quality: Math.round(scoreWork(b.quenchWork)) }) }}</output>
   </div><button v-if="!workshop.working" class="interior-back" :disabled="dialogueBlocked" @click="emit('town')">← {{ t('map.backTown') }}</button><p v-if="feedback" class="forge-map-feedback" role="status">{{ t('workshop.' + feedback) }}</p></div>
@@ -162,4 +191,18 @@ onBeforeUnmount(() => { endQuench(); clearInterval(timer); window.removeEventLis
 .crucible-temperatures{left:28%;width:28%}
 .blade-heat-indicator{left:58%;width:20%}
 .smithing-start,.smithing-stop{left:80%;right:auto;top:4%;width:18%;max-width:none;box-sizing:border-box;min-height:24px;padding:3px 4px;text-align:center;line-height:1.15;white-space:normal;z-index:11}
+.forge-station-node{position:absolute;width:0;height:0;z-index:12}
+.forge-station-node--open{z-index:18}
+.forge-station-node .forge-hotspot{left:0;top:0}
+.forge-station-actions{position:absolute;left:0;top:0;z-index:2}
+.forge-station-option{position:absolute;left:0;top:0;--circle-size:21px;--glyph-size:13px;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy)));background:#7d2931;border-color:#d5b986;box-shadow:0 0 8px 5px #101d15a8,0 0 18px 11px #101d1559;transition:transform .18s ease,background .18s ease}
+.forge-station-option:hover:not(:disabled),.forge-station-option:focus-visible{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.1);background:#a84045;outline:none}
+.forge-station-option:disabled{opacity:.5;box-shadow:none}
+.forge-station-option.forge-map-action--loading:disabled{opacity:1}
+.workshop-rack-art img{width:24px;height:19px;object-fit:contain}
+.forge-radial-enter-active .forge-station-option{animation:forge-action-open .26s both}
+.forge-radial-leave-active .forge-station-option{animation:forge-action-close .23s both;pointer-events:none}
+@keyframes forge-action-open{from{opacity:0;transform:translate(-50%,-50%) scale(.3)}to{opacity:1;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1)}}
+@keyframes forge-action-close{from{opacity:1;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1)}to{opacity:0;transform:translate(-50%,-50%) scale(.3)}}
+@media(prefers-reduced-motion:reduce){.forge-radial-enter-active .forge-station-option,.forge-radial-leave-active .forge-station-option{animation:none}}
 </style>

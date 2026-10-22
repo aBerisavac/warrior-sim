@@ -289,7 +289,8 @@ try {
   const embedded = await render(Dialog, { game, station: 'reference', embedded: true })
   assert(embedded.includes('1,538')); assert(embedded.includes('1,085')); assert(!embedded.includes('aria-modal="true"')); assert(!embedded.includes('<nav'))
   const directMap = await render(Map, { completedQuests: ['bandit_ambush_survived'], workshop: stable.workshop, inventory: stable.inventory })
-  for (const label of ['Dampen the fire', 'Read workshop notes', 'Add coal', 'Work bellows']) assert(directMap.includes(label), label)
+  for (const label of ['Forge', 'Anvil', 'Design workbench', 'Crucible', 'Work bellows']) assert(directMap.includes('title="' + label + '"'), label)
+  for (const label of ['Dampen the fire', 'Read workshop notes', 'Add coal']) assert(!directMap.includes('title="' + label + '"'), 'Station actions stay nested: ' + label)
   for (const label of ['Sleep', 'Storehouse', 'Back to town']) assert(!directMap.includes('title="' + label + '"'), 'Working mode hides ' + label)
   stable.workshop.working = false
   const idleMap = await render(Map, { completedQuests: ['bandit_ambush_survived'], workshop: stable.workshop, inventory: stable.inventory })
@@ -547,7 +548,7 @@ try {
         await new Promise(resolve => setTimeout(resolve, 100))
         assert.deepEqual(fixture.workshop.blade.sharpness, released, 'Releasing stops every contacted cell')
         const buttons = find(grindingRoot, 'grinding-buttons').children.filter(n => n.type === 'button')
-        buttons[0].props.onClick(); await nextTick()
+        buttons[0].props.onClick(); await new Promise(resolve => setTimeout(resolve, 440)); await nextTick()
         grindingArena.props.onPointerdown(point); await new Promise(resolve => setTimeout(resolve, 100))
         fixture.workshop.blade.sharpness.slice(8).forEach((v, i) => assert.equal(v > 0, grindingContactCells(.5, .4, 1).includes(i + 8), 'Flipping works the opposite contacted cells'))
         sharpeningApp.unmount()

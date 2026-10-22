@@ -52,6 +52,27 @@ try {
   const design = copy(base); D.resizeSections(design, 2); design.length = 40; design.name = 'Briarwick test blade'
   const recipe = D.designRecipe(design)
   assert(!W.workshopAction(game, 'saveDesign', { design }).error)
+  assert.equal(W.workshopAction(game, 'saveDesign', { design: copper }).error, 'designLocked')
+  const abandoned = copy(game)
+  abandoned.workshop.working = true
+  abandoned.workshop.activeDesign = copy(design)
+  abandoned.workshop.rack.push({ id: 'abandoned-ingot', itemId: 'iron_ingot', design: copy(design), temperature: 20 })
+  abandoned.workshop.crucible = { ...abandoned.workshop.crucible, ore: 'iron_ore', count: 2, carbon: 1, stage: 'loaded', melt: 0 }
+  assert(!W.workshopAction(abandoned, 'clearDesign').error)
+  assert.equal(abandoned.workshop.design, null)
+  assert.equal(abandoned.workshop.activeDesign, null)
+  assert.equal(abandoned.workshop.rack.length, 0)
+  assert.equal(abandoned.workshop.crucible.stage, 'residue')
+  assert.equal(W.workshopAction(abandoned, 'saveDesign', { design }).error, 'designLocked')
+  abandoned.workshop.fuel = 100
+  assert(!W.workshopAction(abandoned, 'reheatResidue').error)
+  assert.equal(W.workshopAction(abandoned, 'dumpResidue').error, 'residueCold')
+  abandoned.workshop.crucible.temperature = 1600
+  abandoned.workshop.crucible.melt = 100
+  assert(!W.workshopAction(abandoned, 'dumpResidue').error)
+  assert(!W.workshopAction(abandoned, 'saveDesign', { design }).error)
+  assert.deepEqual(abandoned.workshop.activeDesign, design)
+  assert.notEqual(W.workshopAction(abandoned, 'loadOre', { itemId: recipe.ore }).error, 'designRequired')
   assert.equal(W.workshopAction(game, 'start').error, 'designMaterials')
   game.inventory.push(...recipe.fittings.map((itemId, i) => ({ id: 'fit' + i, itemId, quantity: 1 })), { id: 'ore', itemId: recipe.ore, quantity: recipe.oreCount }, { id: 'coal', itemId: 'coal', quantity: 8 })
   assert(D.designRequirements(game, design).valid)
@@ -102,7 +123,7 @@ try {
   for (let cell = 0; cell < 12; cell++) for (let i = 0; i < 20; i++) ok('grind', { cell, angle: 15, seconds: .25 })
   assert(b.sharpness.every(v => v === 100))
   const snapshot = copy(game.workshop); assert.deepEqual(W.normalizeWorkshop(snapshot), snapshot)
-  ok('finish'); assert.equal(game.workshop.activeDesign, null)
+  ok('finish'); assert.equal(game.workshop.activeDesign, null); assert.equal(game.workshop.design, null)
   const weapon = game.inventory.find(e => e.itemId === 'custom_weapon')
   assert.equal(weapon.craft.design.name, design.name)
   assert.deepEqual(I.normalizeInventory([weapon])[0], weapon)

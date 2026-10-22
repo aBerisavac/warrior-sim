@@ -1252,7 +1252,11 @@
   },
   "design": {
     "intro": "I can plan my own weapon here: shape the metal, choose its edges and point, then match it with a grip and fittings.",
-    "locked": "This design is locked while its metal is being worked. Finish or discard the ruined work before changing it.",
+    "locked": "This design is locked to its weapon. Clear it to start a different design.",
+    "clear": "Clear design",
+    "clearWarning": "Clear this design and discard its unfinished blade, casting, and ingots on the rack? Metal left in the crucible must be heated and dumped before another design can be saved.",
+    "confirmClear": "Clear design and discard work",
+    "cancelClear": "Keep design",
     "name": "Weapon name",
     "material": "Blade material",
     "materials": {
