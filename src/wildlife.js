@@ -2,7 +2,7 @@ export const WILDLIFE_TILE = { squirrel: 'F', eagle: 'M', mole: 'A', fish: '~' }
 export const WILDLIFE_DEFAULTS = {
   squirrel: { chancePerSecond: .01, maxActive: 3 },
   eagle: { chancePerSecond: .004, maxActive: 1 },
-  mole: { chancePerSecond: .01, maxActive: 2 },
+  mole: { chancePerSecond: .005, maxActive: 2 },
   fish: { chancePerSecond: .03, maxActive: 20 },
 }
 

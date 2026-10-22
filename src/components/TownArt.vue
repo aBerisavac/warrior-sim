@@ -96,11 +96,14 @@ function chooseRoad(event) {
       </g>
     </g>
     <MapAmbience v-if="config" :map="map" :paused="paused || motionUnavailable" :raining="raining" />
-    <rect v-if="hoveredRoad" class="town-road-highlight" :x="hoveredRoad.x * map.cellSize + 2" :y="hoveredRoad.y * map.cellSize + 2" :width="map.cellSize - 4" :height="map.cellSize - 4" rx="2" />
+    <Transition name="town-road-glow"><rect v-if="hoveredRoad" class="town-road-highlight" :x="hoveredRoad.x * map.cellSize + 2" :y="hoveredRoad.y * map.cellSize + 2" :width="map.cellSize - 4" :height="map.cellSize - 4" rx="2" /></Transition>
   </svg>
 </template>
 
 <style>
 .town-art .town-vegetation{transform-origin:0px 12px;animation:town-plant-sway var(--sway-time,8s) ease-in-out var(--sway-delay,0s) infinite alternate}.town-water-ripple{animation:town-water-breathe 5.7s ease-in-out var(--water-delay,0s) infinite alternate}.town-art--paused *{animation-play-state:paused!important}@keyframes town-plant-sway{0%{transform:rotate(calc(var(--sway-angle,1deg) * -.65))}65%{transform:rotate(var(--sway-angle,1deg))}100%{transform:rotate(calc(var(--sway-angle,1deg) * .25))}}@keyframes town-water-breathe{from{opacity:.45;transform:translateX(-1px)}to{opacity:.85;transform:translateX(1px)}}@media(prefers-reduced-motion:reduce){.town-art .town-vegetation,.town-water-ripple{animation:none!important}}
 .town-art--road-hover{cursor:pointer}.town-road-highlight{fill:#e7ad3b18;stroke:url(#town-road-border);stroke-width:2.5;filter:drop-shadow(0 0 3px #e8b34b);pointer-events:none}
+.town-road-glow-enter-active,.town-road-glow-leave-active{transition:opacity .28s ease-in-out,filter .28s ease-in-out}
+.town-road-glow-enter-from,.town-road-glow-leave-to{opacity:0;filter:drop-shadow(0 0 0 #e8b34b)}
+@media(prefers-reduced-motion:reduce){.town-road-glow-enter-active,.town-road-glow-leave-active{transition:none}}
 </style>

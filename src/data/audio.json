@@ -242,9 +242,9 @@
     "loop": true,
     "credit": "Joseph SARDIN \u2014 BigSoundBank (CC0)"
   },
-  "rainOutdoor": { "file": "rain-window.mp3", "group": "ambience", "gain": 0.48, "loop": true, "credit": "alxl — OpenGameArt (CC0)" },
-  "rainMarket": { "file": "rain-window.mp3", "group": "ambience", "gain": 0.39, "loop": true, "credit": "alxl — OpenGameArt (CC0)" },
-  "rainIndoor": { "file": "rain-window.mp3", "group": "ambience", "gain": 0.22, "loop": true, "credit": "alxl — OpenGameArt (CC0)" },
+  "rainOutdoor": { "file": "rain-window.mp3", "group": "ambience", "gain": 0.48, "loop": true, "fadeIn": 4, "fadeOut": 4, "credit": "alxl — OpenGameArt (CC0)" },
+  "rainMarket": { "file": "rain-window.mp3", "group": "ambience", "gain": 0.39, "loop": true, "fadeIn": 4, "fadeOut": 4, "credit": "alxl — OpenGameArt (CC0)" },
+  "rainIndoor": { "file": "rain-window.mp3", "group": "ambience", "gain": 0.22, "loop": true, "fadeIn": 4, "fadeOut": 4, "credit": "alxl — OpenGameArt (CC0)" },
   "eagle": { "file": "eagle-screech.mp3", "group": "ambience", "gain": 0.36, "credit": "SFXMint (CC0)" },
   "marketCallout": {
     "files": [

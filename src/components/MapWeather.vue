@@ -68,22 +68,22 @@ const cloudTone = computed(() => {
     <div class="map-weather-light" :style="{ background: daylight }"></div>
     <div v-if="outdoor" class="map-weather-clouds" :style="{ filter: cloudTone }">
       <svg v-for="cloud in clouds" :key="cloud.id" class="map-cloud" :style="{ top: cloud.top + '%', width: cloud.size + '%', animationDuration: cloud.duration + 's', animationDelay: cloud.delay + 's', '--cloud-start': cloud.start + '%', '--static-left': cloud.restingLeft + '%' }" viewBox="0 0 220 100" preserveAspectRatio="xMidYMid meet">
-        <template v-if="weather.kind === 'streaks'">
+        <g class="map-cloud-layer map-cloud-streak-layer">
           <path class="map-cloud-streak" :d="streakShapes[cloud.shape]" />
-        </template>
-        <template v-else-if="weather.kind === 'approaching' || weather.kind === 'rain'">
+        </g>
+        <g class="map-cloud-layer map-cloud-storm-layer">
           <path class="map-cloud-shadow" :d="stormShapes[cloud.shape].shadow" />
           <path class="map-cloud-body" :d="stormShapes[cloud.shape].body" />
           <path class="map-cloud-ridge" :d="stormShapes[cloud.shape].ridge" />
-        </template>
-        <template v-else>
+        </g>
+        <g class="map-cloud-layer map-cloud-fair-layer">
           <path class="map-cloud-shadow" :d="fairShapes[cloud.shape].shadow" />
           <path class="map-cloud-body" :d="fairShapes[cloud.shape].body" />
           <path class="map-cloud-ridge" :d="fairShapes[cloud.shape].ridge" />
-        </template>
+        </g>
       </svg>
     </div>
-    <div v-if="outdoor && weather.kind === 'rain'" class="map-weather-rain"></div>
+    <div v-if="outdoor" class="map-weather-rain"></div>
   </div>
 </template>
 
@@ -94,6 +94,8 @@ const cloudTone = computed(() => {
 .map-cloud{position:absolute;width:27%;height:auto;overflow:visible;opacity:.62;animation-name:cloud-cross;animation-timing-function:linear;animation-fill-mode:both;transition:width 8s,opacity 8s}
 .map-cloud:nth-child(2){opacity:.49}
 .map-cloud:nth-child(3){opacity:.54}
+.map-cloud-layer{opacity:0;transition:opacity 4s ease-in-out}
+.map-weather--fair .map-cloud-fair-layer,.map-weather--clearing .map-cloud-fair-layer,.map-weather--streaks .map-cloud-streak-layer,.map-weather--approaching .map-cloud-storm-layer,.map-weather--rain .map-cloud-storm-layer{opacity:1}
 .map-cloud-body{fill:#f6f4e7d9;stroke:#f9f7e9a8;stroke-width:1.5;transition:fill 8s,stroke 8s}
 .map-cloud-shadow{fill:#87999c67;transition:fill 8s}
 .map-cloud-ridge{fill:none;stroke:#fffdf0af;stroke-width:3;stroke-linecap:round;transition:stroke 8s}
@@ -106,8 +108,9 @@ const cloudTone = computed(() => {
 .map-weather--rain .map-cloud-body{fill:#414d59e0;stroke:#727f85ad}
 .map-weather--rain .map-cloud-shadow{fill:#273542b0}
 .map-weather--approaching .map-cloud-ridge,.map-weather--rain .map-cloud-ridge{stroke:#bdc5c77a}
-.map-weather-rain{position:absolute;inset:-20%;background:repeating-linear-gradient(108deg,transparent 0 14px,#cfdeef52 15px,transparent 17px 34px);background-size:140px 220px;opacity:.6;animation:rain-fall .55s linear infinite}
+.map-weather-rain{position:absolute;inset:-20%;background:repeating-linear-gradient(108deg,transparent 0 14px,#cfdeef52 15px,transparent 17px 34px);background-size:140px 220px;opacity:0;animation:rain-fall .55s linear infinite;transition:opacity 4s ease-in-out}
+.map-weather--rain .map-weather-rain{opacity:.6}
 @keyframes cloud-cross{from{left:var(--cloud-start)}to{left:105%}}
 @keyframes rain-fall{to{background-position:-48px 220px}}
-@media(prefers-reduced-motion:reduce){.map-cloud{animation:none;left:var(--static-left)}.map-weather-rain{animation:none}}
+@media(prefers-reduced-motion:reduce){.map-cloud{animation:none;left:var(--static-left)}.map-weather-rain{animation:none}.map-cloud-layer,.map-weather-rain{transition:none}}
 </style>

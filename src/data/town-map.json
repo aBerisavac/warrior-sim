@@ -2222,7 +2222,7 @@
         "maxActive": 1
       },
       "mole": {
-        "chancePerSecond": 0.024,
+        "chancePerSecond": 0.012,
         "maxActive": 2
       },
       "fish": {
