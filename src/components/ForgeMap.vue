@@ -6,7 +6,7 @@ import ButtonProgressRing from './ButtonProgressRing.vue'
 import stations from '../data/forge-stations.json'
 import { isUnlocked } from '../progression'
 import { itemQuantity, items } from '../inventory'
-import { COAL_BURN_SECONDS, scoreWork, workshopRecipe, bladeMetal, bladeQuenchable, meltingPoint, readyToPour, readyForAnvil, readyForQuench, FORGING_TARGET, QUENCH_TARGET } from '../workshop'
+import { COAL_BURN_SECONDS, scoreWork, workshopRecipe, bladeQuenchable } from '../workshop'
 import { newForgePawn, routeForgePawn, tickForgePawn, stationPoint, floorDistance } from '../forge-navigation'
 import characters from '../data/characters.json'
 const props = defineProps({ avatarSrc: { type: String, default: '/images/profile/blacksmith.png' }, completedQuests: Array, workshop: Object, inventory: { type: Array, default: () => [] }, storehouse: { type: Array, default: () => [] }, dialogueBlocked: Boolean, feedback: String, paused: Boolean, guiding: Boolean, occupied: Boolean })
@@ -49,32 +49,6 @@ const available = id => {
   if (id === 'mould') return !!props.workshop.mould
   return true
 }
-const nextActions = computed(() => {
-  const w = props.workshop, blade = b.value, charge = c.value
-  if (!w.working) return custom.value && !w.design ? ['design'] : []
-  if (w.pour) return ['crucible']
-  if (w.mould?.ruined) return ['mould']
-  if (w.mould) return w.mould.remaining === 0 ? ['mould'] : []
-  if (charge.stage === 'residue') return readyToPour(charge) ? ['dumpResidue'] : [!charge.onForge ? 'reheatResidue' : w.fuel ? 'bellows' : 'coal']
-  if (blade) {
-    if (blade.stage === 'ruined') return ['discardBlade']
-    if (blade.stage === 'assembled') return ['grinder']
-    if (blade.stage === 'quenched') return ['workbench']
-    const upperHeat = blade.stage === 'shaped' ? bladeMetal(blade).quench + 50 : bladeMetal(blade).workMax
-    if (blade.heating) {
-      if (blade.temperature > upperHeat) return ['removeHeat', 'coolForge']
-      return blade.temperature >= (blade.stage === 'shaped' ? bladeMetal(blade).quench : bladeMetal(blade).target) ? ['removeHeat'] : [w.fuel > 0 ? 'bellows' : 'coal']
-    }
-    if (blade.temperature > upperHeat) return []
-    if (blade.stage === 'shaped' && readyForQuench(blade)) return ['water', 'oil']
-    if (blade.stage === 'hammering' && readyForAnvil(blade)) return [blade.work.every(v => v > 0) ? 'shapeDone' : 'anvil']
-    return ['heat']
-  }
-  if (['molten', 'melting'].includes(charge.stage) && readyToPour(charge)) return ['pour', ...(w.temperature > meltingPoint(charge.ore) + 180 ? ['coolForge'] : charge.stage === 'melting' && w.temperature < meltingPoint(charge.ore) + 80 ? [w.fuel ? 'bellows' : 'coal'] : [])]
-  if (['reducing', 'melting', 'molten'].includes(charge.stage)) return [w.temperature > meltingPoint(charge.ore) + 180 ? 'coolForge' : w.fuel > 0 ? 'bellows' : 'coal']
-  if (charge.stage === 'loaded') return charge.count === recipe.value.oreCount && charge.carbon === recipe.value.carbon ? [w.fuel > 0 ? 'smelt' : 'coal'] : ['crucible']
-  return [hasCharge.value ? 'crucible' : null, available('rack') ? 'rack' : null].filter(Boolean)
-})
 const actions = computed(() => [
   { id: 'coal', station: 'furnace', icon: '+', x: 82, y: 49, key: 'coal', disabled: !itemQuantity([...props.inventory, ...props.storehouse], 'coal') || props.workshop.fuel > COAL_BURN_SECONDS * 5 },
   { id: 'coolForge', station: 'water', icon: '↓°', x: 52, y: 59, key: 'coolForge' },
@@ -159,9 +133,9 @@ onBeforeUnmount(() => { endQuench(); clearInterval(timer); clearTimeout(menuClos
     <div v-for="(actor, id) in { player, father }" :key="id" class="forge-person" :class="{ 'forge-person--walking': actor.route.length && (id === 'player' || !guiding && !occupied) }" :style="{ left: actor.x + '%', top: actor.y + '%' }" :title="t(characters[id].nameKey)"><img :src="id === 'player' ? avatarSrc : characters[id].portraitSrc" :alt="t(characters[id].nameKey)"/></div>
     <span v-if="player.route.length" class="forge-walking" role="status">{{ t('workshop.walkingToStation') }}</span>
     <div v-for="s in visibleStations" :key="s.id" class="forge-station-node" :class="{ 'forge-station-node--open': openStation === s.id }" :style="{ left: s.x + '%', top: s.y + '%' }" @pointerenter="!['door','sonBed'].includes(s.id) && unlocked(s.id) && $event.pointerType !== 'touch' && openMenu(s.id)" @pointerleave="$event.pointerType !== 'touch' && scheduleClose()" @focusin="!['door','sonBed'].includes(s.id) && unlocked(s.id) && openMenu(s.id)" @keydown.esc.stop="openStation = null">
-      <CircleIcon size="forge" :icon="s.icon" class="forge-hotspot" :class="{ 'forge-action-ready': nextActions.includes(s.id) || stationOptions(s).some(a => nextActions.includes(a.id)) }" :aria-label="t('forgeHouse.actions.' + s.id)" :title="t('forgeHouse.actions.' + s.id)" :aria-expanded="openStation === s.id" :disabled="!!workshop.loading || !unlocked(s.id) || !!workshop.pour && s.id !== 'crucible'" @click="activate(s)"/>
+      <CircleIcon size="forge" :icon="s.icon" class="forge-hotspot" :aria-label="t('forgeHouse.actions.' + s.id)" :title="t('forgeHouse.actions.' + s.id)" :aria-expanded="openStation === s.id" :disabled="!!workshop.loading || !unlocked(s.id) || !!workshop.pour && s.id !== 'crucible'" @click="activate(s)"/>
       <Transition name="forge-radial"><div v-if="openStation === s.id && !['door','sonBed'].includes(s.id)" class="forge-station-actions" @pointerenter="cancelMenuClose">
-        <CircleIcon v-for="(option, index) in stationOptions(s)" :key="option.id" size="job" :icon="option.icon" class="forge-station-option" :class="{ 'forge-action-ready': nextActions.includes(option.id), 'forge-map-action--loading': option.id === workshop.loading?.action }" :style="{ '--dx': `${(index - (stationOptions(s).length - 1) / 2) * 28}px`, '--dy': `${-37 - (stationOptions(s).length - 1 - Math.abs(index - (stationOptions(s).length - 1) / 2) * 2) * 3}px` }" :title="optionLabel(option, s)" :aria-label="optionLabel(option, s)" :disabled="!!workshop.loading || !!workshop.pour && s.id !== 'crucible' || option.disabled" @click="option.id !== 'quench' && chooseOption(option, s)" @pointerdown="option.id === 'quench' && beginQuench($event, s.id)" @pointerup="option.id === 'quench' && endQuench()" @pointercancel="option.id === 'quench' && endQuench()" @lostpointercapture="option.id === 'quench' && endQuench()" @keydown.space.prevent="option.id === 'quench' && !$event.repeat && beginQuench($event, s.id)" @keyup.space.prevent="option.id === 'quench' && endQuench()"><ButtonProgressRing v-if="option.id === workshop.loading?.action" :duration="workshop.loading.duration" :remaining="workshop.loading.remaining" /></CircleIcon>
+        <CircleIcon v-for="(option, index) in stationOptions(s)" :key="option.id" size="job" :icon="option.icon" class="forge-station-option" :class="{ 'forge-map-action--loading': option.id === workshop.loading?.action }" :style="{ '--dx': `${(index - (stationOptions(s).length - 1) / 2) * 28}px`, '--dy': `${-37 - (stationOptions(s).length - 1 - Math.abs(index - (stationOptions(s).length - 1) / 2) * 2) * 3}px` }" :title="optionLabel(option, s)" :aria-label="optionLabel(option, s)" :disabled="!!workshop.loading || !!workshop.pour && s.id !== 'crucible' || option.disabled" @click="option.id !== 'quench' && chooseOption(option, s)" @pointerdown="option.id === 'quench' && beginQuench($event, s.id)" @pointerup="option.id === 'quench' && endQuench()" @pointercancel="option.id === 'quench' && endQuench()" @lostpointercapture="option.id === 'quench' && endQuench()" @keydown.space.prevent="option.id === 'quench' && !$event.repeat && beginQuench($event, s.id)" @keyup.space.prevent="option.id === 'quench' && endQuench()"><ButtonProgressRing v-if="option.id === workshop.loading?.action" :duration="workshop.loading.duration" :remaining="workshop.loading.remaining" /></CircleIcon>
       </div></Transition>
     </div>
     <output v-if="workshop.loading" class="loading-announcement" role="status">{{ t('workshop.loading', { item: t('items.' + (workshop.loading.action === 'coal' || workshop.loading.action === 'loadCarbon' ? 'coal' : workshop.loading.params.itemId) + '.name'), seconds: Math.ceil(workshop.loading.remaining) }) }}</output>
@@ -194,14 +168,17 @@ onBeforeUnmount(() => { endQuench(); clearInterval(timer); clearTimeout(menuClos
 .forge-station-node{position:absolute;width:0;height:0;z-index:12}
 .forge-station-node--open{z-index:18}
 .forge-station-node .forge-hotspot{left:0;top:0}
+.forge-station-node .forge-hotspot:hover:not(:disabled){background:#334638;transform:translate(-50%,-50%)}
+.forge-station-node--open .forge-hotspot,.forge-station-node--open .forge-hotspot:hover:not(:disabled){background:#8d2630;color:#fff0d2;border-color:#ebc79d;transform:translate(-50%,-50%);box-shadow:0 0 9px 4px #18251ba8}
 .forge-station-actions{position:absolute;left:0;top:0;z-index:2}
-.forge-station-option{position:absolute;left:0;top:0;--circle-size:21px;--glyph-size:13px;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy)));background:#7d2931;border-color:#d5b986;box-shadow:0 0 8px 5px #101d15a8,0 0 18px 11px #101d1559;transition:transform .18s ease,background .18s ease}
-.forge-station-option:hover:not(:disabled),.forge-station-option:focus-visible{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.1);background:#a84045;outline:none}
+.forge-station-option{position:absolute;left:0;top:0;--circle-size:21px;--glyph-size:13px;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy)));background:#334638;border-color:#bca774;box-shadow:0 0 8px 5px #101d15a8,0 0 18px 11px #101d1559;transition:transform .18s ease,background .18s ease}
+.forge-station-option:hover:not(:disabled),.forge-station-option:focus-visible{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.1);background:#8d2630;color:#fff0d2;outline:none}
 .forge-station-option:disabled{opacity:.5;box-shadow:none}
 .forge-station-option.forge-map-action--loading:disabled{opacity:1}
 .workshop-rack-art img{width:24px;height:19px;object-fit:contain}
 .forge-radial-enter-active .forge-station-option{animation:forge-action-open .26s both}
 .forge-radial-leave-active .forge-station-option{animation:forge-action-close .23s both;pointer-events:none}
+.forge-radial-leave-active .forge-station-option:not(:disabled){background:#334638;color:#f2e3b7;border-color:#bca774}
 @keyframes forge-action-open{from{opacity:0;transform:translate(-50%,-50%) scale(.3)}to{opacity:1;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1)}}
 @keyframes forge-action-close{from{opacity:1;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1)}to{opacity:0;transform:translate(-50%,-50%) scale(.3)}}
 @media(prefers-reduced-motion:reduce){.forge-radial-enter-active .forge-station-option,.forge-radial-leave-active .forge-station-option{animation:none}}

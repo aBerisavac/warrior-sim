@@ -673,6 +673,7 @@ q{quotes:"“" "”" "‘" "’"}
 .map-node .radial-actions .circle-icon:hover:not(:disabled),.map-node .radial-actions .circle-icon:focus-visible,
 .map-node .radial-actions:has(.job-orbit .circle-icon:hover)>.radial-work,.map-node .radial-actions:has(.job-orbit .circle-icon:focus-visible)>.radial-work{background:#8d2630;color:#fff0d2;border-color:#ebc79d}
 .map-node .radial-actions .circle-icon:disabled{background:#465445}
+.map-node .radial-menu-leave-active .circle-icon:not(:disabled),.map-node .job-menu-leave-active .circle-icon:not(:disabled){background:#354d3b;color:#f0dfb6;border-color:#bca774;box-shadow:0 2px 0 #1e3025,0 0 0 2px #314b3b80}
 
 /* The map is square; the controls have their own rows outside it. */
 .game-shell{width:100%;height:100dvh;display:grid;place-items:center;padding:8px;overflow:hidden;background:radial-gradient(ellipse at center,#304033,#131c17)}
@@ -720,6 +721,12 @@ q{quotes:"“" "”" "‘" "’"}
 .trade-inventory-column .trade-inventory-list{grid-row:3}
 
 .game-window .map-stamp{top:18px;right:17px;bottom:auto}
+
+/* Settings use the whole play area while keeping both control bars visible. */
+.game-window .audio-settings-scrim{position:absolute!important;inset:var(--game-header-height,48px) 0 var(--game-footer-height,72px)!important;width:auto!important;height:auto!important;z-index:55;padding:8px;align-items:stretch}
+.game-window .audio-settings{width:min(700px,100%);height:100%;max-height:100%;min-height:0;margin:auto}
+.game-window .audio-settings-body{flex:1;min-height:0;overflow-y:auto}
+@media(max-width:570px){.game-window .audio-settings-scrim{padding:4px}.game-window .audio-settings{width:100%}}
 
 /* Keep hovered child actions distinct without adding a gold focus ring. */
 .map-node .radial-actions > .circle-icon:hover:not(:disabled),.map-node .radial-actions > .circle-icon:focus-visible,.map-node .job-orbit .circle-icon:hover:not(:disabled),.map-node .job-orbit .circle-icon:focus-visible{border-color:#bca774;box-shadow:0 0 9px 6px #19271abd,0 0 20px 14px #17251b55}

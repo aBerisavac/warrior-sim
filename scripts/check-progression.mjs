@@ -142,6 +142,10 @@ try {
     assert.equal(pieces.length, stump.expectedPieces)
   }
   const marketRoute = routes.routeBetween('smithy', 'market')
+  const marketPoint = routes.placePoint('market')
+  const marketCellRoute = routes.routeToCellFromPoint(routes.placePoint('smithy'), Math.floor(marketPoint.x / routes.mapGrid.cellSize), Math.floor(marketPoint.y / routes.mapGrid.cellSize))
+  assert.deepEqual(marketCellRoute, marketRoute, 'Clicking a road cell uses the same shortest path as a location entrance')
+  for (const [x, y] of [[6, 20], [34, 20], [20, 6], [20, 34]]) assert.equal(routes.routeToCellFromPoint(routes.placePoint('smithy'), x, y).points.length, 0, 'Roads beyond the gates stay closed')
   assert(marketRoute.minutes > 0)
   assert.equal(marketRoute.minutes, Math.ceil(routes.pathLength(marketRoute.points) / routes.mapGrid.cellSize))
   assert(marketRoute.points.slice(1).every((point, index) => point.x === marketRoute.points[index].x || point.y === marketRoute.points[index].y), 'Road travel must turn at right angles')
@@ -180,6 +184,11 @@ try {
 
   let saved
   globalThis.localStorage = { getItem: () => JSON.stringify(saved) }
+  const roadSave = game.initialState()
+  roadSave.townPosition = marketPoint
+  assert.deepEqual(game.restoreSave(roadSave).townPosition, marketPoint, 'A pawn stopped on a road stays there after loading')
+  roadSave.travel = { destinationId: 'road', targetCell: { x: Math.floor(marketPoint.x / routes.mapGrid.cellSize), y: Math.floor(marketPoint.y / routes.mapGrid.cellSize) }, route: marketRoute.points, position: marketRoute.points[0], totalMinutes: marketRoute.minutes, minutesPerCell: 1, elapsedMinutes: 0, secondsElapsed: 0, cellSeconds: 0 }
+  assert.equal(game.restoreSave(roadSave).travel.destinationId, 'road', 'Travel to a road cell resumes after loading')
   assert.equal(game.restoreSave({ version: 99, location: 'smithy' }), null, 'Unsupported imported saves are rejected')
   assert.equal(game.restoreSave({ version: 12, location: 'unknown' }), null, 'Imported saves need a known location')
   assert.equal(game.restoreSave({ version: 12, location: 'smithy', inventory: {} }), null, 'Malformed imported saves are rejected')

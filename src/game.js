@@ -4,7 +4,7 @@ import { initialRestockCycles, refreshMerchantStock } from './merchants'
 import { startingInventory, startingEquipment, normalizeInventory, normalizeEquipment, merchantInventory, items } from './inventory'
 import placesData from './data/places.json'
 import { hasQuest, isUnlocked, migrateCompletedQuests, QUEST, stageFromQuests } from './progression'
-import { placePoint, placeMarkerPoint, routeBetween, mapGrid } from './routes'
+import { placePoint, placeMarkerPoint, routeBetween, routeToCellFromPoint, mapGrid } from './routes'
 
 export const SAVE_KEY = 'briarwick-demo-v1'
 export const places = placesData.map((place) => ({ ...place, ...placeMarkerPoint(place.id) }))
@@ -33,6 +33,7 @@ export const initialState = () => ({
   skipWoodcuttingIntro: false,
   dailyJobs: {},
   location: 'smithy',
+  townPosition: placePoint('smithy'),
   selected: 'smithy',
   travel: null,
   minutes: 8 * 60,
@@ -85,6 +86,12 @@ export function restoreSave(saved) {
       if (pristineOpening) return initialState()
       const completedQuests = migrateCompletedQuests(saved)
       const state = { ...initialState(), ...saved, version: 12, completedQuests }
+      const savedCellX = Math.floor(saved.townPosition?.x / mapGrid.cellSize)
+      const savedCellY = Math.floor(saved.townPosition?.y / mapGrid.cellSize)
+      state.townPosition = ['R', 'G', 'B', 'D'].includes(mapGrid.terrain[savedCellY]?.[savedCellX])
+        && routeToCellFromPoint(placePoint(saved.location), savedCellX, savedCellY).points.length
+        && Number.isFinite(saved.townPosition?.x) && Number.isFinite(saved.townPosition?.y)
+        ? { x: saved.townPosition.x, y: saved.townPosition.y } : placePoint(saved.location)
       state.profileChosen = saved.profileChosen !== false
       state.playerName = typeof saved.playerName === 'string' ? saved.playerName.slice(0, 32) : ''
       state.avatarSrc = typeof saved.avatarSrc === 'string' && saved.avatarSrc.startsWith('/images/profile/') ? saved.avatarSrc : '/images/profile/blacksmith.png'
@@ -154,8 +161,9 @@ export function restoreSave(saved) {
         journey.elapsedMinutes *= timeRatio
         journey.minutesPerCell = mapGrid.minutesPerCell || 1
       }
-      if (saved.version < 8 || (saved.mapRevision !== mapGrid.revision && !(saved.mapRevision === 7 && [8, 9].includes(mapGrid.revision)) && !(saved.mapRevision === 8 && mapGrid.revision === 9)) || !journey?.destinationId || !places.some((place) => place.id === journey.destinationId && place.available)
-        || !isUnlocked(completedQuests, 'places', journey.destinationId)
+      if (saved.version < 8 || (saved.mapRevision !== mapGrid.revision && !(saved.mapRevision === 7 && [8, 9].includes(mapGrid.revision)) && !(saved.mapRevision === 8 && mapGrid.revision === 9)) || !journey?.destinationId || (journey.destinationId === 'road'
+          ? !Number.isInteger(journey.targetCell?.x) || !Number.isInteger(journey.targetCell?.y) || !routeToCellFromPoint(placePoint(saved.location), journey.targetCell.x, journey.targetCell.y).points.length
+          : !places.some((place) => place.id === journey.destinationId && place.available) || !isUnlocked(completedQuests, 'places', journey.destinationId))
         || !Array.isArray(journey.route) || journey.route.length < 2
         || !journey.route.every((point) => Number.isFinite(point.x) && Number.isFinite(point.y))
         || !Number.isFinite(journey.position?.x) || !Number.isFinite(journey.position?.y)

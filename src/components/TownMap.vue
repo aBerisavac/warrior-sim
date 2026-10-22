@@ -23,7 +23,7 @@ const props = defineProps({
   dialogueBlocked: { type: Boolean, default: false },
   smithyEntryLocked: { type: Boolean, default: false },
 })
-const emit = defineEmits(['select', 'action', 'job', 'menu'])
+const emit = defineEmits(['select', 'action', 'job', 'menu', 'road'])
 const { t } = useI18n()
 const activeMenu = ref(null)
 const workMenu = ref(null)
@@ -142,17 +142,22 @@ function handleJob(job, place) {
   clearMenus()
   emit('job', job.id, place.id)
 }
+function handleRoadCell(cell) {
+  if (props.dialogueBlocked) return
+  clearMenus()
+  emit('road', cell)
+}
 onBeforeUnmount(cancelMenuClose)
 </script>
 
 <template>
-<TownArt :paused="ambiencePaused" :raining="raining" :map="mapGrid" :tiers="buildingTiers" :marked-entrances="places.filter((place) => place.actions.length).map((place) => place.id)" @click="clearMenus" />
+<TownArt :paused="ambiencePaused" :raining="raining" :map="mapGrid" :tiers="buildingTiers" :marked-entrances="places.filter((place) => place.actions.length).map((place) => place.id)" @click="clearMenus" @road-cell="handleRoadCell" />
   <svg v-if="travel" class="town-route" :viewBox="'0 0 ' + mapSize.width + ' ' + mapSize.height" preserveAspectRatio="none" aria-hidden="true">
     <polyline :points="travel.route.map((point) => point.x + ',' + point.y).join(' ')" />
   </svg>
   <div ref="pawnWalker" class="pawn-walker" :style="{ left: pawnPosition.x / mapSize.width * 100 + '%', top: pawnPosition.y / mapSize.height * 100 + '%' }" aria-hidden="true"><img :src="avatarSrc" alt="" /></div>
   <div v-if="travel" class="travel-banner" role="status" aria-live="polite">
-    <strong>{{ t('map.walkingTo', { place: t('places.' + travel.destinationId + '.name') }) }}</strong>
+    <strong>{{ travel.destinationId === 'road' ? t('map.walkingToRoad') : t('map.walkingTo', { place: t('places.' + travel.destinationId + '.name') }) }}</strong>
     <span>{{ t('map.walkingTimeLeft', { minutes: travel.totalMinutes - travel.elapsedMinutes }) }}</span>
     <small>{{ t('map.rerouteHint') }}</small>
   </div>
@@ -164,7 +169,7 @@ onBeforeUnmount(cancelMenuClose)
     @pointerleave="scheduleMenuClose(place.id, $event)">
     <button class="map-pin"
       :title="place.id === 'smithy' && smithyEntryLocked ? t('workshop.returnLocked') : t('places.' + place.id + '.name')"
-      :class="{ active: !tutorialLocked(place.id) && (activeMenu === place.id || selectedId === place.id), locked: !place.available || tutorialLocked(place.id), current: !travel && !tutorialLocked(place.id) && currentLocation === place.id }"
+      :class="{ active: !tutorialLocked(place.id) && activeMenu === place.id, locked: !place.available || tutorialLocked(place.id), current: !travel && !tutorialLocked(place.id) && currentLocation === place.id }"
       :aria-label="tutorialLocked(place.id) ? t('places.' + place.id + '.name') + ' · ' + t('tutorial.lockedPlace') : t('actions.placeActions', { place: t('places.' + place.id + '.name') })"
       :aria-expanded="activeMenu === place.id" :disabled="dialogueBlocked || tutorialLocked(place.id)" @click="select(place.id)">
       <CircleIcon as="span" size="main" class="pin-icon" :icon="place.icon" />

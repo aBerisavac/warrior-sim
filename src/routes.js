@@ -3,5 +3,5 @@ import { createMapRoutes, pathLength, pointAtDistance, pointOnRoute } from './ma
 
 export const mapGrid = townMap
 export const mapDecor = townMap.decor
-export const { mapSize, roadSegments, placePoint, placeMarkerPoint, routeFromPoint, routeBetween, travelMinutesFromPoint } = createMapRoutes(townMap)
+export const { mapSize, roadSegments, placePoint, placeMarkerPoint, routeFromPoint, routeToCellFromPoint, routeBetween, travelMinutesFromPoint } = createMapRoutes(townMap)
 export { pathLength, pointAtDistance, pointOnRoute }

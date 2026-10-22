@@ -8,6 +8,7 @@ import { structureImage } from '../map-upgrades'
 import { decorationVariant } from '../map-decorations'
 const { t } = useI18n()
 const props = defineProps({ ambienceEnabled: { type: Boolean, default: true }, paused: Boolean, raining: Boolean, map: { type: Object, required: true }, tiers: { type: Object, default: () => ({}) }, markedEntrances: { type: Array, default: () => [] } })
+const emit = defineEmits(['road-cell'])
 const motionUnavailable = ref(false)
 let media
 function updateMotion() { motionUnavailable.value = document.hidden || !!media?.matches }
@@ -19,10 +20,18 @@ const tileMotionStyle = (x, y) => ({ '--water-delay': -ambienceSeed(props.map, x
 const artFor = (structure) => structureImage(structure, props.tiers)
 const mapSize = computed(() => ({ width: props.map.columns * props.map.cellSize, height: props.map.rows * props.map.cellSize }))
 const wallNeighbor = (x, y) => props.map.terrain[y]?.[x] === 'W' || props.map.gates?.some(gate => x >= gate.x && x < gate.x + (gate.width ?? 1) && y >= gate.y && y < gate.y + (gate.height ?? 1))
+function chooseRoad(event) {
+  const svg = event.currentTarget
+  const point = svg.createSVGPoint()
+  point.x = event.clientX; point.y = event.clientY
+  const local = point.matrixTransform(svg.getScreenCTM().inverse())
+  const x = Math.floor(local.x / props.map.cellSize), y = Math.floor(local.y / props.map.cellSize)
+  if (['R', 'G', 'B', 'D'].includes(props.map.terrain[y]?.[x])) emit('road-cell', { x, y })
+}
 </script>
 
 <template>
-<svg class="town-art" :class="{ 'town-art--paused': paused || motionUnavailable, 'town-art--animated': !!config }" :viewBox="'0 0 ' + mapSize.width + ' ' + mapSize.height" preserveAspectRatio="none" role="img" :aria-label="t('map.townAria')">
+<svg class="town-art" :class="{ 'town-art--paused': paused || motionUnavailable, 'town-art--animated': !!config }" :viewBox="'0 0 ' + mapSize.width + ' ' + mapSize.height" preserveAspectRatio="none" role="img" :aria-label="t('map.townAria')" @click="chooseRoad">
     <defs>
       <pattern id="town-grid" :width="map.cellSize" :height="map.cellSize" patternUnits="userSpaceOnUse"><path :d="'M ' + map.cellSize + ' 0 H 0 V ' + map.cellSize" fill="none" stroke="#675d44" stroke-width="1" opacity=".22" /></pattern>
       <pattern id="bridge-planks" width="8" height="40" patternUnits="userSpaceOnUse"><path d="M0 0V40" stroke="#5f472d" stroke-width="1.5" opacity=".65" /></pattern>

@@ -33,10 +33,17 @@ export function createMapRoutes(map) {
   const size = map.cellSize
   const mapSize = { width: map.columns * size, height: map.rows * size }
   const cellPoint = (x, y) => ({ x: (x + 0.5) * size, y: (y + 0.5) * size })
+  const insideGates = (x, y) => map.gates.every(gate => {
+    if (gate.direction === 'north') return y >= gate.y
+    if (gate.direction === 'south') return y < gate.y + (gate.height ?? 1)
+    if (gate.direction === 'west') return x >= gate.x
+    if (gate.direction === 'east') return x < gate.x + (gate.width ?? 1)
+    return true
+  })
   const nodes = new Map()
   const neighbors = new Map()
   for (let y = 0; y < map.rows; y++) for (let x = 0; x < map.columns; x++) {
-    if (!walkable.has(map.terrain[y]?.[x])) continue
+    if (!walkable.has(map.terrain[y]?.[x]) || !insideGates(x, y)) continue
     const id = key(x, y)
     nodes.set(id, cellPoint(x, y))
     neighbors.set(id, [])
@@ -84,10 +91,8 @@ export function createMapRoutes(map) {
     if (gate) return placePoint(id)
     return placePoint(id)
   }
-  function pathsTo(destinationId) {
-    const entrance = entrances.get(destinationId)
-    if (!entrance) return null
-    const target = key(entrance.x, entrance.y)
+  function pathsToCell(x, y) {
+    const target = key(x, y)
     if (!nodes.has(target)) return null
     const next = new Map([[target, null]])
     const queue = [target]
@@ -106,11 +111,11 @@ export function createMapRoutes(map) {
     const fraction = Math.max(0, Math.min(1, ((point.x - a.x) * dx + (point.y - a.y) * dy) / (dx * dx + dy * dy)))
     return { x: a.x + dx * fraction, y: a.y + dy * fraction }
   }
-  function routeFromPoint(point, destinationId) {
-    const destination = placePoint(destinationId)
+  function routeToCellFromPoint(point, x, y) {
+    const destination = nodes.get(key(x, y))
     if (!point || !destination) return { points: [], minutes: 0 }
     if (samePoint(point, destination)) return { points: [point], minutes: 0 }
-    const next = pathsTo(destinationId)
+    const next = pathsToCell(x, y)
     if (!next) return { points: [], minutes: 0 }
     let best = null
     for (const segment of roadSegments) {
@@ -132,8 +137,12 @@ export function createMapRoutes(map) {
     }
     return best ? { points: best.points, minutes: Math.ceil(best.length / size) * (map.minutesPerCell || 1) } : { points: [], minutes: 0 }
   }
+  function routeFromPoint(point, destinationId) {
+    const entrance = entrances.get(destinationId)
+    return entrance ? routeToCellFromPoint(point, entrance.x, entrance.y) : { points: [], minutes: 0 }
+  }
   return {
-    mapSize, roadSegments, placePoint, placeMarkerPoint, routeFromPoint,
+    mapSize, roadSegments, placePoint, placeMarkerPoint, routeFromPoint, routeToCellFromPoint,
     routeBetween: (fromId, toId) => routeFromPoint(placePoint(fromId), toId),
     travelMinutesFromPoint: (point, destinationId) => routeFromPoint(point, destinationId).minutes,
   }
